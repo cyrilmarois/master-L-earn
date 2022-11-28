@@ -1,0 +1,9 @@
+#logo {
+  background: black;
+}
+header {
+  border-bottom: 3px solid #0070d2;
+}
+#header {
+  height: 120px;
+}

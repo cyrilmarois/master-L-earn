@@ -5,18 +5,15 @@ import Demo from "./components/Demo";
 import Footer from "./components/Footer";
 import "./App.css";
 
+import Header from "./components/UI/Header/Header";
+import SubHeader from "./components/UI/SubHeader/SubHeader";
+
 function App() {
   return (
     <EthProvider>
-      <div id="App" >
-        <div className="container">
-          <Intro />
-          <hr />
-          <Setup />
-          <hr />
-          <Demo />
-          <hr />
-          <Footer />
+      <div id="App">
+        <div className="container-fluid">
+          <Header />
         </div>
       </div>
     </EthProvider>

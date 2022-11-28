@@ -1,13 +1,9 @@
 import { EthProvider } from "./contexts/EthContext";
-import Intro from "./components/Intro/";
-import Setup from "./components/Setup";
 import Demo from "./components/Demo";
-import Footer from "./components/Footer";
 import "./App.css";
-
 import Header from "./components/UI/Header/Header";
-import SubHeader from "./components/UI/Header/SubHeader/SubHeader";
-import Main from "./components/UI/Header/Main/Main";
+import Main from "./components/UI/Main/Main";
+import Footer from "./components/UI/Footer/Footer";
 
 function App() {
   return (
@@ -16,6 +12,7 @@ function App() {
         <div className="container-fluid">
           <Header />
           <Main />
+          <Footer />
         </div>
       </div>
     </EthProvider>

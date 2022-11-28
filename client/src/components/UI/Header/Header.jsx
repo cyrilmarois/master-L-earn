@@ -16,7 +16,7 @@ const Header = () => {
             <div className="row">
               <div className="col-12">
                 <form className="row me-3" role="search">
-                  <div class="col-6 w-50 ">
+                  <div className="col-6 w-50 ">
                     <input
                       className="form-control"
                       type="search"

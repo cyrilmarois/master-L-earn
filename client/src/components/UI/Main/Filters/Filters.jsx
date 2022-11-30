@@ -21,9 +21,9 @@ const Filters = () => {
                 aria-label="Default select example"
               >
                 <option defaultValue>Plus recent</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
+                <option value="1">Meilleur note</option>
+                <option value="2">Prix croissant</option>
+                <option value="3">Prix decroissant</option>
               </select>
             </div>
             <div className="col-3">
@@ -35,9 +35,9 @@ const Filters = () => {
                 aria-label="Default select example"
               >
                 <option defaultValue>Selectionnez...</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
+                <option value="1">Debutant</option>
+                <option value="2">Intermediaire</option>
+                <option value="3">Confirme</option>
               </select>
             </div>
             <div className="col-3">
@@ -49,9 +49,9 @@ const Filters = () => {
                 aria-label="Default select example"
               >
                 <option defaultValue>Selectionnez...</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
+                <option value="1">Blockchain</option>
+                <option value="2">Developpement</option>
+                <option value="3">Cuisine</option>
               </select>
             </div>
             <div className="col-3">

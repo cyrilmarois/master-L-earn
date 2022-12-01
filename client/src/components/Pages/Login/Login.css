@@ -1,0 +1,14 @@
+.card {
+  height: 400px;
+  width: 300px;
+  padding: 16px 16px;
+}
+.card:first {
+  margin-right: 30xp;
+}
+.card .title {
+  font-size: large;
+  color: #0086df;
+  font-weight: bold;
+  padding-bottom: 25px;
+}

@@ -1,8 +1,8 @@
 #card {
   background-color: white;
   width: 250px;
-  min-height: 300px;
-  border-radius: 10px;
+  min-height: 400px;
+  border-radius: 5px;
   box-shadow: 0 3px 6px -1px rgb(0 0 0 / 7%);
   margin: 40px 40px 0 0;
   padding-top: 20px;
@@ -10,6 +10,7 @@
   /* margin-right: 20px; */
   padding: 16px 16px;
   overflow: hidden;
+  cursor: crosshair;
 }
 
 .title {
@@ -21,8 +22,7 @@
 img.thumbnail {
   width: 218px;
   height: 120px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  border-radius: 5px;
 }
 .author {
   font-style: italic;

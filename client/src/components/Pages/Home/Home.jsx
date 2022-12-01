@@ -1,5 +1,6 @@
 import "./Home.css";
 import Card from "../../UI/Card/Card";
+import Filters from "./Filters/Filters";
 
 const Home = () => {
   const fakeFormations = [
@@ -45,54 +46,54 @@ const Home = () => {
     },
   ];
   return (
-    // <div className="container">
-    <section id="home" className="container">
-      <div className="d-flex flex-wrap">
-        <Card
-          title={fakeFormations[0].title}
-          length={fakeFormations[0].length}
-          rating={fakeFormations[0].rating}
-          teacherFullName={fakeFormations[0].teacherFullName}
-          creationDate={fakeFormations[0].creationDate}
-          price={fakeFormations[0].price}
-        />
-        <Card
-          title={fakeFormations[1].title}
-          length={fakeFormations[1].length}
-          rating={fakeFormations[1].rating}
-          teacherFullName={fakeFormations[1].teacherFullName}
-          creationDate={fakeFormations[1].creationDate}
-          price={fakeFormations[1].price}
-        />
-        <Card
-          title={fakeFormations[2].title}
-          length={fakeFormations[2].length}
-          rating={fakeFormations[2].rating}
-          teacherFullName={fakeFormations[2].teacherFullName}
-          creationDate={fakeFormations[2].creationDate}
-          price={fakeFormations[2].price}
-        />
-        {/* </div>
-      <div className="d-flex justify-content-center pe-10"> */}
-        <Card
-          title={fakeFormations[3].title}
-          length={fakeFormations[3].length}
-          rating={fakeFormations[3].rating}
-          teacherFullName={fakeFormations[3].teacherFullName}
-          creationDate={fakeFormations[3].creationDate}
-          price={fakeFormations[3].price}
-        />
-        <Card
-          title={fakeFormations[4].title}
-          length={fakeFormations[4].length}
-          rating={fakeFormations[4].rating}
-          teacherFullName={fakeFormations[4].teacherFullName}
-          creationDate={fakeFormations[4].creationDate}
-          price={fakeFormations[4].price}
-        />
-      </div>
-    </section>
-    // </div>
+    <>
+      <Filters />
+
+      <section id="home" className="container">
+        <div className="d-flex flex-wrap">
+          <Card
+            title={fakeFormations[0].title}
+            length={fakeFormations[0].length}
+            rating={fakeFormations[0].rating}
+            teacherFullName={fakeFormations[0].teacherFullName}
+            creationDate={fakeFormations[0].creationDate}
+            price={fakeFormations[0].price}
+          />
+          <Card
+            title={fakeFormations[1].title}
+            length={fakeFormations[1].length}
+            rating={fakeFormations[1].rating}
+            teacherFullName={fakeFormations[1].teacherFullName}
+            creationDate={fakeFormations[1].creationDate}
+            price={fakeFormations[1].price}
+          />
+          <Card
+            title={fakeFormations[2].title}
+            length={fakeFormations[2].length}
+            rating={fakeFormations[2].rating}
+            teacherFullName={fakeFormations[2].teacherFullName}
+            creationDate={fakeFormations[2].creationDate}
+            price={fakeFormations[2].price}
+          />
+          <Card
+            title={fakeFormations[3].title}
+            length={fakeFormations[3].length}
+            rating={fakeFormations[3].rating}
+            teacherFullName={fakeFormations[3].teacherFullName}
+            creationDate={fakeFormations[3].creationDate}
+            price={fakeFormations[3].price}
+          />
+          <Card
+            title={fakeFormations[4].title}
+            length={fakeFormations[4].length}
+            rating={fakeFormations[4].rating}
+            teacherFullName={fakeFormations[4].teacherFullName}
+            creationDate={fakeFormations[4].creationDate}
+            price={fakeFormations[4].price}
+          />
+        </div>
+      </section>
+    </>
   );
 };
 

@@ -15,17 +15,17 @@ const Header = () => {
           <div className="col-11 align-items-center">
             <div className="row">
               <div className="col-12">
-                <form className="row me-3" role="search">
-                  <div className="col-6 w-50 ">
+                <form className="row" role="search">
+                  <div className="col-6 ms-3">
                     <input
                       className="form-control"
                       type="search"
-                      placeholder="Rechercher..."
+                      placeholder="Rechercher"
                       aria-label="Search"
                     />
                   </div>
 
-                  <div className="col-1 offset-5">
+                  <div className="col-1 offset-4">
                     <button type="button" className="btn btn-primary">
                       Connexion
                     </button>

@@ -3,4 +3,6 @@ footer {
   height: 400px;
   max-height: 490px;
   border-top: 1px solid #d9d8d8;
+  /* position: fixed;
+  bottom: 0; */
 }

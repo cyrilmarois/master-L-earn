@@ -9,9 +9,9 @@ const Card = (props) => {
       <img className="thumbnail" src={logo} />
       <div className="d-flex">
         <div className="title mt-2 flex-grow-1">{props.title}</div>
-        <div class="mt-2">
+        <div className="mt-2">
           {props.rating}
-          <i class="bi bi-star-fill"></i>
+          <i className="bi bi-star-fill"></i>
         </div>
       </div>
 

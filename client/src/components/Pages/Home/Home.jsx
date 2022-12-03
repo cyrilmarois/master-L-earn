@@ -6,7 +6,7 @@ const Home = () => {
   const fakeFormations = [
     {
       title: "Learn Solidity",
-      length: 4500,
+      duration: 4500,
       rating: 4,
       teacherFullName: "Mathilde Passy",
       creationDate: "2022-01-01 21:43:22",
@@ -14,7 +14,7 @@ const Home = () => {
     },
     {
       title: "Learn Consulting",
-      length: 1800,
+      duration: 1800,
       rating: 4.5,
       teacherFullName: "Christophe Pepin",
       creationDate: "2022-05-07 18:55:32",
@@ -22,7 +22,7 @@ const Home = () => {
     },
     {
       title: "Learn Defi",
-      length: 10800,
+      duration: 10800,
       rating: 5,
       teacherFullName: "Dimitry Axel",
       creationDate: "2022-02-22 10:09:16",
@@ -30,7 +30,7 @@ const Home = () => {
     },
     {
       title: "Learn algorithm",
-      length: 7200,
+      duration: 7200,
       rating: 4,
       teacherFullName: "Maxence Guillemain d'Echon",
       creationDate: "2022-11-18 11:01:54",
@@ -38,7 +38,7 @@ const Home = () => {
     },
     {
       title: "Learn Metamask",
-      length: 2000,
+      duration: 2000,
       rating: 1,
       teacherFullName: "Cyril Marois",
       creationDate: "2022-06-08 12:33:44",
@@ -53,7 +53,7 @@ const Home = () => {
         <div className="d-flex flex-wrap">
           <Card
             title={fakeFormations[0].title}
-            length={fakeFormations[0].length}
+            duration={fakeFormations[0].duration}
             rating={fakeFormations[0].rating}
             teacherFullName={fakeFormations[0].teacherFullName}
             creationDate={fakeFormations[0].creationDate}
@@ -61,7 +61,7 @@ const Home = () => {
           />
           <Card
             title={fakeFormations[1].title}
-            length={fakeFormations[1].length}
+            duration={fakeFormations[1].duration}
             rating={fakeFormations[1].rating}
             teacherFullName={fakeFormations[1].teacherFullName}
             creationDate={fakeFormations[1].creationDate}
@@ -69,7 +69,7 @@ const Home = () => {
           />
           <Card
             title={fakeFormations[2].title}
-            length={fakeFormations[2].length}
+            duration={fakeFormations[2].duration}
             rating={fakeFormations[2].rating}
             teacherFullName={fakeFormations[2].teacherFullName}
             creationDate={fakeFormations[2].creationDate}
@@ -77,7 +77,7 @@ const Home = () => {
           />
           <Card
             title={fakeFormations[3].title}
-            length={fakeFormations[3].length}
+            duration={fakeFormations[3].duration}
             rating={fakeFormations[3].rating}
             teacherFullName={fakeFormations[3].teacherFullName}
             creationDate={fakeFormations[3].creationDate}
@@ -85,7 +85,7 @@ const Home = () => {
           />
           <Card
             title={fakeFormations[4].title}
-            length={fakeFormations[4].length}
+            duration={fakeFormations[4].duration}
             rating={fakeFormations[4].rating}
             teacherFullName={fakeFormations[4].teacherFullName}
             creationDate={fakeFormations[4].creationDate}

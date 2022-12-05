@@ -10,46 +10,50 @@ contract Learn is ERC20 {
 
     enum FormationStatus {
         Pending,
-        Validate,
-        Forbidden,
+        Active,
+        Inactive
     }
 
     enum UserStatus {
         Pending,
         Active,
-        Inactive,
+        Inactive
     }
 
     struct Formations {
-        uint256 id;
         string title;
         string description;
+        string[] ressources;
         string[] tags;
-        uint1 ratingAverage;
-        uint256 ratingCount;
-        address teacherAddress;
-        uint1 price;     // exprimed in MLE
-        uint1 duration;     // exprimed in seconds
-        uint creationDate;
-        uint moduleCount;
-        string[] links;
-        string status;
-    }
-
-    struct User {
+        FormationStatus status;
+        uint8 ratingAverage;
+        uint8 price;            // exprimed in MLE
+        uint8 duration;         // exprimed in seconds
+        uint8 creationDate;     // exprimed in seconds since 1970
+        uint8 moduleCount;
         uint256 id;
-        string userFullName;
-        uint256 level;
-        string[] roles;
-
+        uint256 ratingCount;
     }
 
-    @notice userAddress
-    @notice //first array id formation id, second is progression
-    mapping(address => [][]uint) studentFormationProgression;
-    mapping(address => User) users;
+    struct Student {
+        uint8 level;
+        string userFullName;
+        UserStatus status;
+    }
+
+    struct Teacher() {
+        UserStatus status;
+    }
+
+    // @notice userAddress
+    // @notice //first array id formation id, second is progression
+    mapping(address => uint[][]) studentFormationProgression;
+    mapping(address => Student) students;
+    mapping(address => Teacher) teachers;
+    mapping(address => uint256[]) formationOwned;
     mapping(address => uint256) userStakingBalance;
     address[] stakers;
+    formation[] formations;
     event stakeDepositEvent(uint256 amout, address from);
 
     // staking ?!
@@ -76,7 +80,29 @@ contract Learn is ERC20 {
         }
     }
 
-    recieve() external payable {}
+    /******* FORMATIONS *********/
+
+    function publishFormation() {}
+
+    function buyFormation() {}
+
+    function redeemFromation() {}
+
+    function evaluateFormation() {}
+
+    function validateUserModule() {}
+
+    function giveCertification() {}
+
+    /******* END FORMATIONS *********/
+
+    function buyToken() {}
+
+    function payTeacher() {}
+
+    function createSBT() {}
+
+    receive() external payable {}
     fallback() external payable {}
 
 }

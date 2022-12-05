@@ -4,11 +4,15 @@ import WalletButton from "../../WalletButton/WalletButton";
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import Modal from "react-modal";
+import useEth from "../../../../contexts/EthContext/useEth";
 
 Modal.setAppElement(document.getElementById("root"));
 
 const ConnectModal = ({ modalIsOpen }) => {
   const [wallets, setWallets] = useState({});
+  const {
+    state: { web3 },
+  } = useEth();
   //   const [modalIsOpen, setIsOpen] = useState(false);
 
   const customStyles = {
@@ -68,8 +72,8 @@ const ConnectModal = ({ modalIsOpen }) => {
 
   const handleMetamaskConnexion = (e) => {
     //Will Start the metamask extension
-    console.log(e);
-    window.ethereum.request({ method: "eth_requestAccounts" });
+    console.log({ web3 });
+    web3.eth.requestAccounts();
     console.log("Jarvis");
   };
 

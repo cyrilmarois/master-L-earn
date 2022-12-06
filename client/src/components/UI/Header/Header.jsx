@@ -11,18 +11,25 @@ import ConnectModal from "./ConnectModal/ConnectModal";
 import useEth from "../../../contexts/EthContext/useEth";
 
 const Header = () => {
-  const [modalIsOpen, setIsOpen] = useState(false);
-  const [loggedAddress, setLoggedAddres] = useState("Connexion");
+  // const [modalIsOpen, setIsOpen] = useState(false);
+  const [loggedAddress, setLoggedAddress] = useState("Connexion");
+  const [accounts, setAccounts] = useState();
   const {
-    state: { accounts, contract },
+    state: { web3, contract },
   } = useEth();
 
-  console.log({ modalIsOpen });
-  let wallets = { metamask: false };
+  // let wallets = { metamask: false };
 
-  function openModal() {
-    setIsOpen(true);
-  }
+  // function openModal() {
+  //   setIsOpen(true);
+  // }
+  const handleConnexion = async (e) => {
+    console.debug({ web3 });
+    // console.debug({ web3, web3Eth: web3.eth, windowEth: window.ethereum });
+    // const tmpAccounts = await web3.eth.requestAccounts();
+    // setAccounts(tmpAccounts);
+    // console.debug({ accounts, tmpAccounts });
+  };
 
   useEffect(() => {
     const checkWallets = () => {
@@ -42,7 +49,7 @@ const Header = () => {
 
   useEffect(() => {
     if (contract && accounts && accounts[0]) {
-      setLoggedAddres(accounts[0].slice(0, 5) + "..." + accounts[0].slice(-4));
+      setLoggedAddress(accounts[0].slice(0, 5) + "..." + accounts[0].slice(-4));
     }
   }, [accounts, contract]);
 
@@ -71,13 +78,13 @@ const Header = () => {
                   <div className="col-1 offset-4">
                     <button
                       id="connect"
-                      onClick={openModal}
+                      onClick={handleConnexion}
                       type="button"
-                      className="btn btn-primary"
+                      className="btn btn-metamask"
                     >
                       {loggedAddress}
                     </button>
-                    <ConnectModal modalIsOpen={modalIsOpen} />
+                    {/* <ConnectModal modalIsOpen={modalIsOpen} /> */}
                   </div>
                 </form>
               </div>

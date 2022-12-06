@@ -34,7 +34,7 @@ const Home = () => {
           Notre DAO vous permet de prendre part a la vie de la plateforme !
           Evaluez vos formations, contribuez a des propositions. Il sera
           egalement possible de soutenir Master & LEarn via le staking. Sur des
-          plans allant de 6 a 18 mois !
+          plans allant de 6 a 24 mois !
         </div>
       </section>
       <section className="topic subHeader pt-3 d-flex justify-content-around">

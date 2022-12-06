@@ -10,8 +10,8 @@ const Main = () => {
     <main>
       {/* <NoticeWrongNetwork />
       <NoticeNoArtifact /> */}
-      {/* <Home /> */}
-      <Login />
+      <Home />
+      {/* <Login /> */}
     </main>
   );
 };

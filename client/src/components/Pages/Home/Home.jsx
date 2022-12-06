@@ -1,99 +1,47 @@
 import "./Home.css";
-import Card from "../../UI/Card/Card";
-import Filters from "./Filters/Filters";
 
 const Home = () => {
-  const fakeFormations = [
-    {
-      title: "Learn Solidity",
-      duration: 4500,
-      rating: 4,
-      teacherFullName: "Mathilde Passy",
-      creationDate: "2022-01-01 21:43:22",
-      price: 1500,
-    },
-    {
-      title: "Learn Consulting",
-      duration: 1800,
-      rating: 4.5,
-      teacherFullName: "Christophe Pepin",
-      creationDate: "2022-05-07 18:55:32",
-      price: 3800,
-    },
-    {
-      title: "Learn Defi",
-      duration: 10800,
-      rating: 5,
-      teacherFullName: "Dimitry Axel",
-      creationDate: "2022-02-22 10:09:16",
-      price: 7600,
-    },
-    {
-      title: "Learn algorithm",
-      duration: 7200,
-      rating: 4,
-      teacherFullName: "Maxence Guillemain d'Echon",
-      creationDate: "2022-11-18 11:01:54",
-      price: 2300,
-    },
-    {
-      title: "Learn Metamask",
-      duration: 2000,
-      rating: 1,
-      teacherFullName: "Cyril Marois",
-      creationDate: "2022-06-08 12:33:44",
-      price: 666,
-    },
-  ];
   return (
-    <>
-      <Filters />
-
-      <section id="home" className="container">
-        <div className="d-flex flex-wrap">
-          <Card
-            title={fakeFormations[0].title}
-            duration={fakeFormations[0].duration}
-            rating={fakeFormations[0].rating}
-            teacherFullName={fakeFormations[0].teacherFullName}
-            creationDate={fakeFormations[0].creationDate}
-            price={fakeFormations[0].price}
-          />
-          <Card
-            title={fakeFormations[1].title}
-            duration={fakeFormations[1].duration}
-            rating={fakeFormations[1].rating}
-            teacherFullName={fakeFormations[1].teacherFullName}
-            creationDate={fakeFormations[1].creationDate}
-            price={fakeFormations[1].price}
-          />
-          <Card
-            title={fakeFormations[2].title}
-            duration={fakeFormations[2].duration}
-            rating={fakeFormations[2].rating}
-            teacherFullName={fakeFormations[2].teacherFullName}
-            creationDate={fakeFormations[2].creationDate}
-            price={fakeFormations[2].price}
-          />
-          <Card
-            title={fakeFormations[3].title}
-            duration={fakeFormations[3].duration}
-            rating={fakeFormations[3].rating}
-            teacherFullName={fakeFormations[3].teacherFullName}
-            creationDate={fakeFormations[3].creationDate}
-            price={fakeFormations[3].price}
-          />
-          <Card
-            title={fakeFormations[4].title}
-            duration={fakeFormations[4].duration}
-            rating={fakeFormations[4].rating}
-            teacherFullName={fakeFormations[4].teacherFullName}
-            creationDate={fakeFormations[4].creationDate}
-            price={fakeFormations[4].price}
-          />
+    <div id="home">
+      <div className="header d-flex justify-content-center align-items-center">
+        <div className="jumbotron jumbotron-fluid">
+          <div className="container">
+            <h1 className="slogan display-4">Master LEarn</h1>
+            <p className="lead">Apprendre n'aura jamais autant un plaisir !</p>
+          </div>
+        </div>
+      </div>
+      <section className="container subHeader pt-3 d-flex justify-content-around">
+        <div className="bloc1 col-4 p-3 text-center">
+          <i className="icon fa-solid fa-graduation-cap"></i>
+          <h3>Apprenez tout en gagnant !</h3>
+          Le prix de la formation ne doit plus etre un barrage. Montrez votre
+          determination au travers de formations de qualites et recevez le
+          remboursemement jusqu'a 50% de ce que vous l'avez payez ! A travers
+          des formations de qualite
+        </div>
+        <div className="bloc2 col-4 p-3 text-center">
+          <i className="icon fa-solid fa-rocket"></i>
+          <h3>Booster vos chances</h3>
+          Vos competences nous tiennes a coeur mais encore plus aux recruteurs !
+          Les SBT que vous remporterez a chaque certification, seront la pour
+          attester de vos acquis ! Ils seront directement lies a votre adresse
+          de wallet.
+        </div>
+        <div className="bloc3 col-4 p-3 text-center">
+          <i className="icon fa-solid fa-people-roof"></i>
+          <h3>Integrez la communaute !</h3>
+          Notre DAO vous permet de prendre part a la vie de la plateforme !
+          Evaluez vos formations, contribuez a des propositions. Il sera
+          egalement possible de soutenir Master & LEarn via le staking. Sur des
+          plans allant de 6 a 18 mois !
         </div>
       </section>
-    </>
+      <section className="topic subHeader pt-3 d-flex justify-content-around">
+        Master & LEarn est une plateforme qui tend a repondre aux besoins de
+        reconversions des personnes. Entreprendre un nouveau balbla
+      </section>
+    </div>
   );
 };
 

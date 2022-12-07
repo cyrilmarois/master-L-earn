@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 
 /**
@@ -11,7 +12,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  * - the recruiters.
  * @author Cyril Marois & Maxence Guillemain d'Echon
 **/
-contract Learn is ERC20 {
+contract Learn is ERC20, Ownable {
 /******************************** STRUCTS & ENUMS ********************************/
 
     struct TeacherFormation {
@@ -25,6 +26,7 @@ contract Learn is ERC20 {
         string description;
         string[] ressources;
         string[] tags;
+        address[] students;
     }
 
     struct StudentFormation {
@@ -37,6 +39,7 @@ contract Learn is ERC20 {
     }
 
     struct Announce {
+        bool isActive;
         uint creationDate;     // exprimed in seconds since 1970
         uint exprirationDate;     // exprimed in seconds since 1970
         string title;
@@ -54,6 +57,7 @@ contract Learn is ERC20 {
         uint128 entryDate;     // exprimed in seconds since 1970
         string title;
         string description;
+        uint challenge;
     }
 
     struct Student {
@@ -82,28 +86,27 @@ contract Learn is ERC20 {
     mapping (address => uint256) stakingBalance;
     mapping (address => uint256) formationStakingBalance;
 
-    address DAOAddress;
-
-    uint constant INITIAL_SUPPLY = 1000000;
-    uint constant MAX_SUPPLY = 21000000;
-    uint constant ANNOUNCE_POST_PRICE = 50;
+    uint constant INITIAL_SUPPLY = 1000000e18;
+    uint constant ANNOUNCE_POST_PRICE = 50e18;
     uint constant RECRUITMENT_COMMISSION = 10; // % 
     uint constant FORMATION_COMMISSION = 3; // % 
     uint constant MAX_GRADE = 50;
+    uint constant QUALITY_FORMATION_REWARD = 1000e18;
+    uint constant JOB_SIGNED_REWARD = 1000e18;
     
 
 /************************************ EVENTS *************************************/
 
-    event StudentRegistered(address studentAddress);
-    event TeacherRegistered(address teacherAddress);
-    event RecruiterRegistered(address recruiterAddress);
+    event StudentRegistered (address studentAddress);
+    event TeacherRegistered (address teacherAddress);
+    event RecruiterRegistered (address recruiterAddress);
 
-    event FormationPublished(address teacherAddress, uint teacherFormationId);
-    event FormationCertified(address teacherAddress, uint teacherFormationId, address studentAddress);
-    event AnnouncePublished(uint announceId, address recruiterAddress);
+    event FormationPublished (address teacherAddress, uint teacherFormationId);
+    event FormationCertified (address teacherAddress, uint teacherFormationId, address studentAddress);
+    event AnnouncePublished (address recruiterAddress, uint announceId);
     
-    event StakeDeposit(uint256 amount, address from);
-    event StakeWithdrawal(uint256 amount, address from);
+    event StakeDeposit (uint256 amount, address from);
+    event StakeWithdrawal (uint256 amount, address from);
 
 
 /******************************* DEFAULT FUNCTIONS *******************************/
@@ -111,8 +114,7 @@ contract Learn is ERC20 {
     /**
      * @notice Initializes the contract.
     **/
-    constructor() ERC20("Master Learn", "MLE") {
-        DAOAddress = msg.sender;
+    constructor() ERC20("Master Learn", "MLE") Ownable() {
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 
@@ -122,26 +124,74 @@ contract Learn is ERC20 {
     
 /*********************************** MODIFIERS ***********************************/
 
-    modifier onlyTeachers() {
+    modifier onlyTeachers () {
         require(teachers[msg.sender].isRegistered, "Denied: is not a teacher");
         _;
     }
 
-    modifier onlyStudents() {
+    modifier onlyStudents () {
         require(students[msg.sender].isRegistered, "Denied: is not a student");
         _;
     }
 
-    modifier onlyRecruiters() {
+    modifier onlyRecruiters () {
         require(recruiters[msg.sender].isRegistered, "Denied: is not a recruiter");
         _;
     }
-
 /*********************************** FUNCTIONS ***********************************/
+    /***************** UTILS ********************/
+    function _removeAddressFromTab(address[] memory _tab, address _address) 
+    internal pure returns(address[] memory) {
+        for (uint _i; _i < _tab.length; _i++) {
+            if (_tab[_i] == _address) {
+                _tab[_i] = _tab[_tab.length - 1];
+                delete (_tab[_tab.length - 1]);
+            }
+        }
+        return _tab;
+    }
+    /***************** GETTERS ******************/
+    function getAnnounceForRecruiter (address _recruiterAddress, uint16 _announceId) 
+    external view returns(Announce memory) {
+        require (recruiters[_recruiterAddress].isRegistered, "Recruiter address not registered");
+        require (_announceId < recruiters[_recruiterAddress].announces.length, "Announce not found");
+        return recruiters[_recruiterAddress].announces[_announceId];
+    }
 
-/********** FORMATIONS FUNCTIONS ************/
+    function getAnnouncesForRecruiter (address _recruiterAddress) 
+    external view returns(Announce[] memory) {
+        require (recruiters[_recruiterAddress].isRegistered, "Recruiter address not registered");
+        return recruiters[_recruiterAddress].announces;
+    }
 
-    function postFormation(
+    function getFormationForTeacher (address _teacherAddress, uint16 _formationId) 
+    external view returns(TeacherFormation memory) {
+        require (teachers[_teacherAddress].isRegistered, "Teacher address not registered");
+        require (_formationId < teachers[_teacherAddress].formations.length, "Formation not found");
+        return teachers[_teacherAddress].formations[_formationId];
+    }
+
+    function getTeacherFormationsForTeacher (address _teacherAddress) 
+    external view returns(TeacherFormation[] memory) {
+        require (teachers[_teacherAddress].isRegistered, "Teacher address not registered");
+        return teachers[_teacherAddress].formations;
+    }
+
+    function getFormationsForStudent (address _studentAddress) 
+    external view returns(StudentFormation[] memory) {
+        require (students[_studentAddress].isRegistered, "Student address not registered");
+        return students[_studentAddress].formations;
+    }
+
+    function getJobsForStudent (address _studentAddress) 
+    external view returns(Job[] memory) {
+        require (students[_studentAddress].isRegistered, "Student address not registered");
+        return students[_studentAddress].jobs;
+    }
+
+    /********** FORMATIONS FUNCTIONS ************/
+
+    function postFormation (
         uint8 _modulesCount,
         uint16 _duration,
         uint _price, 
@@ -150,6 +200,7 @@ contract Learn is ERC20 {
         string[] memory _ressources,
         string[] memory _tags
     ) external onlyTeachers {
+        address[] memory stds;
         teachers[msg.sender].formations.push( TeacherFormation (
             _modulesCount,
             0,
@@ -160,11 +211,12 @@ contract Learn is ERC20 {
             _title,
             _description,
             _ressources,
-            _tags
+            _tags,
+            stds
         ));
     }
 
-    function validateUserModule(address _studentAddress, uint16 _teacherFormationId) external onlyTeachers {
+    function validateUserModule (address _studentAddress, uint16 _teacherFormationId) external onlyTeachers {
         require (students[_studentAddress].isRegistered, "Student address not registered");
 
         uint16 _id = _retrieveStudentFormationId(_studentAddress, _teacherFormationId);
@@ -174,20 +226,26 @@ contract Learn is ERC20 {
         students[_studentAddress].formations[_id].validatedModulesNumber++;
 
         // Cashback
-        _transfer(DAOAddress, _studentAddress, _studentFormation.cashback);
-        formationStakingBalance[msg.sender] -= _studentFormation.cashback;
+        if (formationStakingBalance[_studentAddress] > _studentFormation.cashback) {
+            formationStakingBalance[_studentAddress] -= _studentFormation.cashback;
+            _transfer(owner(), _studentAddress, _studentFormation.cashback);
+        }
     }
 
-    function certifyUserFormation(address _studentAddress, uint16 _teacherFormationId) external onlyTeachers {
+    function certifyUserFormation (address _studentAddress, uint16 _teacherFormationId) external onlyTeachers {
         require (students[_studentAddress].isRegistered, "Student address not registered");
 
         uint16 _id = _retrieveStudentFormationId(_studentAddress, _teacherFormationId);
         require (!students[_studentAddress].formations[_id].isCertified, "Formation already certified");
+        
+        teachers[msg.sender].formations[_teacherFormationId].students
+         = _removeAddressFromTab(teachers[msg.sender].formations[_teacherFormationId].students, 
+         _studentAddress);
 
         students[_studentAddress].formations[_id].isCertified = true;
     }
 
-    function _retrieveStudentFormationId(address _studentAddress, uint16 _teacherFormationId) 
+    function _retrieveStudentFormationId (address _studentAddress, uint16 _teacherFormationId) 
         internal view returns(uint16) {
         // Retrieve within the formations owned by the sender and followed by the student the formation which:
         // - has the teacherAddress msg.sender 
@@ -205,40 +263,51 @@ contract Learn is ERC20 {
         return _id;
     }
 
-    function buyFormation(address _teacherAddress, uint16 _teacherFormationId) external onlyStudents {
+    function buyFormation (address _teacherAddress, uint16 _teacherFormationId) external onlyStudents {
         require (teachers[_teacherAddress].isRegistered, "Student address not registered");
         require (_teacherFormationId < teachers[_teacherAddress].formations.length, "Formation not found");
         
-        // Add new StudentFormation to student
         TeacherFormation memory _teacherFormation = teachers[_teacherAddress].formations[_teacherFormationId];
-        uint cashback = _teacherFormation.price / _teacherFormation.modulesCount ;
-        StudentFormation memory _studentFormation = 
-            StudentFormation(_teacherAddress, _teacherFormationId, 0, false, false, cashback);
-        students[msg.sender].formations.push(_studentFormation);
 
+        // Pay formation
         require (balanceOf(msg.sender) >= 2 * _teacherFormation.price, "Insufficient balance");
         uint _commission = _teacherFormation.price * FORMATION_COMMISSION / 100;
         uint _teacherCut = _teacherFormation.price - _commission;
         require (transfer(_teacherAddress, _teacherCut));
-        require (transfer(DAOAddress, _teacherFormation.price + _commission));
+        require (transfer(owner(), _teacherFormation.price + _commission));
         formationStakingBalance[msg.sender] += _teacherFormation.price;
+
+        // Add new StudentFormation to student
+        uint cashback = _teacherFormation.price / _teacherFormation.modulesCount ;
+        StudentFormation memory _studentFormation = 
+            StudentFormation (_teacherAddress, _teacherFormationId, 0, false, false, cashback);
+        students[msg.sender].formations.push(_studentFormation);
+
+        // Add student address to formation
+        teachers[_teacherAddress].formations[_teacherFormationId].students.push(msg.sender);
     }
 
-    function evaluateFormation(address _teacherAddress, uint16 _teacherFormationId, uint8 grade) external onlyStudents {
+    function evaluateFormation (address _teacherAddress, uint16 _teacherFormationId, uint8 grade) external onlyStudents {
         require (grade <= MAX_GRADE, "Grade too high");
-        require (teachers[_teacherAddress].isRegistered, "Student address not registered");
+        require (teachers[_teacherAddress].isRegistered, "Teacher address not registered");
         require (_teacherFormationId < teachers[_teacherAddress].formations.length, "Formation not found");
         uint16 _id = _retrieveStudentFormationId(msg.sender, _teacherFormationId);
         // TBD conditions de droit de notation :
-        require(students[msg.sender].formations[_id].isCertified, "Student cannot evaluate yet");
-        require(!students[msg.sender].formations[_id].isRated, "Student already evaluated this formation");
+        require (students[msg.sender].formations[_id].isCertified, "Student cannot evaluate yet");
+        require (!students[msg.sender].formations[_id].isRated, "Student already evaluated this formation");
+        
         students[msg.sender].formations[_id].isRated = true;
         teachers[_teacherAddress].formations[_teacherFormationId].ratingsSum += grade;
         teachers[_teacherAddress].formations[_teacherFormationId].ratingsCount ++;
+
+        _teacherReward();
     }
 
+    function _teacherReward () internal {
 
-/******* ANNOUNCES & JOBS FUNCTIONS *********/
+    }
+
+    /******* ANNOUNCES & JOBS FUNCTIONS *********/
 
     function postAnnounce(
         uint _exprirationDate, 
@@ -247,9 +316,10 @@ contract Learn is ERC20 {
         string[] memory _ressources,
         string[] memory _tags
     ) external onlyRecruiters {
-        require (transfer(DAOAddress, ANNOUNCE_POST_PRICE), "Not enough tokens");
+        require (transfer(owner(), ANNOUNCE_POST_PRICE), "Not enough tokens");
         address[] memory candidates;
         recruiters[msg.sender].announces.push( Announce (
+            true,
             block.timestamp,
             _exprirationDate, 
             _title,
@@ -267,13 +337,14 @@ contract Learn is ERC20 {
         string memory _description
     ) external onlyRecruiters {
         require (students[_studentAddress].isRegistered, "Student address not registered");
-        students[_studentAddress].jobs.push(Job(
+        students[_studentAddress].jobs.push( Job (
             false,
             msg.sender,
             _announceId,
             0,
             _title,
-            _description
+            _description,
+            0
         ));
     }
 
@@ -287,7 +358,7 @@ contract Learn is ERC20 {
             if (recruiters[_recruiterAddress].announces[_announceId].candidates[_id] == msg.sender)
                 _found = true;
         }
-        require (!_found, "Announce already apllied");
+        require (!_found, "Announce already applied");
 
         recruiters[_recruiterAddress].announces[_announceId].candidates.push(msg.sender);
     }
@@ -298,9 +369,23 @@ contract Learn is ERC20 {
         students[msg.sender].jobs[_jobId].isAccepted = _doAccept; 
     }
 
-/************ TOKEN FUNCTIONS ***************/
+    function proveId(uint16 _jobId, uint _challenge) onlyStudents external {
+        students[msg.sender].jobs[_jobId].challenge = _challenge;
+    }
 
-    function buyToken() external {}
+    function verifyId(address _studentAddress, uint16 _jobId, uint _challenge) onlyRecruiters external {
+        // verify ID by checking challenge
+        require (students[_studentAddress].jobs[_jobId].challenge == _challenge, "Id not verified");
+        
+        // Remove Job Announce
+        uint16 _id = students[_studentAddress].jobs[_jobId].announceId;
+        recruiters[msg.sender].announces[_id].isActive = false;
+        
+        // Reward the DAO by minting 1000 MLE
+        _mint(owner(), JOB_SIGNED_REWARD);
+    }
+
+    /************ TOKEN FUNCTIONS ***************/
 
     function stakeDeposit(uint256 _amount) external {
         emit StakeDeposit(_amount, msg.sender);
@@ -308,6 +393,10 @@ contract Learn is ERC20 {
 
     function stakeWithdraw(uint256 _amount) external {
         emit StakeWithdrawal(_amount, msg.sender);
+    }
+
+    function DAOmint(uint _amount) onlyOwner external {
+        _mint(owner(), _amount);
     }
 
 }

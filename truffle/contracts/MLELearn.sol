@@ -105,6 +105,9 @@ contract Learn is ERC20, Ownable {
     event FormationCertified (address teacherAddress, uint teacherFormationId, address studentAddress);
     event AnnouncePublished (address recruiterAddress, uint announceId);
     
+    event TeacherRewarded(address teacherAddress);
+    event RecruitmentReward(address _studentAddress, uint16 _jobId);
+    
     event StakeDeposit (uint256 amount, address from);
     event StakeWithdrawal (uint256 amount, address from);
 
@@ -139,7 +142,7 @@ contract Learn is ERC20, Ownable {
         _;
     }
 /*********************************** FUNCTIONS ***********************************/
-/***************** UTILS ********************/
+    /***************** UTILS ********************/
     function _removeAddressFromTab(address[] memory _tab, address _address) 
     internal pure returns(address[] memory) {
         for (uint _i; _i < _tab.length; _i++) {
@@ -151,7 +154,7 @@ contract Learn is ERC20, Ownable {
         return _tab;
     }
 
-/************* GETTERS & SETTERS ************/
+    /************* GETTERS & SETTERS ************/
 
     function getAnnounceForRecruiter (address _recruiterAddress, uint16 _announceId) 
     external view returns(Announce memory) {
@@ -208,7 +211,7 @@ contract Learn is ERC20, Ownable {
         jobSignedReward = _jobSignedReward;
     }
 
-/********** FORMATIONS FUNCTIONS ************/
+    /********** FORMATIONS FUNCTIONS ************/
 
     function postFormation (
         uint8 _modulesCount,
@@ -319,14 +322,17 @@ contract Learn is ERC20, Ownable {
         teachers[_teacherAddress].formations[_teacherFormationId].ratingsSum += grade;
         teachers[_teacherAddress].formations[_teacherFormationId].ratingsCount ++;
 
-        _teacherReward();
+        _teacherReward(_teacherAddress);
     }
 
-    function _teacherReward () internal {
-
+    function _teacherReward (address _teacherAddress) internal {
+        if (true) {
+            _mint(_teacherAddress, qualityFormationReward);
+            emit TeacherRewarded(_teacherAddress);
+        }
     }
 
-/******* ANNOUNCES & JOBS FUNCTIONS *********/
+    /******* ANNOUNCES & JOBS FUNCTIONS *********/
 
     function postAnnounce(
         uint _exprirationDate, 
@@ -402,6 +408,7 @@ contract Learn is ERC20, Ownable {
 
         // Reward the DAO by minting 1000 MLE
         _mint(owner(), jobSignedReward);
+        emit RecruitmentReward(_studentAddress, _jobId);
     }
 
     /************ TOKEN FUNCTIONS ***************/

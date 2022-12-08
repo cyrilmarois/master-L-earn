@@ -89,8 +89,10 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     uint announcePostPrice = 50e18;
     uint formationFee = 3; // % 
     uint formationFeeBurn = 0; // % 
-    uint qualityFormationReward = 1000e18;
+    uint teacherReward = 1000e18;
     uint jobSignedReward = 1000e18;
+    uint32 minRatingCountForTeacherReward = 5;
+    uint32 minRatingForTeacherReward = 35;
 
     uint constant INITIAL_SUPPLY = 1000000e18;
     uint constant RECRUITMENT_COMMISSION = 10; // % 
@@ -220,8 +222,8 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         formationFeeBurn = _formationFeeBurn;
     }
 
-    function setQualityFormationReward (uint _qualityFormationReward) external onlyOwner {
-        qualityFormationReward = _qualityFormationReward;
+    function setQualityFormationReward (uint _teacherReward) external onlyOwner {
+        teacherReward = _teacherReward;
     }
 
     function setJobSignedReward (uint _jobSignedReward) external onlyOwner {
@@ -351,13 +353,18 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         teachers[_teacherAddress].formations[_teacherFormationId].ratingsSum += grade;
         teachers[_teacherAddress].formations[_teacherFormationId].ratingsCount ++;
 
-        _teacherReward(_teacherAddress);
+        _rewardTeacher(_teacherAddress, _teacherFormationId);
     }
 
-    function _teacherReward (address _teacherAddress) internal {
+    function _rewardTeacher (address _teacherAddress, uint16 _teacherFormationId) internal {
         // TDB condition reward
-        if (true) {
-            _mint(_teacherAddress, qualityFormationReward);
+        
+        uint32 ratingsSum = teachers[_teacherAddress].formations[_teacherFormationId].ratingsSum;
+        uint32 ratingsCount = teachers[_teacherAddress].formations[_teacherFormationId].ratingsCount;
+
+        if (ratingsCount > minRatingCountForTeacherReward &&
+            ratingsSum > ratingsCount * minRatingForTeacherReward) {
+            _mint(_teacherAddress, teacherReward);
             emit TeacherRewarded(_teacherAddress);
         }
     }

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 
@@ -12,7 +13,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * - the recruiters.
  * @author Cyril Marois & Maxence Guillemain d'Echon
 **/
-contract Learn is ERC20, Ownable {
+contract MLE is ERC20, ERC20Votes, Ownable {
 /******************************** STRUCTS & ENUMS ********************************/
 
     struct TeacherFormation {
@@ -117,7 +118,7 @@ contract Learn is ERC20, Ownable {
     /**
      * @notice Initializes the contract.
     **/
-    constructor() ERC20("Master Learn", "MLE") Ownable() {
+    constructor() ERC20("Master L&Earn", "MLE") Ownable() ERC20Permit("Master L&Earn") {
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 
@@ -152,6 +153,18 @@ contract Learn is ERC20, Ownable {
             }
         }
         return _tab;
+    }
+
+    function _afterTokenTransfer(address from, address to, uint amount) internal override(ERC20, ERC20Votes) {
+        super._afterTokenTransfer(from, to, amount);
+    }
+    
+    function _mint(address account, uint amount) internal override(ERC20, ERC20Votes) {
+        super._mint(account, amount);
+    }
+    
+    function _burn(address account, uint amount) internal override(ERC20, ERC20Votes) {
+        super._burn(account, amount);
     }
 
     /************* GETTERS & SETTERS ************/
@@ -326,6 +339,7 @@ contract Learn is ERC20, Ownable {
     }
 
     function _teacherReward (address _teacherAddress) internal {
+        // TDB condition reward
         if (true) {
             _mint(_teacherAddress, qualityFormationReward);
             emit TeacherRewarded(_teacherAddress);

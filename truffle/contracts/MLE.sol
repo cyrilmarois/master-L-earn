@@ -88,7 +88,8 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     mapping (address => uint256) formationStakingBalance;
     
     uint announcePostPrice = 50e18;
-    uint formationCommission = 3; // % 
+    uint formationFee = 3; // % 
+    uint formationFeeBurn = 0; // % 
     uint qualityFormationReward = 1000e18;
     uint jobSignedReward = 1000e18;
 
@@ -211,9 +212,14 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         announcePostPrice = _announcePostPrice;
     }
 
-    function setFormationCommission (uint _formationCommission) external onlyOwner {
-        require (_formationCommission < 100, "formationCommission is in percent (<100)");
-        formationCommission = _formationCommission;
+    function setFormationFee (uint _formationFee) external onlyOwner {
+        require (_formationFee < 100, "formationFee is in percent (<100)");
+        formationFee = _formationFee;
+    }
+
+    function setFormationFeeBurn (uint _formationFeeBurn) external onlyOwner {
+        require (_formationFeeBurn < 100, "formationFeeBurn is in percent (<100)");
+        formationFeeBurn = _formationFeeBurn;
     }
 
     function setQualityFormationReward (uint _qualityFormationReward) external onlyOwner {
@@ -306,10 +312,12 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
         // Pay formation
         require (balanceOf(msg.sender) >= 2 * _teacherFormation.price, "Insufficient balance");
-        uint _commission = _teacherFormation.price * formationCommission / 100;
-        uint _teacherCut = _teacherFormation.price - _commission;
+        uint _fee = _teacherFormation.price * formationFee / 100;
+        uint _feeBurn = formationFee * formationFeeBurn / 100;
+        uint _teacherCut = _teacherFormation.price - _fee;
         require (transfer(_teacherAddress, _teacherCut));
-        require (transfer(owner(), _teacherFormation.price + _commission));
+        require (transfer(owner(), _teacherFormation.price + _fee - _feeBurn));
+        _burn(_teacherAddress, _feeBurn);
         formationStakingBalance[msg.sender] += _teacherFormation.price;
 
         // Add new StudentFormation to student

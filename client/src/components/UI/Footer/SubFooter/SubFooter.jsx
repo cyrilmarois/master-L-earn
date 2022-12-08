@@ -10,7 +10,7 @@ const SubFooter = () => {
             <div className="row">
               <div className="col-12">
                 <img src={logo} className="me-3" />
-                &copy; 2022 Salesforce, Inc. Tous droits réservés.
+                &copy; 2022 Master & LEarn, Inc. Tous droits réservés.
               </div>
             </div>
             <div className="row">

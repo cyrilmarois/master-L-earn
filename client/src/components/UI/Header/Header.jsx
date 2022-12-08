@@ -1,50 +1,63 @@
 import logo from "../../../images/mle-logo-sm.png";
 import SubHeader from "./SubHeader/SubHeader";
-import WalletButton from "../WalletButton/WalletButton";
 import React, { useEffect } from "react";
-import ReactDOM from "react-dom";
-import Modal from "react-modal";
-
-import "./Header.css";
 import { useState } from "react";
-import ConnectModal from "./ConnectModal/ConnectModal";
 import useEth from "../../../contexts/EthContext/useEth";
+import "./Header.css";
 
 const Header = () => {
-  const [modalIsOpen, setIsOpen] = useState(false);
-  const [loggedAddress, setLoggedAddres] = useState("Connexion");
+  const [loggedAddress, setLoggedAddress] = useState("Connexion");
+  const [hasError, setHasError] = useState(false);
+
   const {
-    state: { accounts, contract },
+    state: { web3, contract },
   } = useEth();
 
-  console.log({ modalIsOpen });
-  let wallets = { metamask: false };
-
-  function openModal() {
-    setIsOpen(true);
-  }
-
-  useEffect(() => {
-    const checkWallets = () => {
-      const tmpWallets = JSON.parse(localStorage.getItem("wallets"));
-      if (tmpWallets === null) {
-        let wallets = { metamask: false };
-        if (typeof window.ethereum !== "undefined") {
-          console.log("MetaMask is installed!");
-          wallets.metamask = true;
+  const handleConnexion = async () => {
+    await web3.eth
+      .requestAccounts()
+      .then((account) => {
+        console.log({ account });
+        if (account && account[0]) {
+          localStorage.setItem("connexion", JSON.stringify(account[0]));
+          const address = transformAddress(account[0]);
+          setLoggedAddress(address);
         }
-        console.log({ wallets });
-        localStorage.setItem("wallets", JSON.stringify(wallets));
-      }
-    };
-    checkWallets();
-  }, []);
+      })
+      .catch(() => {
+        setHasError(true);
+      });
+  };
+
+  // LATER multiple wallet managment
+  // useEffect(() => {
+  //   const checkWallets = () => {
+  //     const tmpWallets = JSON.parse(localStorage.getItem("wallets"));
+  //     if (tmpWallets === null) {
+  //       let wallets = { metamask: false };
+  //       if (typeof window.ethereum !== "undefined") {
+  //         console.log("MetaMask is installed!");
+  //         wallets.metamask = true;
+  //       }
+  //       console.log({ wallets });
+  //       localStorage.setItem("wallets", JSON.stringify(wallets));
+  //     }
+  //   };
+  //   checkWallets();
+  // }, []);
+
+  const transformAddress = (account) => {
+    return account.slice(0, 5) + "..." + account.slice(-4);
+  };
 
   useEffect(() => {
-    if (contract && accounts && accounts[0]) {
-      setLoggedAddres(accounts[0].slice(0, 5) + "..." + accounts[0].slice(-4));
+    const account = JSON.parse(localStorage.getItem("connexion"));
+
+    if (account) {
+      const address = transformAddress(account);
+      setLoggedAddress(address);
     }
-  }, [accounts, contract]);
+  }, [contract]);
 
   return (
     <header>
@@ -71,13 +84,12 @@ const Header = () => {
                   <div className="col-1 offset-4">
                     <button
                       id="connect"
-                      onClick={openModal}
+                      onClick={handleConnexion}
                       type="button"
-                      className="btn btn-primary"
+                      className={`btn btn-metamask ${hasError ? `error` : ``}`}
                     >
                       {loggedAddress}
                     </button>
-                    <ConnectModal modalIsOpen={modalIsOpen} />
                   </div>
                 </form>
               </div>

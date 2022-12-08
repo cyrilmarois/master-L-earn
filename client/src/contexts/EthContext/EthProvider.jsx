@@ -10,7 +10,7 @@ function EthProvider({ children }) {
     console.log({ artifact });
     if (artifact) {
       const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
-      const accounts = await web3.eth.requestAccounts();
+      // const accounts = await web3.eth.requestAccounts();
       const networkID = await web3.eth.net.getId();
       const { abi } = artifact;
       let address, contract;
@@ -22,7 +22,7 @@ function EthProvider({ children }) {
       }
       dispatch({
         type: actions.init,
-        data: { artifact, web3, accounts, networkID, contract },
+        data: { artifact, web3, /* accounts,*/ networkID, contract },
       });
     }
   }, []);
@@ -41,7 +41,12 @@ function EthProvider({ children }) {
   }, [init]);
 
   useEffect(() => {
-    const events = ["chainChanged", "accountsChanged", "disconnect"];
+    const events = [
+      "connected",
+      "chainChanged",
+      "accountsChanged",
+      "disconnect",
+    ];
     const handleChange = () => {
       init(state.artifact);
     };

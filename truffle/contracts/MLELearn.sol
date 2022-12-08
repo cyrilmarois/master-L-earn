@@ -20,8 +20,8 @@ contract Learn is ERC20, Ownable {
         uint32 ratingsSum;
         uint32 ratingsCount;
         uint32 duration;         // exprimed in seconds
-        uint128 creationDate;     // exprimed in seconds since 1970
-        uint price;            // exprimed in MLE
+        uint128 creationDate;    // exprimed in seconds since 1970
+        uint price;              // exprimed in MLE
         string title;
         string description;
         string[] ressources;
@@ -41,7 +41,7 @@ contract Learn is ERC20, Ownable {
     struct Announce {
         bool isActive;
         uint creationDate;     // exprimed in seconds since 1970
-        uint exprirationDate;     // exprimed in seconds since 1970
+        uint exprirationDate;  // exprimed in seconds since 1970
         string title;
         string description;
         string[] ressources;
@@ -87,13 +87,12 @@ contract Learn is ERC20, Ownable {
     mapping (address => uint256) formationStakingBalance;
 
     uint constant INITIAL_SUPPLY = 1000000e18;
-    uint constant ANNOUNCE_POST_PRICE = 50e18;
     uint constant RECRUITMENT_COMMISSION = 10; // % 
-    uint constant FORMATION_COMMISSION = 3; // % 
     uint constant MAX_GRADE = 50;
-    uint constant QUALITY_FORMATION_REWARD = 1000e18;
-    uint constant JOB_SIGNED_REWARD = 1000e18;
-    
+    uint announcePostPrice = 50e18;
+    uint formationCommission = 3; // % 
+    uint qualityFormationReward = 1000e18;
+    uint jobSignedReward = 1000e18;
 
 /************************************ EVENTS *************************************/
 
@@ -150,7 +149,9 @@ contract Learn is ERC20, Ownable {
         }
         return _tab;
     }
-    /***************** GETTERS ******************/
+
+    /************* GETTERS & SETTERS ************/
+
     function getAnnounceForRecruiter (address _recruiterAddress, uint16 _announceId) 
     external view returns(Announce memory) {
         require (recruiters[_recruiterAddress].isRegistered, "Recruiter address not registered");
@@ -271,7 +272,7 @@ contract Learn is ERC20, Ownable {
 
         // Pay formation
         require (balanceOf(msg.sender) >= 2 * _teacherFormation.price, "Insufficient balance");
-        uint _commission = _teacherFormation.price * FORMATION_COMMISSION / 100;
+        uint _commission = _teacherFormation.price * formationCommission / 100;
         uint _teacherCut = _teacherFormation.price - _commission;
         require (transfer(_teacherAddress, _teacherCut));
         require (transfer(owner(), _teacherFormation.price + _commission));
@@ -316,7 +317,7 @@ contract Learn is ERC20, Ownable {
         string[] memory _ressources,
         string[] memory _tags
     ) external onlyRecruiters {
-        require (transfer(owner(), ANNOUNCE_POST_PRICE), "Not enough tokens");
+        require (transfer(owner(), announcePostPrice), "Not enough tokens");
         address[] memory candidates;
         recruiters[msg.sender].announces.push( Announce (
             true,
@@ -330,7 +331,7 @@ contract Learn is ERC20, Ownable {
         ));
     }
 
-    function suggestJob(
+    function offerJob(
         address _studentAddress, 
         uint16 _announceId, 
         string memory _title, 
@@ -380,9 +381,9 @@ contract Learn is ERC20, Ownable {
         // Remove Job Announce
         uint16 _id = students[_studentAddress].jobs[_jobId].announceId;
         recruiters[msg.sender].announces[_id].isActive = false;
-        
+
         // Reward the DAO by minting 1000 MLE
-        _mint(owner(), JOB_SIGNED_REWARD);
+        _mint(owner(), jobSignedReward);
     }
 
     /************ TOKEN FUNCTIONS ***************/

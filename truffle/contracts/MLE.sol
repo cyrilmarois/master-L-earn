@@ -42,7 +42,6 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     struct Announce {
         bool isActive;
         uint creationDate;     // exprimed in seconds since 1970
-        uint exprirationDate;  // exprimed in seconds since 1970
         string title;
         string description;
         string[] ressources;
@@ -126,7 +125,6 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     receive() external payable {}
     fallback() external payable {}
 
-    
 /*********************************** MODIFIERS ***********************************/
 
     modifier onlyTeachers () {
@@ -230,6 +228,15 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         jobSignedReward = _jobSignedReward;
     }
 
+    function registerUser(address _address, bool _asStudent, bool _asTeacher, bool _asRecruiter) external {
+        if (_asStudent)
+            students[_address].isRegistered = true;
+        if (_asTeacher)
+            teachers[_address].isRegistered = true;
+        if (_asRecruiter)
+            recruiters[_address].isRegistered = true;
+    }
+
     /********** FORMATIONS FUNCTIONS ************/
 
     function postFormation (
@@ -260,9 +267,10 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     function validateUserModule (address _studentAddress, uint16 _teacherFormationId) external onlyTeachers {
         require (students[_studentAddress].isRegistered, "Student address not registered");
 
-        uint16 _id = _retrieveStudentFormationId(_studentAddress, _teacherFormationId);
+        uint16 _id = _retrieveStudentFormationId(_studentAddress, msg.sender, _teacherFormationId);
         StudentFormation memory _studentFormation = students[_studentAddress].formations[_id];
         require (!_studentFormation.isCertified, "Formation already certified");
+        require (_studentFormation.validatedModulesNumber < teachers[msg.sender].formations[_teacherFormationId].modulesCount, "");
 
         students[_studentAddress].formations[_id].validatedModulesNumber++;
 
@@ -276,7 +284,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     function certifyUserFormation (address _studentAddress, uint16 _teacherFormationId) external onlyTeachers {
         require (students[_studentAddress].isRegistered, "Student address not registered");
 
-        uint16 _id = _retrieveStudentFormationId(_studentAddress, _teacherFormationId);
+        uint16 _id = _retrieveStudentFormationId(_studentAddress, msg.sender, _teacherFormationId);
         require (!students[_studentAddress].formations[_id].isCertified, "Formation already certified");
         
         teachers[msg.sender].formations[_teacherFormationId].students
@@ -286,7 +294,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         students[_studentAddress].formations[_id].isCertified = true;
     }
 
-    function _retrieveStudentFormationId (address _studentAddress, uint16 _teacherFormationId) 
+    function _retrieveStudentFormationId (address _studentAddress, address _teacherAddress, uint16 _teacherFormationId) 
         internal view returns(uint16) {
         // Retrieve within the formations owned by the sender and followed by the student the formation which:
         // - has the teacherAddress msg.sender 
@@ -294,7 +302,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         bool _found;
         uint16 _id;
         for (; _id < students[_studentAddress].formations.length; _id++) {
-            if (students[_studentAddress].formations[_id].teacherAddress == msg.sender 
+            if (students[_studentAddress].formations[_id].teacherAddress == _teacherAddress
                 && students[_studentAddress].formations[_id].formationId == _teacherFormationId) {
                 _found = true;
                 break;
@@ -334,7 +342,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         require (grade <= MAX_GRADE, "Grade too high");
         require (teachers[_teacherAddress].isRegistered, "Teacher address not registered");
         require (_teacherFormationId < teachers[_teacherAddress].formations.length, "Formation not found");
-        uint16 _id = _retrieveStudentFormationId(msg.sender, _teacherFormationId);
+        uint16 _id = _retrieveStudentFormationId(msg.sender, _teacherAddress, _teacherFormationId);
         // TBD conditions de droit de notation :
         require (students[msg.sender].formations[_id].isCertified, "Student cannot evaluate yet");
         require (!students[msg.sender].formations[_id].isRated, "Student already evaluated this formation");
@@ -356,8 +364,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
     /******* ANNOUNCES & JOBS FUNCTIONS *********/
 
-    function postAnnounce(
-        uint _exprirationDate, 
+    function postAnnounce( 
         string memory _title,
         string memory _description,
         string[] memory _ressources,
@@ -368,7 +375,6 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         recruiters[msg.sender].announces.push( Announce (
             true,
             block.timestamp,
-            _exprirationDate, 
             _title,
             _description,
             _ressources,

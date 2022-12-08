@@ -16,7 +16,7 @@ const Plan = (props) => {
       <p>
         Nombre de tokens deposes : {props.tokenDeposit} MLE
         <br />
-        Nombre de staker : {props.stakerTotal}
+        Nombre de staker : {props.totalStaker}
       </p>
     </div>
   );

@@ -5,34 +5,29 @@ import "./Staking.css";
 
 const Staking = () => {
   const {
-    state: { contract, accounts },
+    state: { contract },
   } = useEth();
   const [amount, setAmount] = useState(0);
   const [stakeAmount, setStakeAmount] = useState(0);
+  const [plans, setPlans] = useState([]);
+  const [totalStakers, setTotalStakers] = useState([]);
+  const [totalStakingDeposit, setTotalStakingDeposit] = useState([]);
+  const [account, setAccount] = useState();
 
   const stakingPlans = [
     {
       title: "Plan 1",
-      lockPeriod: 6,
-      apr: 10,
-      minAmount: 1000,
-      maxAmount: 1000000,
-      tokenDeposit: 10000,
-      stakerTotal: 654,
-    },
-    {
-      title: "Plan 2",
       lockPeriod: 12,
-      apr: 17,
+      apr: 10,
       minAmount: 500,
       maxAmount: 2500000,
       tokenDeposit: 1090000,
       stakerTotal: 3561,
     },
     {
-      title: "Plan 3",
+      title: "Plan 2",
       lockPeriod: 24,
-      apr: 25,
+      apr: 20,
       minAmount: 500,
       maxAmount: 5000000,
       tokenDeposit: 2678900,
@@ -53,11 +48,12 @@ const Staking = () => {
 
   const handleStaking = async () => {
     try {
-      await contract.methods.stake().call({
-        from: accounts[0],
+      console.log({ account });
+      await contract.methods.stakeDeposit().call({
+        from: account,
       });
-      await contract.methods.stake().send({
-        from: accounts[0],
+      await contract.methods.stakeDeposit().send({
+        from: account,
       });
     } catch (e) {
       console.error(e);
@@ -65,16 +61,65 @@ const Staking = () => {
   };
 
   useEffect(() => {
-    console.log("JARVIS");
+    console.log("STAKING");
     setAmount(1500);
+    setAccount(JSON.parse(localStorage.getItem("connexion")));
+    console.log({ account });
+    if (account) {
+      const getPlans = async () => {
+        try {
+          const tmpPlans = await contract.methods.stakingPlans.call({
+            from: account,
+          });
+          setPlans(tmpPlans);
+        } catch (e) {
+          console.error(e);
+        }
+      };
+      getPlans();
+
+      const getTotalStakers = async () => {
+        try {
+          const tmpTotalStakers = await contract.methods.totalStakers.call({
+            from: account,
+          });
+          setTotalStakers(tmpTotalStakers);
+        } catch (e) {
+          console.error(e);
+        }
+      };
+      getTotalStakers();
+
+      const getTotalStakingDeposit = async () => {
+        try {
+          const tmpTotalStakingDeposit =
+            await contract.methods.totalStakingDeposit.call({
+              from: account,
+            });
+          setTotalStakingDeposit(tmpTotalStakingDeposit);
+        } catch (e) {
+          console.error(e);
+        }
+      };
+      getTotalStakingDeposit();
+    }
     console.log({ amount });
-  }, [contract, accounts]);
+  }, [contract]);
 
   return (
     <div id="staking">
       <h1 className="text-center p-3">Programme de staking du MLE</h1>
 
       <section className="container d-flex justify-content-evenly text-center py-5">
+        {/* <Plan
+          title={plans[0].title}
+          lockPeriod={plans[0].lockPeriod}
+          apr={plans[0].apr}
+          minAmount={plans[0].minTokenAmount}
+          maxAmount={plans[0].maxTokenAmount}
+          tokenDeposit={totalStakingDeposit[0]}
+          totalStaker={totalStakers[0]}
+        /> */}
         <Plan
           title={stakingPlans[0].title}
           lockPeriod={stakingPlans[0].lockPeriod}
@@ -82,7 +127,7 @@ const Staking = () => {
           minAmount={stakingPlans[0].minAmount}
           maxAmount={stakingPlans[0].maxAmount}
           tokenDeposit={stakingPlans[0].tokenDeposit}
-          stakerTotal={stakingPlans[0].stakerTotal}
+          totalStaker={stakingPlans[0].stakerTotal}
         />
 
         <Plan
@@ -92,10 +137,10 @@ const Staking = () => {
           minAmount={stakingPlans[1].minAmount}
           maxAmount={stakingPlans[1].maxAmount}
           tokenDeposit={stakingPlans[1].tokenDeposit}
-          stakerTotal={stakingPlans[1].stakerTotal}
+          totalStaker={stakingPlans[1].stakerTotal}
         />
 
-        <Plan
+        {/* <Plan
           title={stakingPlans[2].title}
           lockPeriod={stakingPlans[2].lockPeriod}
           apr={stakingPlans[2].apr}
@@ -103,7 +148,7 @@ const Staking = () => {
           maxAmount={stakingPlans[2].maxAmount}
           tokenDeposit={stakingPlans[2].tokenDeposit}
           stakerTotal={stakingPlans[2].stakerTotal}
-        />
+        /> */}
       </section>
       <hr />
       <section className="container d-flex justify-content-evenly text-center py-5">

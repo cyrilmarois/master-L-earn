@@ -85,14 +85,15 @@ contract Learn is ERC20, Ownable {
 
     mapping (address => uint256) stakingBalance;
     mapping (address => uint256) formationStakingBalance;
-
-    uint constant INITIAL_SUPPLY = 1000000e18;
-    uint constant RECRUITMENT_COMMISSION = 10; // % 
-    uint constant MAX_GRADE = 50;
+    
     uint announcePostPrice = 50e18;
     uint formationCommission = 3; // % 
     uint qualityFormationReward = 1000e18;
     uint jobSignedReward = 1000e18;
+
+    uint constant INITIAL_SUPPLY = 1000000e18;
+    uint constant RECRUITMENT_COMMISSION = 10; // % 
+    uint constant MAX_GRADE = 50;
 
 /************************************ EVENTS *************************************/
 
@@ -138,7 +139,7 @@ contract Learn is ERC20, Ownable {
         _;
     }
 /*********************************** FUNCTIONS ***********************************/
-    /***************** UTILS ********************/
+/***************** UTILS ********************/
     function _removeAddressFromTab(address[] memory _tab, address _address) 
     internal pure returns(address[] memory) {
         for (uint _i; _i < _tab.length; _i++) {
@@ -150,7 +151,7 @@ contract Learn is ERC20, Ownable {
         return _tab;
     }
 
-    /************* GETTERS & SETTERS ************/
+/************* GETTERS & SETTERS ************/
 
     function getAnnounceForRecruiter (address _recruiterAddress, uint16 _announceId) 
     external view returns(Announce memory) {
@@ -190,7 +191,24 @@ contract Learn is ERC20, Ownable {
         return students[_studentAddress].jobs;
     }
 
-    /********** FORMATIONS FUNCTIONS ************/
+    function setAnnouncePostPrice (uint _announcePostPrice) external onlyOwner {
+        announcePostPrice = _announcePostPrice;
+    }
+
+    function setFormationCommission (uint _formationCommission) external onlyOwner {
+        require (_formationCommission < 100, "formationCommission is in percent (<100)");
+        formationCommission = _formationCommission;
+    }
+
+    function setQualityFormationReward (uint _qualityFormationReward) external onlyOwner {
+        qualityFormationReward = _qualityFormationReward;
+    }
+
+    function setJobSignedReward (uint _jobSignedReward) external onlyOwner {
+        jobSignedReward = _jobSignedReward;
+    }
+
+/********** FORMATIONS FUNCTIONS ************/
 
     function postFormation (
         uint8 _modulesCount,
@@ -308,7 +326,7 @@ contract Learn is ERC20, Ownable {
 
     }
 
-    /******* ANNOUNCES & JOBS FUNCTIONS *********/
+/******* ANNOUNCES & JOBS FUNCTIONS *********/
 
     function postAnnounce(
         uint _exprirationDate, 

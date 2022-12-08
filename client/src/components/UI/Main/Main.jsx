@@ -11,9 +11,9 @@ const Main = () => {
     <main>
       {/* <NoticeWrongNetwork />
       <NoticeNoArtifact /> */}
-      {/* <Home /> */}
+      <Home />
       {/* <Login /> */}
-      <Staking />
+      {/* <Staking /> */}
     </main>
   );
 };

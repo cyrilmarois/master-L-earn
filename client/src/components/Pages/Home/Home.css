@@ -1,19 +1,35 @@
 #home {
-  height: 300px;
-  background-color: #def2ff;
+  background-color: white;
 }
 .header {
   height: 300px;
+  background-color: #def2ff;
 }
 
 .subHeader {
   height: 300px;
 }
-.topic {
+.topic-1 {
+  color: white;
+  background-color: #1a66b8;
+  height: 350px;
+  font-size: 24px;
+}
+.topic-2 {
+  background-color: white;
+  height: auto;
+  font-size: 24px;
+}
+.topic-3 {
   color: white;
   background-color: #0070d2;
   height: 500px;
   font-size: 24px;
+}
+.testimonies {
+  height: auto;
+  min-height: 550px;
+  background-color: #def2ff;
 }
 .slogan {
   color: #0070d2;
@@ -27,4 +43,15 @@
 .icon {
   font-size: 34px;
   color: #0070d2;
+}
+.testimony {
+  background-color: white;
+  border-radius: 5px;
+  height: 500px;
+  box-shadow: 0px 5px 5px #b1afaf;
+  color: #0070d2;
+  font-style: italic;
+}
+.testimony img {
+  border-radius: 10%;
 }

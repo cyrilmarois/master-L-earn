@@ -5,7 +5,7 @@ import "./Staking.css";
 
 const Staking = () => {
   const {
-    state: { contract },
+    state: { contract, web3 },
   } = useEth();
   const [amount, setAmount] = useState(0);
   const [stakeAmount, setStakeAmount] = useState(0);
@@ -49,10 +49,10 @@ const Staking = () => {
   const handleStaking = async () => {
     try {
       console.log({ account });
-      await contract.methods.stakeDeposit().call({
+      await contract.methods.stakeDeposit(stakeAmount, 0).call({
         from: account,
       });
-      await contract.methods.stakeDeposit().send({
+      await contract.methods.stakeDeposit(stakeAmount, 0).send({
         from: account,
       });
     } catch (e) {
@@ -61,11 +61,18 @@ const Staking = () => {
   };
 
   useEffect(() => {
-    console.log("STAKING");
     setAmount(1500);
     setAccount(JSON.parse(localStorage.getItem("connexion")));
-    console.log({ account });
-    if (account) {
+    console.log("STAKING", {
+      contract,
+      web3,
+      account,
+      amount,
+    });
+    if (contract && account) {
+      console.log("STAKING", {
+        methods: contract.methods,
+      });
       const getPlans = async () => {
         try {
           const tmpPlans = await contract.methods.stakingPlans.call({
@@ -178,12 +185,11 @@ const Staking = () => {
             <span className="input-group-text">MLE</span>
           </div>
           <div className="mb-3">
-            <button
-              type="submit"
-              className="btn btn-primary mb-3"
-              onClick={handleStaking}
-            >
-              STAKE
+            <button id="staking-button" type="submit" onClick={handleStaking}>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span> STAKE
             </button>
           </div>
         </div>

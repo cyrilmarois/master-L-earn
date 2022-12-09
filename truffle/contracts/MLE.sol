@@ -527,19 +527,20 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
     function stakeWithdraw(uint256 _amount, uint8 _planId) external {
         require(hasStakingPlan(_planId), "Staking plan does not exists");
-        require(userStakingBalance[msg.sender][_planId].length > 0, "Staking Not available");
         stakingDepositRecord[] memory tmpUserStakingBalances = userStakingBalance[msg.sender][_planId];
+        require(tmpUserStakingBalances.length > 0, "Staking deposit does not exists");
         uint256 userStakingBalanceTotal;
-        uint firstDepositDate;
+        uint256 firstDepositDate;
         for (uint i = 0; i < tmpUserStakingBalances.length; i++) {
             if (i == 0) {
                 firstDepositDate = tmpUserStakingBalances[i].date;
             }
             userStakingBalanceTotal += tmpUserStakingBalances[i].amount;
         }
-        //require(firstDepositDate <= block.timestamp + 24 weeks, "Forbidden, at least 6 months to withdraw after first deposit");
+        uint256 lockPeriod = stakingPlans[_planId].lockPeriod;
+        // require(block.timestamp > firstDepositDate + lockPeriod, "Forbidden, You can't withdraw before lockPeriod");
         require(_amount <= userStakingBalanceTotal, "Invalid withdrawal amount");
-        require(transferFrom(owner(), msg.sender, _amount), "Error during stake withdrawal");
+        require(this.transferFrom(msg.sender, _amount), "Error during stake withdrawal, You can't withdraw more than you have deposit");
         uint newUserStakingBalanceTotal = userStakingBalanceTotal - _amount;
 
         emit StakeWithdrawal(_amount, msg.sender, _planId, newUserStakingBalanceTotal);

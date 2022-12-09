@@ -13,9 +13,9 @@ const Main = () => {
       {/* <NoticeWrongNetwork /> */}
       {/* <NoticeNoArtifact /> */}
       {/* <Home /> */}
-      {/* <Formation /> */}
+      <Formation />
       {/* <Login /> */}
-      <Staking />
+      {/* <Staking /> */}
     </main>
   );
 };

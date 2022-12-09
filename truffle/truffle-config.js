@@ -8,8 +8,8 @@ module.exports = {
       host: "127.0.0.1",
       port: 8545,
       network_id: "*",
-      gas: 8e20,
-      gasPrice: 2000000000,
+      // gas: 8e20,
+      // gasPrice: 2000000000,
     },
     goerli: {
      provider: function() {return new HDWalletProvider({
@@ -31,7 +31,7 @@ module.exports = {
       settings: {
         optimizer: {
           enabled: true, // Default: false
-          runs: 4000 // Default: 200
+          runs: 1 // Default: 200
         }
       }
     }

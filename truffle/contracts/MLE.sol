@@ -91,7 +91,6 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     uint jobSignedReward = 1000e18;
     uint32 minRatingCountForTeacherReward = 5;
     uint32 minRatingForTeacherReward = 35;
-    address MLEutils;
 
     uint constant INITIAL_SUPPLY = 1000000e18;
     uint constant RECRUITMENT_COMMISSION = 10; // % 
@@ -119,9 +118,8 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     /**
      * @notice Initializes the contract.
     **/
-    constructor(address _MLEUtils) ERC20("Master L&Earn", "MLE") Ownable() ERC20Permit("Master L&Earn") {
+    constructor() ERC20("Master L&Earn", "MLE") Ownable() ERC20Permit("Master L&Earn") {
         _mint(msg.sender, INITIAL_SUPPLY);
-        MLEutils = _MLEUtils;
     }
 
     receive() external payable {}

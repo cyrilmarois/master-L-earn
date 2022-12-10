@@ -1,0 +1,14 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+#App .container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+}

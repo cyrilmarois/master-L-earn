@@ -73,17 +73,13 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
         //teacher
         transfer(teacher1, 1000e18);
-        registerUser(teacher1, false, true, false);
 
         //student
         transfer(student1, 1000e18);
-        registerUser(student1, true, false, false);
         transfer(student2, 1000e18);
-        registerUser(student2, true, false, false);
 
         // recruiter
         transfer(recruiter1, 1000e18);
-        registerUser(recruiter1, false, false, true);
 
     }
 
@@ -108,13 +104,19 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
 /************* GETTERS & SETTERS ************/
 
-    function registerUser(address _address, bool _asStudent, bool _asTeacher, bool _asRecruiter) public {
-        if (_asStudent)
-            students[_address].isRegistered = true;
-        if (_asTeacher)
-            teachers[_address].isRegistered = true;
-        if (_asRecruiter)
-            recruiters[_address].isRegistered = true;
+    function register(bool _asStudent, bool _asTeacher, bool _asRecruiter) external {
+        if (_asStudent) {
+            students[msg.sender].isRegistered = true;
+            emit StudentRegistered(msg.sender);
+        }
+        if (_asTeacher) {
+            teachers[msg.sender].isRegistered = true;
+            emit TeacherRegistered(msg.sender);
+        }
+        if (_asRecruiter) {
+            recruiters[msg.sender].isRegistered = true;
+            emit RecruiterRegistered(msg.sender);
+        }
     }
 
     function getAnnounceForRecruiter (address _recruiterAddress, uint16 _announceId)

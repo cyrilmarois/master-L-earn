@@ -1,171 +1,211 @@
 import { useEffect, useState } from "react";
 import useEth from "../../../contexts/EthContext/useEth";
-import Plan from "./Plan/Plan";
+import moment from "moment";
+import Plans from "./Plans/Plans";
 import "./Staking.css";
 
 const Staking = () => {
   const {
-    state: { contract, web3 },
+    state: { contract, web3, accounts },
   } = useEth();
-  const [amount, setAmount] = useState(0);
-  const [stakeAmount, setStakeAmount] = useState(0);
-  const [plans, setPlans] = useState([]);
-  const [totalStakers, setTotalStakers] = useState([]);
-  const [totalStakingDeposit, setTotalStakingDeposit] = useState([]);
-  const [account, setAccount] = useState();
+  const [stakePlanOneAmount, setStakePlanOneAmount] = useState(0);
+  const [stakePlanTwoAmount, setStakePlanTwoAmount] = useState(0);
+  const [userBalance, setUserBalance] = useState(0);
+  const [depositStakingPlanOneTotal, setDepositStakingPlanOneTotal] =
+    useState(0);
+  const [depositStakingPlanTwoTotal, setDepositStakingPlanTwoTotal] =
+    useState(0);
 
-  const stakingPlans = [
-    {
-      title: "Plan 1",
-      lockPeriod: 12,
-      apr: 10,
-      minAmount: 500,
-      maxAmount: 2500000,
-      tokenDeposit: 1090000,
-      stakerTotal: 3561,
-    },
-    {
-      title: "Plan 2",
-      lockPeriod: 24,
-      apr: 20,
-      minAmount: 500,
-      maxAmount: 5000000,
-      tokenDeposit: 2678900,
-      stakerTotal: 11309,
-    },
-  ];
-
-  const handleStakeInputChange = (e) => {
+  const handleStakePlanOneInputChange = (e) => {
     if (/^\d+$|^$/.test(e.target.value)) {
-      setStakeAmount(e.target.value);
+      setStakePlanOneAmount(e.target.value);
     }
   };
 
-  const sendAllTokens = () => {
-    console.log({ amount });
-    setStakeAmount(amount);
+  const handleUnstakePlanOneInputChange = (e) => {
+    if (/^\d+$|^$/.test(e.target.value)) {
+      setDepositStakingPlanOneTotal(e.target.value);
+    }
   };
 
-  const handleStaking = async () => {
+  const handleStakePlanTwoInputChange = (e) => {
+    if (/^\d+$|^$/.test(e.target.value)) {
+      setStakePlanTwoAmount(e.target.value);
+    }
+  };
+
+  const handleUnstakePlanTwoInputChange = (e) => {
+    if (/^\d+$|^$/.test(e.target.value)) {
+      setDepositStakingPlanTwoTotal(e.target.value);
+    }
+  };
+
+  const sendAllTokensPlanOne = () => {
+    setStakePlanOneAmount(userBalance);
+  };
+
+  const sendAllTokensPlanTwo = () => {
+    setStakePlanTwoAmount(userBalance);
+  };
+
+  const handleStakingPlanOne = async () => {
     try {
-      console.log({ account });
-      await contract.methods.stakeDeposit(stakeAmount, 0).call({
-        from: account,
-      });
-      await contract.methods.stakeDeposit(stakeAmount, 0).send({
-        from: account,
-      });
+      await contract.methods
+        .stakeDeposit(convertAmount(stakePlanOneAmount), 0)
+        .call({
+          from: accounts[0],
+        });
+      await contract.methods
+        .stakeDeposit(convertAmount(stakePlanOneAmount), 0)
+        .send({
+          from: accounts[0],
+        });
+      getBalance();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const convertAmount = (amount) => {
+    return web3.utils.toWei(amount);
+  };
+
+  const handleStakingPlanTwo = async () => {
+    try {
+      await contract.methods
+        .stakeDeposit(convertAmount(stakePlanTwoAmount), 1)
+        .call({
+          from: accounts[0],
+        });
+      await contract.methods
+        .stakeDeposit(convertAmount(stakePlanTwoAmount), 1)
+        .send({
+          from: accounts[0],
+        });
+      getBalance();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleUnstakePlanOne = async () => {
+    try {
+      await contract.methods
+        .stakeTithdraw(convertAmount(depositStakingPlanOneTotal), 0)
+        .call({
+          from: accounts[0],
+        });
+      await contract.methods
+        .stakeTithdraw(convertAmount(depositStakingPlanOneTotal), 0)
+        .send({
+          from: accounts[0],
+        });
+      getBalance();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleUnstakePlanTwo = async () => {
+    try {
+      await contract.methods
+        .stakeTithdraw(convertAmount(stakePlanOneAmount), 0)
+        .call({
+          from: accounts[0],
+        });
+      await contract.methods
+        .stakeTithdraw(convertAmount(stakePlanOneAmount), 0)
+        .send({
+          from: accounts[0],
+        });
+      getBalance();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  useEffect(() => {
+    if ((contract, accounts)) {
+      // calcul total thought old deposits
+      const getPastEvents = async () => {
+        let oldDepositEvents = await contract.getPastEvents("StakeDeposit", {
+          fromBlock: 0,
+          toBlock: "latest",
+        });
+
+        let deposits = [];
+        deposits[0] = 0;
+        deposits[1] = 0;
+        oldDepositEvents.forEach((event) => {
+          if (event.returnValues.from === accounts[0]) {
+            const planId = parseInt(event.returnValues.planId);
+            const amount = parseInt(
+              web3.utils.fromWei(event.returnValues.amount, "ether")
+            );
+            deposits[planId] += amount;
+          }
+
+          setDepositStakingPlanOneTotal(deposits[0]);
+          setDepositStakingPlanTwoTotal(deposits[1]);
+        });
+      };
+
+      getPastEvents();
+
+      // get current total deposit amount
+      const getRecentDeposit = async () => {
+        await contract.events
+          .StakeDeposit({
+            fromBlock: "earliest",
+          })
+          .on("data", (event) => {
+            let newEventDeposit = event.returnValues.totalDeposit;
+            const planId = parseInt(event.returnValues.planId);
+            const amount = web3.utils.fromWei(newEventDeposit, "ether");
+            if (planId === 0) {
+              setDepositStakingPlanOneTotal(amount);
+            } else if (planId === 1) {
+              setDepositStakingPlanTwoTotal(amount);
+            }
+          })
+          .on("changed", (changed) => console.log(changed))
+          .on("error", (err) => console.log(err))
+          .on("connected", (str) => console.log(str));
+      };
+      getRecentDeposit();
+    }
+  }, [contract, accounts]);
+
+  const getBalance = async () => {
+    try {
+      const tmpBalance = await contract.methods
+        .balanceOf(accounts[0])
+        .call({ from: accounts[0] });
+
+      setUserBalance(web3.utils.fromWei(tmpBalance, "ether"));
     } catch (e) {
       console.error(e);
     }
   };
 
   useEffect(() => {
-    setAmount(1500);
-    setAccount(JSON.parse(localStorage.getItem("connexion")));
-    console.log("STAKING", {
-      contract,
-      web3,
-      account,
-      amount,
-    });
-    if (contract && account) {
-      console.log("STAKING", {
-        methods: contract.methods,
-      });
-      const getPlans = async () => {
-        try {
-          const tmpPlans = await contract.methods.stakingPlans.call({
-            from: account,
-          });
-          setPlans(tmpPlans);
-        } catch (e) {
-          console.error(e);
-        }
-      };
-      getPlans();
-
-      const getTotalStakers = async () => {
-        try {
-          const tmpTotalStakers = await contract.methods.totalStakers.call({
-            from: account,
-          });
-          setTotalStakers(tmpTotalStakers);
-        } catch (e) {
-          console.error(e);
-        }
-      };
-      getTotalStakers();
-
-      const getTotalStakingDeposit = async () => {
-        try {
-          const tmpTotalStakingDeposit =
-            await contract.methods.totalStakingDeposit.call({
-              from: account,
-            });
-          setTotalStakingDeposit(tmpTotalStakingDeposit);
-        } catch (e) {
-          console.error(e);
-        }
-      };
-      getTotalStakingDeposit();
+    if (contract && accounts) {
+      getBalance();
     }
-    console.log({ amount });
-  }, [contract]);
+  }, [contract, accounts]);
 
   return (
     <div id="staking">
-      <h1 className="text-center p-3">Programme de staking du MLE</h1>
-
-      <section className="container d-flex justify-content-evenly text-center py-5">
-        {/* <Plan
-          title={plans[0].title}
-          lockPeriod={plans[0].lockPeriod}
-          apr={plans[0].apr}
-          minAmount={plans[0].minTokenAmount}
-          maxAmount={plans[0].maxTokenAmount}
-          tokenDeposit={totalStakingDeposit[0]}
-          totalStaker={totalStakers[0]}
-        /> */}
-        <Plan
-          title={stakingPlans[0].title}
-          lockPeriod={stakingPlans[0].lockPeriod}
-          apr={stakingPlans[0].apr}
-          minAmount={stakingPlans[0].minAmount}
-          maxAmount={stakingPlans[0].maxAmount}
-          tokenDeposit={stakingPlans[0].tokenDeposit}
-          totalStaker={stakingPlans[0].stakerTotal}
-        />
-
-        <Plan
-          title={stakingPlans[1].title}
-          lockPeriod={stakingPlans[1].lockPeriod}
-          apr={stakingPlans[1].apr}
-          minAmount={stakingPlans[1].minAmount}
-          maxAmount={stakingPlans[1].maxAmount}
-          tokenDeposit={stakingPlans[1].tokenDeposit}
-          totalStaker={stakingPlans[1].stakerTotal}
-        />
-
-        {/* <Plan
-          title={stakingPlans[2].title}
-          lockPeriod={stakingPlans[2].lockPeriod}
-          apr={stakingPlans[2].apr}
-          minAmount={stakingPlans[2].minAmount}
-          maxAmount={stakingPlans[2].maxAmount}
-          tokenDeposit={stakingPlans[2].tokenDeposit}
-          stakerTotal={stakingPlans[2].stakerTotal}
-        /> */}
-      </section>
+      <Plans />
       <hr />
-      <section className="container d-flex justify-content-evenly text-center py-5">
+      <h1 className="text-center p-3">Stakez vos MLE</h1>
+      <section className="container d-flex justify-content-evenly text-center p-5">
         <div className="bloc col-3 staking-1 p-3">
           <h3>Plan 1</h3>
           <div className="mb-3">
             <label htmlFor="userTokenAmount" className="form-label">
               Token :{" "}
-              <span className="walletAmount" onClick={sendAllTokens}>
-                {amount}
+              <span className="walletAmount" onClick={sendAllTokensPlanOne}>
+                {userBalance}
               </span>
             </label>
           </div>
@@ -179,19 +219,120 @@ const Staking = () => {
               className="form-control"
               id="exampleFormControlInput1"
               placeholder="MLE"
-              value={stakeAmount}
-              onChange={handleStakeInputChange}
+              value={stakePlanOneAmount}
+              onChange={handleStakePlanOneInputChange}
             />
             <span className="input-group-text">MLE</span>
           </div>
           <div className="mb-3">
-            <button id="staking-button" type="submit" onClick={handleStaking}>
+            <button
+              id="staking-button"
+              type="submit"
+              onClick={handleStakingPlanOne}
+            >
               <span></span>
               <span></span>
               <span></span>
               <span></span> STAKE
             </button>
           </div>
+
+          {depositStakingPlanOneTotal !== 0 ? (
+            <>
+              <div className="mb-3 input-group">
+                <input
+                  type="number"
+                  className="form-control"
+                  id="exampleFormControlInput1"
+                  placeholder="MLE"
+                  value={depositStakingPlanOneTotal}
+                  onChange={handleUnstakePlanOneInputChange}
+                />
+                <span className="input-group-text">MLE</span>
+              </div>
+              <div className="mb-3">
+                <button
+                  id="staking-button"
+                  type="submit"
+                  onClick={handleUnstakePlanOne}
+                >
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span> UNSTAKE
+                </button>
+              </div>
+            </>
+          ) : (
+            ""
+          )}
+        </div>
+        <div className="bloc col-3 staking-1 p-3">
+          <h3>Plan 2</h3>
+          <div className="mb-3">
+            <label htmlFor="userTokenAmount" className="form-label">
+              Token :{" "}
+              <span className="walletAmount" onClick={sendAllTokensPlanTwo}>
+                {userBalance}
+              </span>
+            </label>
+          </div>
+          <label htmlFor="userTokenStakeAmount" className="form-label">
+            Montant a staker
+          </label>
+
+          <div className="mb-3 input-group">
+            <input
+              type="number"
+              className="form-control"
+              id="exampleFormControlInput1"
+              placeholder="MLE"
+              value={stakePlanTwoAmount}
+              onChange={handleStakePlanTwoInputChange}
+            />
+            <span className="input-group-text">MLE</span>
+          </div>
+          <div className="mb-3">
+            <button
+              id="staking-button"
+              type="submit"
+              onClick={handleStakingPlanTwo}
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span> STAKE
+            </button>
+          </div>
+          {depositStakingPlanOneTotal !== 0 ? (
+            <>
+              <div className="mb-3 input-group">
+                <input
+                  type="number"
+                  className="form-control"
+                  id="exampleFormControlInput1"
+                  placeholder="MLE"
+                  value={depositStakingPlanTwoTotal}
+                  onChange={handleUnstakePlanTwoInputChange}
+                />
+                <span className="input-group-text">MLE</span>
+              </div>
+              <div className="mb-3">
+                <button
+                  id="staking-button"
+                  type="submit"
+                  onClick={handleUnstakePlanTwo}
+                >
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span> UNSTAKE
+                </button>
+              </div>
+            </>
+          ) : (
+            ""
+          )}
         </div>
       </section>
     </div>

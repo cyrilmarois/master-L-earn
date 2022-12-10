@@ -16,7 +16,7 @@ const Card = (props) => {
       </div>
 
       <div>
-        <p className="author">By : {props.teacherFullName}</p>
+        <p className="author">Auteur : {props.teacherFullName}</p>
         {/* <p className="author">{props.creationDate}</p> */}
         <p className="tags">blockchain, web3</p>
         <p className="price">{props.price} MLE</p>

@@ -1,5 +1,5 @@
 import "./SubFooter.css";
-import logo from "../../../../images/mle-logo-xxs.png";
+import logo from "../../../../images/mle-logov2-xxs.png";
 
 const SubFooter = () => {
   return (

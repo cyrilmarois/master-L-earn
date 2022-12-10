@@ -50,7 +50,7 @@ const Formation = () => {
       <Filters />
 
       <section id="Formation" className="container">
-        <div className="d-flex flex-wrap">
+        <div className="d-flex flex-wrap pt-3 pb-5">
           <Card
             title={fakeFormations[0].title}
             duration={fakeFormations[0].duration}

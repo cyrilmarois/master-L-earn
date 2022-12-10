@@ -7,10 +7,17 @@ function EthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const init = useCallback(async (artifact) => {
-    console.log({ artifact });
+    console.log({ EthProvider: artifact });
     if (artifact) {
       const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
-      // const accounts = await web3.eth.requestAccounts();
+      // if (e && e[0]) {
+      //   const addressAccount = JSON.parse(localStorage.getItem("connexion"));
+      //   console.log({ addressAccount, condition: addressAccount !== e[0] });
+      //   if (addressAccount !== e[0]) {
+      //     localStorage.setItem("connexion", JSON.stringify(e[0]));
+      //   }
+      // }
+      const accounts = await web3.eth.requestAccounts();
       const networkID = await web3.eth.net.getId();
       const { abi } = artifact;
       let address, contract;
@@ -22,7 +29,7 @@ function EthProvider({ children }) {
       }
       dispatch({
         type: actions.init,
-        data: { artifact, web3, /* accounts,*/ networkID, contract },
+        data: { artifact, web3, accounts, networkID, contract },
       });
     }
   }, []);
@@ -30,14 +37,14 @@ function EthProvider({ children }) {
   useEffect(() => {
     const tryInit = async () => {
       try {
-        const artifact = require("../../contracts/SimpleStorage.json");
+        const artifact = require("../../contracts/Staking.json");
         init(artifact);
       } catch (err) {
         console.error(err);
       }
     };
 
-    // tryInit();
+    tryInit();
   }, [init]);
 
   useEffect(() => {
@@ -52,7 +59,7 @@ function EthProvider({ children }) {
     };
 
     events.forEach((e) => {
-      console.log({ e: e });
+      // console.log({ e });
       window.ethereum.on(e, handleChange);
     });
     return () => {

@@ -1,4 +1,4 @@
-import logo from "../../../images/mle-logo-sm.png";
+import logo from "../../../images/mle-logov2-sm.png";
 import SubHeader from "./SubHeader/SubHeader";
 import React, { useEffect } from "react";
 import { useState } from "react";
@@ -10,23 +10,27 @@ const Header = () => {
   const [hasError, setHasError] = useState(false);
 
   const {
-    state: { web3, contract },
+    state: { web3, contract, accounts },
   } = useEth();
 
   const handleConnexion = async () => {
-    await web3.eth
-      .requestAccounts()
-      .then((account) => {
-        console.log({ account });
-        if (account && account[0]) {
-          localStorage.setItem("connexion", JSON.stringify(account[0]));
-          const address = transformAddress(account[0]);
-          setLoggedAddress(address);
-        }
-      })
-      .catch(() => {
-        setHasError(true);
-      });
+    if (accounts && accounts[0]) {
+      const addressConnexion = transformAddress(accounts[0]);
+      setLoggedAddress(addressConnexion);
+    }
+    // await web3.eth
+    //   .requestAccounts()
+    //   .then((account) => {
+    //     console.log({ account });
+    //     if (account && account[0]) {
+    //       localStorage.setItem("connexion", JSON.stringify(account[0]));
+    //       const address = transformAddress(account[0]);
+    //       setLoggedAddress(address);
+    //     }
+    //   })
+    //   .catch(() => {
+    //     setHasError(true);
+    //   });
   };
 
   // LATER multiple wallet managment
@@ -51,13 +55,13 @@ const Header = () => {
   };
 
   useEffect(() => {
-    const account = JSON.parse(localStorage.getItem("connexion"));
+    // const account = JSON.parse(localStorage.getItem("connexion"));
 
-    if (account) {
-      const address = transformAddress(account);
-      setLoggedAddress(address);
+    if (accounts && accounts[0]) {
+      const addressConnexion = transformAddress(accounts[0]);
+      setLoggedAddress(addressConnexion);
     }
-  }, [contract]);
+  }, [contract, accounts]);
 
   return (
     <header>

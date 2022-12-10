@@ -21,46 +21,15 @@ const SubHeader = () => {
               </a>
             </li>
             <li className="nav-item">
-              <div className="dropdown text-end">
+              <div className="text-end">
                 <a
                   href="#"
-                  className="d-block nav-link text-decoration-none dropdown-toggle"
-                  data-bs-toggle="dropdown"
+                  className="d-block nav-link text-decoration-none"
                   aria-expanded="false"
                 >
                   Apprendre
                 </a>
-                <ul className="dropdown-menu text-small">
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      New project...
-                    </a>
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      Settings
-                    </a>
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      Profile
-                    </a>
-                  </li>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      Sign out
-                    </a>
-                  </li>
-                </ul>
               </div>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="#">
-                Accreditations
-              </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="#">
@@ -69,7 +38,7 @@ const SubHeader = () => {
             </li>
             <li className="nav-item">
               <a className="nav-link" href="#">
-                Pour les entreprises
+                Espace recruteurs
               </a>
             </li>
           </ul>

@@ -84,7 +84,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         uint128 totalStakers;
         uint256 totalStakingDeposit;
         uint256 minTokenAmount; // exprimed in MLE
-        uint256 maxTokenAmount; // exprimed in MLE
+        uint256 maxTokenDeposit; // exprimed in MLE
         string title;
     }
 
@@ -468,9 +468,9 @@ contract MLE is ERC20, ERC20Votes, Ownable {
             apr: 10,
             totalStakers: 0,
             totalStakingDeposit: 0,
-            lockPeriod: 12 * 4 weeks,
+            lockPeriod: 12 * 4 weeks,       // 1 year
             minTokenAmount: 500,
-            maxTokenAmount: 2500000,
+            maxTokenDeposit: 2500000e18,
             title: "Plan 1"
         });
         stakingPlan memory stakingPlanTwo = stakingPlan({
@@ -478,9 +478,9 @@ contract MLE is ERC20, ERC20Votes, Ownable {
             apr: 20,
             totalStakers: 0,
             totalStakingDeposit: 0,
-            lockPeriod: 24 * 4 weeks,
+            lockPeriod: 24 * 4 weeks,        //2 years
             minTokenAmount: 500,
-            maxTokenAmount: 5000000,
+            maxTokenDeposit: 5000000e18,
             title: "Plan 2"
         });
         stakingPlans.push(stakingPlanOne);
@@ -489,6 +489,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
     function stakeDeposit(uint256 _amount, uint8 _planId) external {
         require(_planId <= 1, "Error, staking plan does not exists");
+        require(stakingPlans[_planId].totalStakingDeposit + _amount < stakingPlans[_planId].maxTokenDeposit, "Error, staking deposit limit reach");
         require(balanceOf(msg.sender) >= _amount, "Error, insuffisant funds to stake");
         require(transfer(owner(), _amount), "Error, failed staking deposit");
 
@@ -498,7 +499,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     }
 
     function _afterDepositStakingTransfer(uint _planId, uint _amount) internal returns (uint) {
-        // register transfer
+        // register deposit
         stakingRecord memory userStakingDeposit = stakingRecord({
             date: block.timestamp,
             amount: _amount
@@ -560,19 +561,22 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         require(userStakingBalanceTotal  - _amount <= 0, "Error, insuffisant funds in staking to withdraw");
 
         // uint256 lockPeriod = stakingPlans[_planId].lockPeriod;
-        // require(block.timestamp > firstDepositDate + lockPeriod, "Forbidden, You can't withdraw before lockPeriod");
+        // require(block.timestamp > firstDepositDate + lockPeriod, "Error, You can't withdraw before lockPeriod");
 
         return userStakingBalanceTotal;
     }
 
     function _afterWithdrawalStakingTransfer(uint _planId, uint _amount, uint _userStakingBalanceTotal) internal returns (uint) {
+        // register withdraw
         stakingRecord memory tmpUserStakingWithdraw = stakingRecord({
             date: block.timestamp,
             amount: _amount
         });
         userStakingWithdrawalBalance[msg.sender][_planId].push(tmpUserStakingWithdraw);
+
         // update staking plan total Staking amount deposit
         stakingPlans[_planId].totalStakingDeposit -= _amount;
+
         // if user withdrawal all staking balance, remove it from staker
         uint256 userStakingBalanceTotal = _userStakingBalanceTotal - _amount;
         if (userStakingBalanceTotal == 0) {

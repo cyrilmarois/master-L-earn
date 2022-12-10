@@ -5,9 +5,9 @@ const Plan = (props) => {
     <div className="bloc col-3 staking-1 p-3">
       <h3>{props.title}</h3>
       <p>
-        Periode de blocage : {props.lockPeriod} mois
-        <br />
         APR : {props.apr}%
+        <br />
+        Periode de blocage : {props.lockPeriod} mois
         <br />
         Minimum deposable : {props.minAmount} MLE <br />
         Maximum de tokens deposables : {props.maxAmount} MLE

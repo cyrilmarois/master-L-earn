@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import useEth from "../../../contexts/EthContext/useEth";
-import Plan from "./Plans/Plan/Plan";
 import moment from "moment";
+import Plans from "./Plans/Plans";
 import "./Staking.css";
 
 const Staking = () => {
@@ -10,7 +10,6 @@ const Staking = () => {
   } = useEth();
   const [stakePlanOneAmount, setStakePlanOneAmount] = useState(0);
   const [stakePlanTwoAmount, setStakePlanTwoAmount] = useState(0);
-  const [stakingPlans, setStakingPlans] = useState([]);
   const [userBalance, setUserBalance] = useState(0);
   const [depositStakingPlanOneTotal, setDepositStakingPlanOneTotal] =
     useState(0);
@@ -176,26 +175,6 @@ const Staking = () => {
     }
   }, [contract, accounts]);
 
-  // GET STAKING PLANS
-  useEffect(() => {
-    if (contract) {
-      const getPlans = async () => {
-        try {
-          const stakingPlanOne = await contract.methods.stakingPlans(0).call({
-            from: accounts[0],
-          });
-          const stakingPlanTwo = await contract.methods.stakingPlans(1).call({
-            from: accounts[0],
-          });
-          setStakingPlans([stakingPlanOne, stakingPlanTwo]);
-        } catch (e) {
-          console.error(e);
-        }
-      };
-      getPlans();
-    }
-  }, [contract, accounts]);
-
   const getBalance = async () => {
     try {
       const tmpBalance = await contract.methods
@@ -216,28 +195,7 @@ const Staking = () => {
 
   return (
     <div id="staking">
-      <h1 className="text-center p-3">Programme de staking du MLE</h1>
-
-      <section className="container d-flex justify-content-evenly text-center py-5">
-        {stakingPlans.length > 0
-          ? stakingPlans.map((item, i) => (
-              <Plan
-                key={i}
-                title={item.title}
-                apr={item.apr}
-                // lockPeriod={moment.unix(item.lockPeriod).month()}
-                lockPeriod={i == 0 ? 12 : 24}
-                minAmount={web3.utils.fromWei(item.minTokenAmount, "ether")}
-                maxAmount={web3.utils.fromWei(item.maxTokenDeposit, "ether")}
-                tokenDeposit={web3.utils.fromWei(
-                  item.totalStakingDeposit,
-                  "ether"
-                )}
-                totalStaker={item.totalStakers}
-              />
-            ))
-          : ""}
-      </section>
+      <Plans />
       <hr />
       <h1 className="text-center p-3">Stakez vos MLE</h1>
       <section className="container d-flex justify-content-evenly text-center p-5">

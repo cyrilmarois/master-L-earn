@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-
+import "./MLEUtils.sol";
 
 /**
  * @title The smart contract to handle the MLE token, and interractions between :
@@ -14,93 +14,19 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @author Cyril Marois & Maxence Guillemain d'Echon
 **/
 contract MLE is ERC20, ERC20Votes, Ownable {
-/******************************** STRUCTS & ENUMS ********************************/
-
-    struct TeacherFormation {
-        uint8 modulesCount;
-        uint32 ratingsSum;
-        uint32 ratingsCount;
-        uint32 duration;         // exprimed in seconds
-        uint128 creationDate;    // exprimed in seconds since 1970
-        uint price;              // exprimed in MLE
-        string title;
-        string description;
-        string[] ressources;
-        string[] tags;
-        address[] students;
-    }
-
-    struct StudentFormation {
-        address teacherAddress;
-        uint16 formationId;
-        uint8 validatedModulesNumber;
-        bool isCertified;
-        bool isRated;
-        uint cashback;
-    }
-
-    struct Announce {
-        bool isActive;
-        uint creationDate;     // exprimed in seconds since 1970
-        string title;
-        string description;
-        string[] ressources;
-        string[] tags;
-        address[] candidates;
-        // TBD : add specific conditions to be able to apply ?
-    }
-
-    struct Job {
-        bool isAccepted;
-        address recruiterAddress;
-        uint16 announceId;
-        uint128 entryDate;     // exprimed in seconds since 1970
-        string title;
-        string description;
-        uint challenge;
-    }
-
-    struct Student {
-        bool isRegistered;
-        StudentFormation[] formations;
-        Job[] jobs;
-    }
-
-    struct Teacher {
-        bool isRegistered;
-        TeacherFormation[] formations;
-    }
-
-    struct Recruiter {
-        bool isRegistered;
-        Announce[] announces;
-    }
-
-    struct stakingDepositRecord {
-        uint256 date;
-        uint256 amount;
-    }
-
-    struct stakingPlan {
-        uint8 planId;
-        uint8 apr;
-        uint128 lockPeriod;     // exprimed in seconds
-        uint256 minTokenAmount; // exprimed in MLE
-        uint256 maxTokenAmount; // exprimed in MLE
-        string title;
-    }
-
 
 /******************************** STATE VARIABLES ********************************/
 
-    mapping (address => Student) students;
-    mapping (address => Teacher) teachers;
-    mapping (address => Recruiter) recruiters;
-    mapping (address => stakingDepositRecord[][2]) private userStakingBalance;
+    mapping (address => MLEUtils.Student) students;
+    mapping (address => MLEUtils.Teacher) teachers;
+    mapping (address => MLEUtils.Recruiter) recruiters;
+
+    mapping (address => MLEUtils.StakingRecord[][2]) public userStakingDepositBalance;
+    mapping (address => MLEUtils.StakingRecord[][2]) public userStakingWithdrawalBalance;
     mapping (address => uint256) formationStakingBalance;
 
-    uint[2] totalStakers;
-    uint[2] totalStakingDeposit;
+    address[] stakers;
+    MLEUtils.StakingPlan[] stakingPlans;
     uint announcePostPrice = 50e18;
     uint formationFee = 3; // %
     uint formationFeeBurn = 0; // %
@@ -124,7 +50,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     event AnnouncePublished (address recruiterAddress, uint announceId);
 
     event TeacherRewarded(address teacherAddress);
-    event RecruitmentReward(address _studentAddress, uint16 _jobId);
+    event RecruitmentReward(address studentAddress, uint16 jobId);
 
     event StakeDeposit (uint256 amount, address from, uint8 planId, uint256 totalDeposit);
     event StakeWithdrawal (uint256 amount, address from, uint8 planId, uint256 newUserStakingBalanceTotal);
@@ -137,39 +63,32 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     **/
     constructor() ERC20("Master L&Earn", "MLE") Ownable() ERC20Permit("Master L&Earn") {
         _mint(msg.sender, INITIAL_SUPPLY);
+
+        _initStakingPlans();
+
+        address teacher1 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
+        address student1 = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db;
+        address student2 = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB;
+        address recruiter1 = 0x617F2E2fD72FD9D5503197092aC168c91465E7f2;
+
+        //teacher
+        transfer(teacher1, 1000e18);
+
+        //student
+        transfer(student1, 1000e18);
+        transfer(student2, 1000e18);
+
+        // recruiter
+        transfer(recruiter1, 1000e18);
+
     }
 
     receive() external payable {}
     fallback() external payable {}
 
 /*********************************** MODIFIERS ***********************************/
-
-    modifier onlyTeachers () {
-        require(teachers[msg.sender].isRegistered, "Denied: is not a teacher");
-        _;
-    }
-
-    modifier onlyStudents () {
-        require(students[msg.sender].isRegistered, "Denied: is not a student");
-        _;
-    }
-
-    modifier onlyRecruiters () {
-        require(recruiters[msg.sender].isRegistered, "Denied: is not a recruiter");
-        _;
-    }
 /*********************************** FUNCTIONS ***********************************/
-    /***************** UTILS ********************/
-    function _removeAddressFromTab(address[] memory _tab, address _address)
-    internal pure returns(address[] memory) {
-        for (uint _i; _i < _tab.length; _i++) {
-            if (_tab[_i] == _address) {
-                _tab[_i] = _tab[_tab.length - 1];
-                delete (_tab[_tab.length - 1]);
-            }
-        }
-        return _tab;
-    }
+/***************** UTILS ********************/
 
     function _afterTokenTransfer(address from, address to, uint amount) internal override(ERC20, ERC20Votes) {
         super._afterTokenTransfer(from, to, amount);
@@ -183,44 +102,49 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         super._burn(account, amount);
     }
 
-    /************* GETTERS & SETTERS ************/
+/************* GETTERS & SETTERS ************/
+
+    function register(bool _asStudent, bool _asTeacher, bool _asRecruiter) external {
+        if (_asStudent) {
+            students[msg.sender].isRegistered = true;
+            emit StudentRegistered(msg.sender);
+        }
+        if (_asTeacher) {
+            teachers[msg.sender].isRegistered = true;
+            emit TeacherRegistered(msg.sender);
+        }
+        if (_asRecruiter) {
+            recruiters[msg.sender].isRegistered = true;
+            emit RecruiterRegistered(msg.sender);
+        }
+    }
 
     function getAnnounceForRecruiter (address _recruiterAddress, uint16 _announceId)
-    external view returns(Announce memory) {
+    external view returns(MLEUtils.Announce memory) {
         require (recruiters[_recruiterAddress].isRegistered, "Recruiter address not registered");
         require (_announceId < recruiters[_recruiterAddress].announces.length, "Announce not found");
         return recruiters[_recruiterAddress].announces[_announceId];
     }
 
-    function getAnnouncesForRecruiter (address _recruiterAddress)
-    external view returns(Announce[] memory) {
-        require (recruiters[_recruiterAddress].isRegistered, "Recruiter address not registered");
-        return recruiters[_recruiterAddress].announces;
-    }
-
     function getFormationForTeacher (address _teacherAddress, uint16 _formationId)
-    external view returns(TeacherFormation memory) {
+    external view returns(MLEUtils.TeacherFormation memory) {
         require (teachers[_teacherAddress].isRegistered, "Teacher address not registered");
         require (_formationId < teachers[_teacherAddress].formations.length, "Formation not found");
         return teachers[_teacherAddress].formations[_formationId];
     }
 
-    function getTeacherFormationsForTeacher (address _teacherAddress)
-    external view returns(TeacherFormation[] memory) {
-        require (teachers[_teacherAddress].isRegistered, "Teacher address not registered");
-        return teachers[_teacherAddress].formations;
+    function getFormationForStudent (address _studentAddress, uint16 _formationId)
+    external view returns(MLEUtils.StudentFormation memory) {
+        require (students[_studentAddress].isRegistered, "Student address not registered");
+        require (_formationId < students[_studentAddress].formations.length, "Formation not found");
+        return students[_studentAddress].formations[_formationId];
     }
 
-    function getFormationsForStudent (address _studentAddress)
-    external view returns(StudentFormation[] memory) {
+    function getJobsForStudent (address _studentAddress, uint16 _jobId)
+    external view returns(MLEUtils.Job memory) {
         require (students[_studentAddress].isRegistered, "Student address not registered");
-        return students[_studentAddress].formations;
-    }
-
-    function getJobsForStudent (address _studentAddress)
-    external view returns(Job[] memory) {
-        require (students[_studentAddress].isRegistered, "Student address not registered");
-        return students[_studentAddress].jobs;
+        require (_jobId < students[_studentAddress].jobs.length, "Formation not found");
+        return students[_studentAddress].jobs[_jobId];
     }
 
     function setAnnouncePostPrice (uint _announcePostPrice) external onlyOwner {
@@ -245,28 +169,17 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         jobSignedReward = _jobSignedReward;
     }
 
-    function registerUser(address _address, bool _asStudent, bool _asTeacher, bool _asRecruiter) external {
-        if (_asStudent)
-            students[_address].isRegistered = true;
-        if (_asTeacher)
-            teachers[_address].isRegistered = true;
-        if (_asRecruiter)
-            recruiters[_address].isRegistered = true;
-    }
-
-    /********** FORMATIONS FUNCTIONS ************/
+/********** FORMATIONS FUNCTIONS ************/
 
     function postFormation (
         uint8 _modulesCount,
         uint16 _duration,
         uint _price,
         string memory _title,
-        string memory _description,
-        string[] memory _ressources,
         string[] memory _tags
-    ) external onlyTeachers {
+    ) external {
         address[] memory stds;
-        teachers[msg.sender].formations.push( TeacherFormation (
+        teachers[msg.sender].formations.push( MLEUtils.TeacherFormation (
             _modulesCount,
             0,
             0,
@@ -274,20 +187,18 @@ contract MLE is ERC20, ERC20Votes, Ownable {
             uint128(block.timestamp),
             _price,
             _title,
-            _description,
-            _ressources,
             _tags,
             stds
         ));
     }
 
-    function validateUserModule (address _studentAddress, uint16 _teacherFormationId) external onlyTeachers {
+    function validateUserModule (address _studentAddress, uint16 _teacherFormationId) external {
         require (students[_studentAddress].isRegistered, "Student address not registered");
 
         uint16 _id = _retrieveStudentFormationId(_studentAddress, msg.sender, _teacherFormationId);
-        StudentFormation memory _studentFormation = students[_studentAddress].formations[_id];
+        MLEUtils.StudentFormation memory _studentFormation = students[_studentAddress].formations[_id];
         require (!_studentFormation.isCertified, "Formation already certified");
-        require (_studentFormation.validatedModulesNumber < teachers[msg.sender].formations[_teacherFormationId].modulesCount, "");
+        require (_studentFormation.validatedModulesNumber < teachers[msg.sender].formations[_teacherFormationId].modulesCount, "Last module already validated");
 
         students[_studentAddress].formations[_id].validatedModulesNumber++;
 
@@ -298,14 +209,14 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         }
     }
 
-    function certifyUserFormation (address _studentAddress, uint16 _teacherFormationId) external onlyTeachers {
+    function certifyUserFormation (address _studentAddress, uint16 _teacherFormationId) external {
         require (students[_studentAddress].isRegistered, "Student address not registered");
 
         uint16 _id = _retrieveStudentFormationId(_studentAddress, msg.sender, _teacherFormationId);
         require (!students[_studentAddress].formations[_id].isCertified, "Formation already certified");
 
         teachers[msg.sender].formations[_teacherFormationId].students
-         = _removeAddressFromTab(teachers[msg.sender].formations[_teacherFormationId].students,
+         = MLEUtils._removeAddressFromTab(teachers[msg.sender].formations[_teacherFormationId].students,
          _studentAddress);
 
         students[_studentAddress].formations[_id].isCertified = true;
@@ -329,11 +240,11 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         return _id;
     }
 
-    function buyFormation (address _teacherAddress, uint16 _teacherFormationId) external onlyStudents {
+    function buyFormation (address _teacherAddress, uint16 _teacherFormationId) external {
         require (teachers[_teacherAddress].isRegistered, "Student address not registered");
         require (_teacherFormationId < teachers[_teacherAddress].formations.length, "Formation not found");
 
-        TeacherFormation memory _teacherFormation = teachers[_teacherAddress].formations[_teacherFormationId];
+        MLEUtils.TeacherFormation memory _teacherFormation = teachers[_teacherAddress].formations[_teacherFormationId];
 
         // Pay formation
         require (balanceOf(msg.sender) >= 2 * _teacherFormation.price, "Insufficient balance");
@@ -347,15 +258,15 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
         // Add new StudentFormation to student
         uint cashback = _teacherFormation.price / _teacherFormation.modulesCount ;
-        StudentFormation memory _studentFormation =
-            StudentFormation (_teacherAddress, _teacherFormationId, 0, false, false, cashback);
+        MLEUtils.StudentFormation memory _studentFormation =
+            MLEUtils.StudentFormation (_teacherAddress, _teacherFormationId, 0, false, false, cashback);
         students[msg.sender].formations.push(_studentFormation);
 
         // Add student address to formation
         teachers[_teacherAddress].formations[_teacherFormationId].students.push(msg.sender);
     }
 
-    function evaluateFormation (address _teacherAddress, uint16 _teacherFormationId, uint8 grade) external onlyStudents {
+    function evaluateFormation (address _teacherAddress, uint16 _teacherFormationId, uint8 grade) external {
         require (grade <= MAX_GRADE, "Grade too high");
         require (teachers[_teacherAddress].isRegistered, "Teacher address not registered");
         require (_teacherFormationId < teachers[_teacherAddress].formations.length, "Formation not found");
@@ -384,22 +295,18 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         }
     }
 
-    /******* ANNOUNCES & JOBS FUNCTIONS *********/
+/******* ANNOUNCES & JOBS FUNCTIONS *********/
 
     function postAnnounce(
         string memory _title,
-        string memory _description,
-        string[] memory _ressources,
         string[] memory _tags
-    ) external onlyRecruiters {
+    ) external {
         require (transfer(owner(), announcePostPrice), "Not enough tokens");
         address[] memory candidates;
-        recruiters[msg.sender].announces.push( Announce (
+        recruiters[msg.sender].announces.push( MLEUtils.Announce (
             true,
             block.timestamp,
             _title,
-            _description,
-            _ressources,
             _tags,
             candidates
         ));
@@ -408,22 +315,20 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     function offerJob(
         address _studentAddress,
         uint16 _announceId,
-        string memory _title,
-        string memory _description
-    ) external onlyRecruiters {
+        string memory _title
+    ) external {
         require (students[_studentAddress].isRegistered, "Student address not registered");
-        students[_studentAddress].jobs.push( Job (
+        students[_studentAddress].jobs.push( MLEUtils.Job (
             false,
             msg.sender,
             _announceId,
             0,
             _title,
-            _description,
             0
         ));
     }
 
-    function applyAnnounce(address _recruiterAddress, uint16 _announceId) external onlyStudents {
+    function applyAnnounce(address _recruiterAddress, uint16 _announceId) external {
         require (recruiters[_recruiterAddress].isRegistered, "Recruiter address not registered");
         require (_announceId < recruiters[_recruiterAddress].announces.length, "Announce not found");
 
@@ -438,17 +343,17 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         recruiters[_recruiterAddress].announces[_announceId].candidates.push(msg.sender);
     }
 
-    function answerJobOffer(bool _doAccept, uint16 _jobId) external onlyStudents {
+    function answerJobOffer(bool _doAccept, uint16 _jobId) external {
         require (_jobId < students[msg.sender].jobs.length, "Job not found");
 
         students[msg.sender].jobs[_jobId].isAccepted = _doAccept;
     }
 
-    function proveId(uint16 _jobId, uint _challenge) onlyStudents external {
+    function proveId(uint16 _jobId, uint _challenge) external {
         students[msg.sender].jobs[_jobId].challenge = _challenge;
     }
 
-    function verifyId(address _studentAddress, uint16 _jobId, uint _challenge) onlyRecruiters external {
+    function verifyId(address _studentAddress, uint16 _jobId, uint _challenge) external {
         // verify ID by checking challenge
         require (students[_studentAddress].jobs[_jobId].challenge == _challenge, "Id not verified");
 
@@ -461,23 +366,27 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         emit RecruitmentReward(_studentAddress, _jobId);
     }
 
-    /************ TOKEN FUNCTIONS ***************/
+/************ TOKEN FUNCTIONS ***************/
 
-    function initStakingPlans() internal {
-        stakingPlan memory stakingPlanOne = stakingPlan({
+    function _initStakingPlans() internal {
+        MLEUtils.StakingPlan memory stakingPlanOne = MLEUtils.StakingPlan({
             planId : 0,
             apr: 10,
-            lockPeriod: 60 * 60 * 24 * 30 * 6,
+            totalStakers: 0,
+            totalStakingDeposit: 0,
+            lockPeriod: 12 * 4 weeks,       // 1 year
             minTokenAmount: 500,
-            maxTokenAmount: 2500000,
+            maxTokenDeposit: 2500000e18,
             title: "Plan 1"
         });
-        stakingPlan memory stakingPlanTwo = stakingPlan({
+        MLEUtils.StakingPlan memory stakingPlanTwo = MLEUtils.StakingPlan({
             planId : 1,
             apr: 20,
-            lockPeriod: 60 * 60 * 24 * 30 * 12,
+            totalStakers: 0,
+            totalStakingDeposit: 0,
+            lockPeriod: 24 * 4 weeks,        //2 years
             minTokenAmount: 500,
-            maxTokenAmount: 5000000,
+            maxTokenDeposit: 5000000e18,
             title: "Plan 2"
         });
         stakingPlans.push(stakingPlanOne);
@@ -485,65 +394,134 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     }
 
     function stakeDeposit(uint256 _amount, uint8 _planId) external {
-        require(balanceOf(msg.sender) >= _amount, "Invalid staking amount");
-        require(hasStakingPlan(_planId), "Staking plan does not exists");
-        require(transfer(owner(), _amount), "Failed staking deposit");
+        require(_planId <= 1, "Error, staking plan does not exists");
+        require(stakingPlans[_planId].totalStakingDeposit + _amount < stakingPlans[_planId].maxTokenDeposit, "Error, staking deposit limit reach");
+        require(balanceOf(msg.sender) >= _amount, "Error, insuffisant funds to stake");
+        require(transfer(owner(), _amount), "Error, failed staking deposit");
 
-        // stakingDepositRecord[] memory tmpUserStakingBalances = userStakingBalance[msg.sender][_planId];
-        stakingDepositRecord memory tmpUserStakingDeposit = stakingDepositRecord({
-            date: block.timestamp,
-            amount: _amount
-        });
-        userStakingBalance[msg.sender][_planId].push(tmpUserStakingDeposit);
-        stakingDepositRecord[] memory deposits = userStakingBalance[msg.sender][_planId];
-        // first deposit in this plan
-        // update user total staking deposit balance
-        uint256 newUserStakingBalanceTotal;
-        for (uint i = 0; i < deposits.length; i++) {
-            newUserStakingBalanceTotal += deposits[i].amount;
-        }
-        // update stakers total
-        if (deposits.length == 1) {
-            totalStakers[_planId] += 1;
-        }
+        uint256 newUserStakingDepositBalanceTotal = _afterDepositStakingTransfer(_planId, _amount);
 
-        // update total deposit from all users
-        // if (totalStakingDeposit.length == 1) {
-        //     totalStakingDeposit[_planId] += newUserStakingBalanceTotal;
-        // }
-
-        emit StakeDeposit(_amount, msg.sender, _planId, newUserStakingBalanceTotal);
-    }
-
-    function hasStakingPlan(uint _planId) internal view returns (bool) {
-        bool planExist;
-        for (uint i = 0; i < stakingPlans.length; i ++) {
-            if (_planId == stakingPlans[i].planId) {
-                planExist = true;
-            }
-        }
-        return planExist;
+        emit StakeDeposit(_amount, msg.sender, _planId, newUserStakingDepositBalanceTotal);
     }
 
     function stakeWithdraw(uint256 _amount, uint8 _planId) external {
-        require(hasStakingPlan(_planId), "Staking plan does not exists");
-        stakingDepositRecord[] memory tmpUserStakingBalances = userStakingBalance[msg.sender][_planId];
-        require(tmpUserStakingBalances.length > 0, "Staking deposit does not exists");
-        uint256 userStakingBalanceTotal;
-        uint256 firstDepositDate;
-        for (uint i = 0; i < tmpUserStakingBalances.length; i++) {
-            if (i == 0) {
-                firstDepositDate = tmpUserStakingBalances[i].date;
-            }
-            userStakingBalanceTotal += tmpUserStakingBalances[i].amount;
-        }
-        uint256 lockPeriod = stakingPlans[_planId].lockPeriod;
-        // require(block.timestamp > firstDepositDate + lockPeriod, "Forbidden, You can't withdraw before lockPeriod");
-        require(_amount <= userStakingBalanceTotal, "Invalid withdrawal amount");
-        require(this.transferFrom(msg.sender, _amount), "Error during stake withdrawal, You can't withdraw more than you have deposit");
-        uint newUserStakingBalanceTotal = userStakingBalanceTotal - _amount;
+        require(_planId <= 1, "Error, staking plan does not exists");
+
+        uint256 userStakingBalanceTotal = _beforeWithdrawalStakingTransfer(_planId, _amount);
+
+        _transfer(owner(), msg.sender, _amount);
+
+        uint256 newUserStakingBalanceTotal = _afterWithdrawalStakingTransfer(_planId, _amount, userStakingBalanceTotal);
 
         emit StakeWithdrawal(_amount, msg.sender, _planId, newUserStakingBalanceTotal);
+    }
+
+    function _afterDepositStakingTransfer(uint _planId, uint _amount) internal returns (uint) {
+        // register deposit
+        MLEUtils.StakingRecord memory userStakingDeposit = MLEUtils.StakingRecord({
+            date: block.timestamp,
+            amount: _amount
+        });
+        userStakingDepositBalance[msg.sender][_planId].push(userStakingDeposit);
+
+        // update total deposit from all users
+        stakingPlans[_planId].totalStakingDeposit += _amount;
+
+        // update stakers
+        _registerStakers();
+
+        // update staking plan stakers total
+        stakingPlans[_planId].totalStakers = stakers.length;
+
+        // update user total staking deposit balance
+        uint256 newUserStakingDepositBalanceTotal;
+        MLEUtils.StakingRecord[] memory deposits = userStakingDepositBalance[msg.sender][_planId];
+        for (uint i = 0; i < deposits.length; i++) {
+            newUserStakingDepositBalanceTotal += deposits[i].amount;
+        }
+
+        return newUserStakingDepositBalanceTotal;
+    }
+
+    function _registerStakers() internal {
+        for (uint i =0; i < stakers.length; i++) {
+            if (stakers[i] == msg.sender) {
+                return;
+            }
+        }
+        stakers.push(msg.sender);
+    }
+
+    function _beforeWithdrawalStakingTransfer(uint _planId, uint _amount) internal view returns (uint) {
+        // count withdraw amount
+        uint256 userStakingWithdrawalBalanceTotal = _getUserWithdrawalBalance(_planId);
+
+        // count deposit amount
+        uint256 userStakingDepositBalanceTotal;
+        uint256 firstDepositDate;
+        (userStakingDepositBalanceTotal, firstDepositDate) = _getUserStakingDepositBalance(_planId);
+
+        uint256 userStakingBalanceTotal = userStakingDepositBalanceTotal - userStakingWithdrawalBalanceTotal;
+        require(userStakingBalanceTotal  - _amount >= 0, "Error, insuffisant funds in staking to withdraw");
+
+        // uint256 lockPeriod = stakingPlans[_planId].lockPeriod;
+        // require(block.timestamp > firstDepositDate + lockPeriod, "Error, You can't withdraw before lockPeriod");
+
+        return userStakingBalanceTotal;
+    }
+
+    function _afterWithdrawalStakingTransfer(uint _planId, uint _amount, uint _userStakingBalanceTotal) internal returns (uint) {
+        // register withdraw
+        MLEUtils.StakingRecord memory tmpUserStakingWithdraw = MLEUtils.StakingRecord({
+            date: block.timestamp,
+            amount: _amount
+        });
+        userStakingWithdrawalBalance[msg.sender][_planId].push(tmpUserStakingWithdraw);
+
+        // update staking plan total Staking amount deposit
+        stakingPlans[_planId].totalStakingDeposit -= _amount;
+
+        // if user withdrawal all staking balance, remove it from staker
+        uint256 userStakingBalanceTotal = _userStakingBalanceTotal - _amount;
+        if (userStakingBalanceTotal == 0) {
+            stakingPlans[_planId].totalStakers--;
+            deleteStakers();
+        }
+
+        return userStakingBalanceTotal;
+    }
+
+
+    function _getUserStakingDepositBalance(uint _planId) internal view returns (uint, uint) {
+        MLEUtils.StakingRecord[] memory tmpUserStakingDepositBalances = userStakingDepositBalance[msg.sender][_planId];
+        uint256 userStakingDepositBalanceTotal;
+        uint256 firstDepositDate;
+        for (uint i; i < tmpUserStakingDepositBalances.length; i++) {
+            if (i == 0) {
+                firstDepositDate = tmpUserStakingDepositBalances[i].date;
+            }
+            userStakingDepositBalanceTotal += tmpUserStakingDepositBalances[i].amount;
+        }
+
+        return (userStakingDepositBalanceTotal, firstDepositDate);
+    }
+
+    function _getUserWithdrawalBalance(uint _planId) internal view returns (uint) {
+        MLEUtils.StakingRecord[] memory tmpUserStakingWithdrawalBalances = userStakingWithdrawalBalance[msg.sender][_planId];
+        uint256 userStakingWithdrawalBalanceTotal;
+        for (uint i; i < tmpUserStakingWithdrawalBalances.length; i++) {
+            userStakingWithdrawalBalanceTotal += tmpUserStakingWithdrawalBalances[i].amount;
+        }
+
+        return userStakingWithdrawalBalanceTotal;
+    }
+
+    function deleteStakers() internal {
+        for (uint i; i < stakers.length; i++) {
+            if (stakers[i] == msg.sender) {
+                delete(stakers[i]);
+            }
+        }
     }
 
     function DAOmint(uint _amount) onlyOwner external {

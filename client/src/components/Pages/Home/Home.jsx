@@ -8,12 +8,12 @@ const Home = () => {
       <div className="header d-flex justify-content-center align-items-center">
         <div className="jumbotron jumbotron-fluid">
           <div className="container">
-            <h1 className="slogan display-4">Master LEarn</h1>
+            <h1 className="slogan display-4">Master L&Earn</h1>
             <p className="lead">Apprendre n'aura jamais autant un plaisir !</p>
           </div>
         </div>
       </div>
-      <section className="container subHeader pt-3 d-flex justify-content-around">
+      <section className="container py-5 d-flex justify-content-around">
         <div className="bloc1 col-4 p-3 text-center">
           <i className="icon fa-solid fa-graduation-cap"></i>
           <h3>Apprenez tout en gagnant !</h3>
@@ -23,7 +23,7 @@ const Home = () => {
         </div>
         <div className="bloc2 col-4 p-3 text-center">
           <i className="icon fa-solid fa-rocket"></i>
-          <h3>Booster vos chances</h3>
+          <h3>Booster vos chances !</h3>
           Vos competences nous tiennent a coeur mais encore plus aux recruteurs
           ! Les SBT que vous remporterez a chaque certification, seront la pour
           attester de vos acquis ! Ils seront directement lies a votre adresse
@@ -37,24 +37,17 @@ const Home = () => {
           divers plans de staking allant de 6 a 24 mois !
         </div>
       </section>
-      <section className="topic-1 subHeader pt-3">
-        <div className="container subHeader">
+      <section className="topic-1 py-5">
+        <div className="container text-center">
           <p>
-            Master & LEarn est une plateforme qui tend a repondre aux besoins de
-            reconversions des personnes. Curabitur non ipsum id tortor
-            scelerisque luctus id a ante.
-          </p>
-          <p>
-            Orci varius natoque penatibus et magnis dis parturient montes,
-            nascetur ridiculus mus. Ut at interdum mi. Donec vitae urna risus.
-            Morbi nec nibh commodo elit lobortis efficitur nec at augue. In
-            dapibus, lorem at auctor elementum, nunc mauris malesuada lectus,
-            condimentum auctor lacus est ut dui.
-          </p>
-          <p>
-            Donec eget porttitor quam. Curabitur porttitor nulla justo, ac
-            molestie risus tempus quis. Nullam congue tortor ligula, ut
-            vulputate tellus elementum in. Sed vitae neque lorem.
+            Master L&Earn veut être le COMMUN des talents du Web3. Une
+            plateforme E-Learning, de confiance, certifiante et reconnaissante,
+            "un Coursera décentralisé et augmenté" qui répond aux enjeux du
+            marché de la Formation de demain. Pour vous apprenants, une
+            employabilité certifiée tout en protégeant votre identité. Pour vous
+            formateurs, des opportunités de partager librement et d'être
+            rémunéré facilement. Enfin pour vous employeurs, un sourcing
+            alternatif crédible et sécurisé.
           </p>
         </div>
       </section>
@@ -70,8 +63,8 @@ const Home = () => {
                 felis, ac sodales lacus.
               </blockquote>
               <img src={profile1} />
-              <figcaption class="blockquote-footer mt-3">
-                Julie R. 25 ans, certifiee sur une formation en Solidity
+              <figcaption className="blockquote-footer mt-3">
+                Julie R. 25 ans, certifi&eacute;e en Solidity
               </figcaption>
             </figure>
           </div>
@@ -82,24 +75,27 @@ const Home = () => {
                 consectetur velit. Aliquam quis molestie arcu
               </blockquote>
               <img src={profile2} />
-              <figcaption class="blockquote-footer mt-3">
-                Radjani M. 22 ans, certifie sur une formation en Solidity
+              <figcaption className="blockquote-footer mt-3">
+                Radjani M. 22 ans, certifi&eacute; en Solidity
               </figcaption>
             </figure>
           </div>
         </div>
       </section>
       <section className="topic-2">
-        <div className="container  subHeader pt-3 d-flex justify-content-around">
-          Nullam dignissim ultricies odio sit amet molestie. In hac habitasse
-          platea dictumst. Etiam nec ante ut arcu tincidunt ullamcorper. Quisque
-          eget ex imperdiet ligula fermentum egestas nec gravida lorem. Nullam
-          finibus sed nunc vel fringilla. Curabitur fermentum magna urna, vel
-          semper erat finibus a. In vitae gravida mi, sed vulputate purus.
-          Vivamus tempus eleifend lorem, sit amet porta nisl. Praesent
-          condimentum, nisi a fermentum ultrices, turpis tortor euismod ante,
-          sed elementum magna libero iaculis nunc. Lorem ipsum dolor sit amet,
-          consectetur adipiscing elit.
+        <div className="container py-5">
+          <div className="row justify-left pb-3">
+            Nullam dignissim ultricies odio sit amet molestie. In hac habitasse
+            platea dictumst. Etiam nec ante ut arcu tincidunt ullamcorper.
+            Quisque eget ex imperdiet ligula fermentum egestas nec gravida
+            lorem. Nullam finibus sed nunc vel fringilla.
+          </div>
+          <div className="row text-end">
+            Vivamus tempus eleifend lorem, sit amet porta nisl. Praesent
+            condimentum, nisi a fermentum ultrices, turpis tortor euismod ante,
+            sed elementum magna libero iaculis nunc. Lorem ipsum dolor sit amet,
+            consectetur adipiscing elit.
+          </div>
         </div>
       </section>
     </div>

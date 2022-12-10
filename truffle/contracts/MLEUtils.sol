@@ -45,7 +45,6 @@ library MLEUtils {
         uint16 announceId;
         uint128 entryDate;     // exprimed in seconds since 1970
         string title;
-        string description;
         uint challenge;
     }
 

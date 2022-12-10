@@ -50,7 +50,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     event AnnouncePublished (address recruiterAddress, uint announceId);
 
     event TeacherRewarded(address teacherAddress);
-    event RecruitmentReward(address _studentAddress, uint16 _jobId);
+    event RecruitmentReward(address studentAddress, uint16 jobId);
 
     event StakeDeposit (uint256 amount, address from, uint8 planId, uint256 totalDeposit);
     event StakeWithdrawal (uint256 amount, address from, uint8 planId, uint256 newUserStakingBalanceTotal);
@@ -133,6 +133,13 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         return teachers[_teacherAddress].formations[_formationId];
     }
 
+    function getFormationForStudent (address _studentAddress, uint16 _formationId)
+    external view returns(MLEUtils.StudentFormation memory) {
+        require (students[_studentAddress].isRegistered, "Student address not registered");
+        require (_formationId < students[_studentAddress].formations.length, "Formation not found");
+        return students[_studentAddress].formations[_formationId];
+    }
+
     function getJobsForStudent (address _studentAddress, uint16 _jobId)
     external view returns(MLEUtils.Job memory) {
         require (students[_studentAddress].isRegistered, "Student address not registered");
@@ -191,7 +198,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         uint16 _id = _retrieveStudentFormationId(_studentAddress, msg.sender, _teacherFormationId);
         MLEUtils.StudentFormation memory _studentFormation = students[_studentAddress].formations[_id];
         require (!_studentFormation.isCertified, "Formation already certified");
-        require (_studentFormation.validatedModulesNumber < teachers[msg.sender].formations[_teacherFormationId].modulesCount, "");
+        require (_studentFormation.validatedModulesNumber < teachers[msg.sender].formations[_teacherFormationId].modulesCount, "Last module already validated");
 
         students[_studentAddress].formations[_id].validatedModulesNumber++;
 
@@ -308,8 +315,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     function offerJob(
         address _studentAddress,
         uint16 _announceId,
-        string memory _title,
-        string memory _description
+        string memory _title
     ) external {
         require (students[_studentAddress].isRegistered, "Student address not registered");
         students[_studentAddress].jobs.push( MLEUtils.Job (
@@ -318,7 +324,6 @@ contract MLE is ERC20, ERC20Votes, Ownable {
             _announceId,
             0,
             _title,
-            _description,
             0
         ));
     }

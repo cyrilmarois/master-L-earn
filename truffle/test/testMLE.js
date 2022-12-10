@@ -11,6 +11,8 @@ contract("MLE", accounts => {
     var student2 = accounts[3];
     var recruiter1 = accounts[4];
     var price = BN("200000000000000000000");
+    var module_count = BN(3);
+
     before (async function() { 
       MLEInstance = await MLE.new({from: owner})
     });
@@ -36,7 +38,7 @@ contract("MLE", accounts => {
     
     it('Allows a teacher to post a formation', async() => {
       await MLEInstance.postFormation(
-        BN(3), // Module counts
+        module_count, // Module counts
         BN(100), // Duration
         price, // MLE price
         "Algorithmique", // Title
@@ -44,7 +46,7 @@ contract("MLE", accounts => {
         {from: teacher1});
       
       var formation = await MLEInstance.getFormationForTeacher(teacher1, 0, {from:student1});
-      assert.equal(formation.modulesCount, 3);    
+      expect(formation.modulesCount).to.be.bignumber.equal(BN(3));    
       expect (formation.price).to.be.bignumber.equal(price);
     });
 
@@ -57,27 +59,100 @@ contract("MLE", accounts => {
       var balanceOfStudentAfter = await MLEInstance.balanceOf(student1);
       
       var formation = await MLEInstance.getFormationForTeacher(teacher1, 0, {from:teacher1});
-      assert.equal(formation.students[0], student1);
+      expect(formation.students[0]).equal(student1);
 
       var s = balanceOfStudentBefore.sub(balanceOfStudentAfter);
-      var price2 = price.mul(BN(2));
-      expect (s).to.be.bignumber.equal(price2);
-
-    });
-
-    it('Allows a teacher to validate / certify a formation for a student', async() => {
-      await MLEInstance.validateUserModule(student1, 0, {from: teacher1});
+      expect (s).to.be.bignumber.equal(price.mul(BN(2)));
       
-      var formation = await MLEInstance.getFormationForTeacher(teacher1, 0, {from:teacher1});
-      assert.equal(formation.students[0], student1);
+      s = balanceOfTeacherAfter.sub(balanceOfTeacherBefore);
+      var fee = price.mul(BN(3)).div(BN(100));
+      expect (s).to.be.bignumber.equal(price.sub(fee));
+
     });
-    
 
+    it('Allows a teacher to validate a formation for a student', async() => {
+      
+      var balanceOfStudentBefore = await MLEInstance.balanceOf(student1);
+      await MLEInstance.validateUserModule(student1, 0, {from: teacher1});
+      var balanceOfStudentAfter = await MLEInstance.balanceOf(student1);
+      
+      var s = balanceOfStudentAfter.sub(balanceOfStudentBefore);
+      expect (s).to.be.bignumber.equal(price.div(module_count));
+      
+      var formation = await MLEInstance.getFormationForStudent(student1, 0, {from:teacher1});
+      expect (formation.validatedModulesNumber).to.be.bignumber.equal(BN(1)); 
+      expect (formation.teacherAddress).equals(teacher1); 
+      expect (formation.isCertified).equals(false);
+      expect (formation.isRated).equals(false);
 
+      
+      await MLEInstance.validateUserModule(student1, 0, {from: teacher1});
+      formation = await MLEInstance.getFormationForStudent(student1, 0, {from:teacher1});
+      expect (formation.validatedModulesNumber).to.be.bignumber.equal(BN(2)); 
+      await MLEInstance.validateUserModule(student1, 0, {from: teacher1});
+      formation = await MLEInstance.getFormationForStudent(student1, 0, {from:teacher1});
+      expect (formation.validatedModulesNumber).to.be.bignumber.equal(BN(3));
 
-    
+      await expectRevert(MLEInstance.validateUserModule(student1, 0, {from: teacher1}), "Last module already validated");
+      formation = await MLEInstance.getFormationForStudent(student1, 0, {from:teacher1});
+      expect (formation.validatedModulesNumber).to.be.bignumber.equal(BN(3)); 
 
+    });
 
+    it('Does not allow an uncertified student to evaluate a formation', async() => {
+      await expectRevert(MLEInstance.evaluateFormation(teacher1, 0, 35, {from: student1}), "Student cannot evaluate yet");
+    });
 
+    it('Allows a teacher to certify a formation for a student', async() => {
+      await MLEInstance.certifyUserFormation(student1, 0, {from: teacher1});
+      var formation = await MLEInstance.getFormationForStudent(student1, 0, {from:teacher1});
+      expect (formation.isCertified).equals(true);
+    });
+
+    it('Allows a certified student to evaluate a formation', async() => {
+      await MLEInstance.evaluateFormation(teacher1, 0, 35, {from: student1});
+      var formation = await MLEInstance.getFormationForTeacher(teacher1, 0, {from:teacher1});
+      expect (formation.ratingsSum).to.be.bignumber.equal(BN(35));
+      expect (formation.ratingsCount).to.be.bignumber.equal(BN(1));
+    });
+
+    it('Allows a recruiter to post an announce', async() => {
+      await MLEInstance.postAnnounce(
+        "Dev react, 45K$", 
+        ["dev", "js", "react", "web"], 
+        {from: recruiter1});
+      
+      
+      var announce = await MLEInstance.getAnnounceForRecruiter(recruiter1, 0, {from:recruiter1});
+      expect(announce.title).equals("Dev react, 45K$");    
+    }); 
+
+    it('Allows a student to apply to an announce', async() => {
+      await MLEInstance.applyAnnounce(recruiter1, 0, {from: student1});
+      var announce = await MLEInstance.getAnnounceForRecruiter(recruiter1, 0, {from:recruiter1});
+      expect(announce.candidates[0]).equals(student1);
+    });
+
+    it('Allows a recruiter to offer a job to a student', async() => {
+      await MLEInstance.offerJob(student1, 0, "React dev, 40K, Paris", {from: recruiter1});
+      var job = await MLEInstance.getJobsForStudent(student1, 0, {from:student1});
+      expect(job.title).equals("React dev, 40K, Paris");
+      expect(job.recruiterAddress).equals(recruiter1);
+      expect(job.isAccepted).equals(false);
+    });
+
+    it('Allows a student to accept a job offer', async() => {
+      await MLEInstance.answerJobOffer(true, 0, {from: student1});
+      var job = await MLEInstance.getJobsForStudent(student1, 0, {from:student1});
+      expect(job.isAccepted).equals(true);
+    });
+
+    it('Allows a student to prove her Id to a recruiter', async() => {
+      challenge = BN(web3.utils.randomHex(32));
+      await MLEInstance.proveId(0, challenge, {from: student1});
+      await expectRevert(MLEInstance.verifyId(student1, 0, challenge.add(BN(1)), {from: recruiter1}), "Id not verified");
+      var verifId = await MLEInstance.verifyId(student1, 0, challenge, {from: recruiter1});
+      expectEvent (verifId, "RecruitmentReward", {studentAddress: student1, jobId:BN(0)});
+    });
 
 })

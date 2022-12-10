@@ -7,19 +7,18 @@ import React from "react";
 const AddFormation = () => {
   const [formationTitle, setFormationTitle] = useState("");
   const [formationModuleCount, setFormationModuleCount] = useState("");
-  const [formationDuration, setFormationDuration] = useState("00");
   const [formationDurationHour, setFormationDurationHour] = useState("");
   const [formationDurationMinute, setFormationDurationMinute] = useState("");
   const [formationDurationSecond, setFormationDurationSecond] = useState("");
   const [formationPrice, setFormationPrice] = useState("");
-  const [formationDescription, setFormationDescription] = useState("");
+  // const [formationDescription, setFormationDescription] = useState("");
   // const [formationResource, setFormationResource] = useState("");
-  const [formationTag, setFormationTag] = useState("");
+  const [formationTag, setFormationTag] = useState([]);
   const [hours, setHours] = useState([]);
   const [minutes, setMinutes] = useState([]);
   const [seconds, setSeconds] = useState([]);
   const {
-    state: { contract, accounts },
+    state: { contract, accounts, web3 },
   } = useEth();
 
   const handleFormationTitleChange = (e) => {
@@ -58,11 +57,11 @@ const AddFormation = () => {
     // }
   };
 
-  const handleFormationDescriptionChange = (e) => {
-    // if (/^\w.+$|^$/.test(e.target.value)) {
-    setFormationDescription(e.target.value);
-    // }
-  };
+  // const handleFormationDescriptionChange = (e) => {
+  //   // if (/^\w.+$|^$/.test(e.target.value)) {
+  //   setFormationDescription(e.target.value);
+  //   // }
+  // };
 
   // const handleFormationResourceChange = (e) => {
   //   // if (/^\w.+$|^$/.test(e.target.value)) {
@@ -79,26 +78,29 @@ const AddFormation = () => {
   const postFormation = async () => {
     try {
       const formationDuration = convertFormDuration();
+      const newFormationPrice = web3.utils.toWei(formationPrice);
+      const newFormationTag = formationTag.replace(", ", ",").split(",");
+
       await contract.methods
         .postFormation(
           formationModuleCount,
           formationDuration,
-          formationPrice,
+          newFormationPrice,
           formationTitle,
           // formationDescription,
           // formationResource,
-          formationTag
+          newFormationTag
         )
         .call({ from: accounts[0] });
       await contract.methods
         .postFormation(
           formationModuleCount,
           formationDuration,
-          formationPrice,
+          newFormationPrice,
           formationTitle,
           // formationDescription,
           // formationResource,
-          formationTag
+          newFormationTag
         )
         .send({ from: accounts[0] });
     } catch (e) {

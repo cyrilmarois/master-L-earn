@@ -3,21 +3,22 @@ import React from "react";
 
 import NoticeWrongNetwork from "../Notice/NoticeWrongNetwork";
 import NoticeNoArtifact from "../Notice/NoticeNoArtifact";
-import Home from "../../Pages/Home/Home";
-import Login from "../../Pages/Login/Login";
-import Staking from "../../Pages/Staking/Staking";
-import Formation from "../../Pages/Formation/Formation";
+import { Outlet } from "react-router-dom";
+import { useEth } from "../../../contexts/EthContext";
 
 const Main = () => {
+  const { state } = useEth();
+
   return (
-  <main>
-    {/* <NoticeWrongNetwork /> */}
-    {/* <NoticeNoArtifact /> */}
-    {/* <Home /> */}
-    {/* <Formation /> */}
-    {/* <Login /> */}
-    <Staking />
-  </main>
+    <main>
+      {!state.artifact ? (
+        <NoticeNoArtifact />
+      ) : !state.contract ? (
+        <NoticeWrongNetwork />
+      ) : (
+        <Outlet />
+      )}
+    </main>
   );
 };
 

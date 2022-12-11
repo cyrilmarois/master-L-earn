@@ -56,8 +56,6 @@ const Header = () => {
   };
 
   useEffect(() => {
-    // const account = JSON.parse(localStorage.getItem("connexion"));
-
     if (accounts && accounts[0]) {
       const addressConnexion = transformAddress(accounts[0]);
       setLoggedAddress(addressConnexion);

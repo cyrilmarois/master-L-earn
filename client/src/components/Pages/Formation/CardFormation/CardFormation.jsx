@@ -1,5 +1,6 @@
 import "./CardFormation.css";
 import logo from "../../../../images/Alyra-logo.png";
+import React from "react";
 
 const CardFormation = (props) => {
   console.log({ props });

@@ -204,7 +204,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
             0,
             0,
             _duration,
-            uint256(block.timestamp),
+            uint128(block.timestamp),
             _price,
             _title,
             _tags,

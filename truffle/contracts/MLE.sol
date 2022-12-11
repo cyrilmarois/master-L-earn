@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./MLEUtils.sol";
+import "./MLEStaking.sol";
 
 /**
  * @title The smart contract to handle the MLE token, and interractions between :
@@ -26,6 +27,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     address[] recruitersAddress;
 
     mapping (address => uint256) formationStakingBalance;
+    MLEStaking mleStaking;
 
     uint announcePostPrice = 50e18;
     uint formationFee = 3; // %
@@ -47,22 +49,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     **/
     constructor() ERC20("Master L&Earn", "MLE") Ownable() ERC20Permit("Master L&Earn") {
         _mint(msg.sender, INITIAL_SUPPLY);
-        //0x5666eD746E98FA440ceD3714d5915c2556888a5c
-        address teacher1 = 0xC2d1a543861Ea9A99FBd57db0F8820026c887768;
-        address student1 = 0xE38613fb92CAB66312C2A7110836A43CC4BA9CF3;
-        // address student2 = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB;
-        // address recruiter1 = 0x617F2E2fD72FD9D5503197092aC168c91465E7f2;
-
-        //teacher
-        transfer(teacher1, 1000e18);
-
-        //student
-        transfer(student1, 1000e18);
-        // transfer(student2, 1000e18);
-
-        // recruiter
-        // transfer(recruiter1, 1000e18);
-
+        mleStaking = new MLEStaking();
     }
 
     receive() external payable {}
@@ -202,7 +189,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         // Cashback
         if (formationStakingBalance[_studentAddress] > _studentFormation.cashback) {
             formationStakingBalance[_studentAddress] -= _studentFormation.cashback;
-            _transfer(owner(), _studentAddress, _studentFormation.cashback);
+            _transfer(address(this), _studentAddress, _studentFormation.cashback);
         }
     }
 
@@ -249,7 +236,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         uint _feeBurn = formationFee * formationFeeBurn / 100;
         uint _teacherCut = _teacherFormation.price - _fee;
         require (transfer(_teacherAddress, _teacherCut));
-        require (transfer(owner(), _teacherFormation.price + _fee - _feeBurn));
+        require (transfer(address(this), _teacherFormation.price + _fee - _feeBurn));
         _burn(_teacherAddress, _feeBurn);
         formationStakingBalance[msg.sender] += _teacherFormation.price;
 
@@ -298,7 +285,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         string memory _title,
         string[] memory _tags
     ) external {
-        require (transfer(owner(), announcePostPrice), "Not enough tokens");
+        require (transfer(address(this), announcePostPrice), "Not enough tokens");
         address[] memory candidates;
         recruiters[msg.sender].announces.push( MLEUtils.Announce (
             true,
@@ -359,12 +346,26 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         recruiters[msg.sender].announces[_id].isActive = false;
 
         // Reward the DAO by minting 1000 MLE
-        _mint(owner(), jobSignedReward);
+        _mint(address(this), jobSignedReward);
         emit RecruitmentReward(_studentAddress, _jobId);
     }
 
+/************ TOKEN FUNCTIONS ***************/
+
     function DAOmint(uint _amount) onlyOwner external {
-        _mint(owner(), _amount);
+        _mint(address(this), _amount);
+    }
+
+    function stakeDeposit(uint256 _amount, uint8 _planId) external {
+        approve(address(mleStaking), _amount);
+        mleStaking.stakeDeposit(msg.sender, _amount, _planId);
+        approve(address(mleStaking), 0);
+    }
+
+    function stakeWithdraw(uint256 _amount, uint8 _planId) external {
+        _approve(address(this), address(mleStaking), _amount);
+        mleStaking.stakeWithdraw(msg.sender, _amount, _planId);
+        _approve(address(this), address(mleStaking), 0);
     }
 
 }

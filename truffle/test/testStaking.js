@@ -22,8 +22,23 @@ contract("MLE", accounts => {
       await MLEInstance.transfer(recruiter1, BN("2000000000000000000000"), {from: owner});
     });
 
-    it('Transfer tokens correctly', async() => {
+    it('Allows an MLE holder to stake on plan 0', async() => {
+      var stakeAmount = BN("100000000000000000000");
+      var balanceOfTeacherBefore = await MLEInstance.balanceOf(teacher1);
+      var balanceOfContractBefore = await MLEInstance.balanceOf(MLEInstance.address);
+
+      await MLEInstance.stakeDeposit(stakeAmount, 0, {from: teacher1});
       
+      var balanceOfTeacherAfter = await MLEInstance.balanceOf(teacher1);
+      var balanceOfContractAfter = await MLEInstance.balanceOf(MLEInstance.address);
+      var stakeReal = balanceOfTeacherBefore.sub(balanceOfTeacherAfter);
+      expect (stakeReal).to.be.bignumber.equal(stakeAmount);
+      
+      stakeReal = balanceOfContractAfter.sub(balanceOfContractBefore);
+      expect (stakeReal).to.be.bignumber.equal(stakeAmount);
+
+      
+
     });
 
 

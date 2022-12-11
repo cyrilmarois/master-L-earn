@@ -6,17 +6,17 @@ import { useEth } from "../../../../contexts/EthContext";
 
 const Formations = () => {
   const {
-    state: { contract, accounts },
+    state: { contractMLE, accounts },
   } = useEth();
   const [formations, setFormations] = useState([]);
   const [newFormation, setNewFormation] = useState({});
   const [fakeFormations, setFakeFormations] = useState([]);
 
   useEffect(() => {
-    if (contract && accounts) {
+    if (contractMLE && accounts) {
       const getFormations = async () => {
         try {
-          const MLEFormations = await contract.methods
+          const MLEFormations = await contractMLE.methods
             .getFormationForTeacher(accounts[0])
             .call({
               from: accounts[0],
@@ -30,13 +30,13 @@ const Formations = () => {
       };
       getFormations();
     }
-  }, [accounts, contract]);
+  }, [accounts, contractMLE]);
 
   // GET CURRENT FORMATION
   useEffect(() => {
-    if ((contract, accounts)) {
+    if ((contractMLE, accounts)) {
       const getCurrentFormationPost = async () => {
-        await contract.events
+        await contractMLE.events
           .FormationPublished({
             fromBlock: "earliest",
           })
@@ -50,7 +50,7 @@ const Formations = () => {
       };
       getCurrentFormationPost();
     }
-  }, [contract, accounts]);
+  }, [contractMLE, accounts]);
 
   useEffect(() => {
     setFakeFormations([

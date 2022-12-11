@@ -20,7 +20,7 @@ const FormationForm = () => {
   const [minutes, setMinutes] = useState([]);
   const [seconds, setSeconds] = useState([]);
   const {
-    state: { contract, accounts, web3 },
+    state: { contractMLE, accounts, web3 },
   } = useEth();
 
   const handleFormationTitleChange = (e) => {
@@ -92,7 +92,7 @@ const FormationForm = () => {
           formationTag,
           newFormationTag,
         });
-        await contract.methods
+        await contractMLE.methods
           .postFormation(
             parseInt(formationModuleCount),
             formationDuration,
@@ -104,7 +104,7 @@ const FormationForm = () => {
           )
           .call({ from: accounts[0] });
 
-        await contract.methods
+        await contractMLE.methods
           .postFormation(
             parseInt(formationModuleCount),
             formationDuration,
@@ -178,7 +178,7 @@ const FormationForm = () => {
   useEffect(() => {
     getHoursOptions();
     getMinutesSecondsOptions();
-  }, [contract]);
+  }, [contractMLE]);
 
   return (
     <div id="post-formation">

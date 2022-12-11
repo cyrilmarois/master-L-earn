@@ -26,8 +26,8 @@ function Demo() {
     <div className="demo">
       <Title />
       {
-        !state.artifact ? <NoticeNoArtifact /> :
-          !state.contract ? <NoticeWrongNetwork /> :
+        !state.artifactMLE ? <NoticeNoArtifact /> :
+          !state.contractMLE ? <NoticeWrongNetwork /> :
             demo
       }
     </div>

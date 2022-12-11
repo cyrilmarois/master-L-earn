@@ -20,7 +20,7 @@ const AddFormation = () => {
   const [minutes, setMinutes] = useState([]);
   const [seconds, setSeconds] = useState([]);
   const {
-    state: { contract, accounts, web3 },
+    state: { contractMLE, accounts, web3 },
   } = useEth();
 
   const handleFormationTitleChange = (e) => {
@@ -84,7 +84,7 @@ const AddFormation = () => {
         console.log({ formationPrice });
         const newFormationPrice = web3.utils.toWei(formationPrice);
         const newFormationTag = formationTag.replace(", ", ",").split(",");
-        await contract.methods
+        await contractMLE.methods
           .postFormation(
             formationModuleCount,
             formationDuration,
@@ -96,7 +96,7 @@ const AddFormation = () => {
           )
           .call({ from: accounts[0] });
 
-        await contract.methods
+        await contractMLE.methods
           .postFormation(
             formationModuleCount,
             formationDuration,
@@ -169,7 +169,7 @@ const AddFormation = () => {
   useEffect(() => {
     getHoursOptions();
     getMinutesSecondsOptions();
-  }, [contract]);
+  }, [contractMLE]);
 
   return (
     <div id="post-formation">

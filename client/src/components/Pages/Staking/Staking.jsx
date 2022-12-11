@@ -7,7 +7,7 @@ import "./Staking.css";
 
 const Staking = () => {
   const {
-    state: { contract, web3, accounts },
+    state: { contractMLE, web3, accounts },
   } = useEth();
   const [stakePlanOneAmount, setStakePlanOneAmount] = useState(0);
   const [stakePlanTwoAmount, setStakePlanTwoAmount] = useState(0);
@@ -54,12 +54,12 @@ const Staking = () => {
   const handleStakingPlanOne = async () => {
     const myPromise = new Promise(async (resolve, reject) => {
       try {
-        await contract.methods
+        await contractMLE.methods
           .stakeDeposit(convertAmount(stakePlanOneAmount), 0)
           .call({
             from: accounts[0],
           });
-        await contract.methods
+        await contractMLE.methods
           .stakeDeposit(convertAmount(stakePlanOneAmount), 0)
           .send({
             from: accounts[0],
@@ -87,12 +87,12 @@ const Staking = () => {
   const handleStakingPlanTwo = async () => {
     const myPromise = new Promise(async (resolve, reject) => {
       try {
-        await contract.methods
+        await contractMLE.methods
           .stakeDeposit(convertAmount(stakePlanTwoAmount), 1)
           .call({
             from: accounts[0],
           });
-        await contract.methods
+        await contractMLE.methods
           .stakeDeposit(convertAmount(stakePlanTwoAmount), 1)
           .send({
             from: accounts[0],
@@ -116,12 +116,12 @@ const Staking = () => {
   const handleUnstakePlanOne = async () => {
     const myPromise = new Promise(async (resolve, reject) => {
       try {
-        await contract.methods
+        await contractMLE.methods
           .stakeTithdraw(convertAmount(depositStakingPlanOneTotal), 0)
           .call({
             from: accounts[0],
           });
-        await contract.methods
+        await contractMLE.methods
           .stakeTithdraw(convertAmount(depositStakingPlanOneTotal), 0)
           .send({
             from: accounts[0],
@@ -145,12 +145,12 @@ const Staking = () => {
   const handleUnstakePlanTwo = async () => {
     const myPromise = new Promise(async (resolve, reject) => {
       try {
-        await contract.methods
+        await contractMLE.methods
           .stakeTithdraw(convertAmount(stakePlanOneAmount), 0)
           .call({
             from: accounts[0],
           });
-        await contract.methods
+        await contractMLE.methods
           .stakeTithdraw(convertAmount(stakePlanOneAmount), 0)
           .send({
             from: accounts[0],
@@ -171,10 +171,10 @@ const Staking = () => {
   };
 
   useEffect(() => {
-    if (contract && accounts) {
+    if (contractMLE && accounts) {
       // calcul total thought old deposits
       const getPastEvents = async () => {
-        let oldDepositEvents = await contract.getPastEvents("StakeDeposit", {
+        let oldDepositEvents = await contractMLE.getPastEvents("StakeDeposit", {
           fromBlock: 0,
           toBlock: "latest",
         });
@@ -200,7 +200,7 @@ const Staking = () => {
 
       // get current total deposit amount
       const getCurrentDeposit = async () => {
-        await contract.events
+        await contractMLE.events
           .StakeDeposit({
             fromBlock: "earliest",
           })
@@ -220,11 +220,11 @@ const Staking = () => {
       };
       getCurrentDeposit();
     }
-  }, [contract, accounts]);
+  }, [contractMLE, accounts]);
 
   const getBalance = async () => {
     try {
-      const tmpBalance = await contract.methods
+      const tmpBalance = await contractMLE.methods
         .balanceOf(accounts[0])
         .call({ from: accounts[0] });
       console.log({ tmpBalance });
@@ -235,10 +235,10 @@ const Staking = () => {
   };
 
   useEffect(() => {
-    if (contract && accounts) {
+    if (contractMLE && accounts) {
       getBalance();
     }
-  }, [contract, accounts]);
+  }, [contractMLE, accounts]);
 
   return (
     <div id="staking">

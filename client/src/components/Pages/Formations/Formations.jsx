@@ -16,12 +16,27 @@ const Formations = () => {
     if (contract && accounts) {
       const getFormations = async () => {
         try {
-          console.log({ methods: contract.methods });
-          const tmpFormations = await contract.methods.getFormations().call({
-            from: accounts[0],
-          });
-          console.log({ tmpFormations });
-          setFormations(tmpFormations);
+          const teachersAddresses = await contract.methods
+            .getTeachersAddresses()
+            .call({
+              from: accounts[0],
+            });
+          let MLEFormations = [];
+          for (let i = 0; i < teachersAddresses.length; i++) {
+            const address = teachersAddresses[i];
+            const tmpFormationTeachers = await contract.methods
+              .getFormationForTeacher(address)
+              .call({
+                from: accounts[0],
+              });
+
+            // we have array of formations
+            if (tmpFormationTeachers.length > 0) {
+              tmpFormationTeachers.forEach((item) => MLEFormations.push(item));
+            }
+          }
+
+          setFormations(MLEFormations);
         } catch (e) {
           console.error(e);
         }
@@ -59,7 +74,7 @@ const Formations = () => {
   const fakeFormations = [
     {
       title: "Learn Solidity",
-      duration: 7200,
+      duration: 3600000,
       rating: 4,
       creationDate: "2022-11-01",
       price: "2500000000000000000000",
@@ -68,7 +83,7 @@ const Formations = () => {
 
     {
       title: "Learn Metamask",
-      duration: 2000,
+      duration: 300,
       rating: 3,
       creationDate: "2022-10-25",
       price: "666000000000000000000",
@@ -90,7 +105,7 @@ const Formations = () => {
 
       <section id="Formations" className="container">
         <div className="d-flex flex-wrap pb-5">
-          {formations.length > 0
+          {/* {formations.length > 0
             ? formations.map((item, i) => (
                 <CardFormation
                   key={i}
@@ -103,7 +118,7 @@ const Formations = () => {
                   tags={item.tags}
                 />
               ))
-            : ""}
+            : ""} */}
 
           {fakeFormations.map((item, i) => (
             <CardFormation

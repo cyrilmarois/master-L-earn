@@ -19,23 +19,22 @@ const Home = () => {
           <i className="icon fa-solid fa-graduation-cap"></i>
           <h3>Apprenez tout en gagnant !</h3>
           Le prix de la formation ne doit plus etre un barrage. Montrez votre
-          determination au travers de formations de qualites et recevez le
+          détermination au travers de formations de qualités et recevez le
           remboursemement jusqu'a 50% de ce que vous l'avez payez !
         </div>
         <div className="bloc2 col-4 p-3 text-center">
           <i className="icon fa-solid fa-rocket"></i>
           <h3>Booster vos chances !</h3>
-          Vos competences nous tiennent a coeur mais encore plus aux recruteurs
-          ! Les SBT que vous remporterez a chaque certification, seront la pour
-          attester de vos acquis ! Ils seront directement lies a votre adresse
-          de wallet.
+          Vos compétences nous tiennent à coeur mais encore plus aux recruteurs
+          ! Les SBT que vous remporterez pour chaque certification attesteront
+          de vos acquis ! Ils seront directement liés à votre adresse de wallet.
         </div>
         <div className="bloc3 col-4 p-3 text-center">
           <i className="icon fa-solid fa-people-roof"></i>
-          <h3>Integrez la communaute !</h3>
-          Evaluez vos formations, prenez part a la vie de la plateforme grace a
-          notre DAO ! Il sera egalement possible de soutenir Master & LEarn via
-          divers plans de staking allant de 6 a 24 mois !
+          <h3>Integrez la communauté !</h3>
+          Evaluez vos formations, prenez part à la vie de la plateforme grace a
+          notre DAO ! Il sera également possible de soutenir Master L&Earn via
+          divers plans de staking allant de 12 a 24 mois !
         </div>
       </section>
       <section className="topic-1 py-5">
@@ -43,12 +42,14 @@ const Home = () => {
           <p>
             Master L&Earn veut être le COMMUN des talents du Web3. Une
             plateforme E-Learning, de confiance, certifiante et reconnaissante,
-            "un Coursera décentralisé et augmenté" qui répond aux enjeux du
-            marché de la Formation de demain. Pour vous apprenants, une
-            employabilité certifiée tout en protégeant votre identité. Pour vous
-            formateurs, des opportunités de partager librement et d'être
-            rémunéré facilement. Enfin pour vous employeurs, un sourcing
-            alternatif crédible et sécurisé.
+            <span style={{ fontStyle: "italic", fontWeight: "bold" }}>
+              un Coursera décentralisé et augmenté
+            </span>{" "}
+            qui répond aux enjeux du marché de la Formation de demain. Pour vous
+            apprenants, une employabilité certifiée tout en protégeant votre
+            identité. Pour vous formateurs, des opportunités de partager
+            librement et d'être rémunéré facilement. Enfin pour vous employeurs,
+            un sourcing alternatif crédible et sécurisé.
           </p>
         </div>
       </section>

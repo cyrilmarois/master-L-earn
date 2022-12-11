@@ -221,7 +221,7 @@ const AddFormation = () => {
                 </div>
                 <div className="col-6 pe-0">
                   <label htmlFor="formationDuration" className="form-label">
-                    Duree
+                    Durée
                   </label>
                   <div className="row">
                     <div className="col-4">
@@ -319,7 +319,7 @@ const AddFormation = () => {
                   className="btn btn-primary"
                   onClick={postFormation}
                 >
-                  Cr&eacute;er
+                  Créer
                 </button>
               </div>
             </form>

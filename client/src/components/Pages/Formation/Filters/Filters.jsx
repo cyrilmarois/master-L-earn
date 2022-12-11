@@ -13,7 +13,7 @@ const Filters = () => {
             Pellentesque cursus dolor cursus aliquet gravida.
           </div>
           <div className="row pt-3 ps-3 pe-3">
-            <div className="col-3">
+            <div className="col-4">
               <label htmlFor="exampleFormControlInput1" className="form-label">
                 Tri
               </label>
@@ -23,11 +23,11 @@ const Filters = () => {
               >
                 <option defaultValue>Plus recent</option>
                 <option value="1">Meilleur note</option>
-                <option value="2">Prix croissant</option>
-                <option value="3">Prix decroissant</option>
+                <option value="2">Prix décroissant</option>
+                <option value="3">Prix croissant</option>
               </select>
             </div>
-            <div className="col-3">
+            <div className="col-4">
               <label htmlFor="exampleFormControlInput1" className="form-label">
                 Niveau
               </label>
@@ -37,13 +37,13 @@ const Filters = () => {
               >
                 <option defaultValue>Selectionnez...</option>
                 <option value="1">Debutant</option>
-                <option value="2">Intermediaire</option>
-                <option value="3">Confirme</option>
+                <option value="2">Intermédiaire</option>
+                <option value="3">Confirmé</option>
               </select>
             </div>
-            <div className="col-3">
+            <div className="col-4">
               <label htmlFor="exampleFormControlInput1" className="form-label">
-                Produit
+                Produits
               </label>
               <select
                 className="form-select"
@@ -51,22 +51,8 @@ const Filters = () => {
               >
                 <option defaultValue>Selectionnez...</option>
                 <option value="1">Blockchain</option>
-                <option value="2">Developpement</option>
-                <option value="3">Cuisine</option>
-              </select>
-            </div>
-            <div className="col-3">
-              <label htmlFor="exampleFormControlInput1" className="form-label">
-                Role
-              </label>
-              <select
-                className="form-select"
-                aria-label="Default select example"
-              >
-                <option defaultValue>Selectionnez...</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
+                <option value="2">Développement</option>
+                <option value="3">Defi</option>
               </select>
             </div>
           </div>

@@ -40,7 +40,7 @@ const Plans = () => {
                 title={item.title}
                 apr={item.apr}
                 // lockPeriod={moment.unix(item.lockPeriod).month()}
-                lockPeriod={i == 0 ? 12 : 24}
+                lockPeriod={i === 0 ? 12 : 24}
                 minAmount={web3.utils.fromWei(item.minTokenAmount, "ether")}
                 maxAmount={web3.utils.fromWei(item.maxTokenDeposit, "ether")}
                 tokenDeposit={web3.utils.fromWei(

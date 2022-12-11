@@ -31,7 +31,7 @@ const CardFormation = (props) => {
   };
 
   useEffect(() => {
-    console.log({ props });
+    // console.log({ props });
     if (web3) {
       if (props.tags && props.tags.length !== 0) {
         setTags(props.tags.join(", "));

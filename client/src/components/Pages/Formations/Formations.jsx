@@ -22,6 +22,7 @@ const Formations = () => {
               from: accounts[0],
             });
           let MLEFormations = [];
+          console.log({ teachersAddresses });
           for (let i = 0; i < teachersAddresses.length; i++) {
             const address = teachersAddresses[i];
             const tmpFormationTeachers = await contract.methods
@@ -31,6 +32,7 @@ const Formations = () => {
               });
 
             // we have array of formations
+            console.log({ tmpFormationTeachers });
             if (tmpFormationTeachers.length > 0) {
               tmpFormationTeachers.forEach((item) => MLEFormations.push(item));
             }
@@ -46,30 +48,30 @@ const Formations = () => {
   }, [accounts, contract]);
 
   // GET FORMATIONS THOUGHT PAST EVENTS
-  useEffect(() => {
-    if (contract && accounts) {
-      const getPastEvents = async () => {
-        let oldFormationEvents = await contract.getPastEvents(
-          "FormationPublished",
-          {
-            fromBlock: 0,
-            toBlock: "latest",
-          }
-        );
+  // useEffect(() => {
+  //   if (contract && accounts) {
+  //     const getPastEvents = async () => {
+  //       let oldFormationEvents = await contract.getPastEvents(
+  //         "FormationPublished",
+  //         {
+  //           fromBlock: 0,
+  //           toBlock: "latest",
+  //         }
+  //       );
 
-        let tmpFormations = [];
-        console.log({ oldFormationEvents });
-        oldFormationEvents.forEach((event) => {
-          console.log({ eventValues: event.returnValues });
-          tmpFormations.push(event.returnValues);
-        });
-        console.log({ tmpFormations });
-        setFormations(tmpFormations);
-      };
+  //       let tmpFormations = [];
+  //       console.log({ oldFormationEvents });
+  //       oldFormationEvents.forEach((event) => {
+  //         console.log({ eventValues: event.returnValues });
+  //         tmpFormations.push(event.returnValues);
+  //       });
+  //       console.log({ tmpFormations });
+  //       setFormations(tmpFormations);
+  //     };
 
-      getPastEvents();
-    }
-  }, [contract, accounts]);
+  //     getPastEvents();
+  //   }
+  // }, [contract, accounts]);
 
   const fakeFormations = [
     {

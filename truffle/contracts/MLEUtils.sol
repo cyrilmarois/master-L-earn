@@ -7,7 +7,7 @@ pragma solidity ^0.8.17;
  * @author Maxence Guillemain d'Echon
 **/
 library MLEUtils {
-    /******************************** STRUCTS & ENUMS ********************************/
+/******************************** STRUCTS & ENUMS ********************************/
 
     struct TeacherFormation {
         uint8 modulesCount;
@@ -63,6 +63,9 @@ library MLEUtils {
         bool isRegistered;
         Announce[] announces;
     }
+
+
+/*********************************** FUNCTIONS ***********************************/
 
     function _removeAddressFromTab(address[] memory _tab, address _address)
     internal pure returns(address[] memory) {

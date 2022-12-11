@@ -21,9 +21,12 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     mapping (address => MLEUtils.Teacher) teachers;
     mapping (address => MLEUtils.Recruiter) recruiters;
 
+    address[] teachersAddress;
+    address[] studentsAddress;
+    address[] recruitersAddress;
+
     mapping (address => uint256) formationStakingBalance;
 
-    MLEUtils.TeacherFormation[] public formations;
     uint announcePostPrice = 50e18;
     uint formationFee = 3; // %
     uint formationFeeBurn = 0; // %
@@ -35,19 +38,6 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     uint constant INITIAL_SUPPLY = 1000000e18;
     uint constant RECRUITMENT_COMMISSION = 10; // %
     uint constant MAX_GRADE = 50;
-
-/************************************ EVENTS *************************************/
-
-    event StudentRegistered (address studentAddress);
-    event TeacherRegistered (address teacherAddress);
-    event RecruiterRegistered (address recruiterAddress);
-
-    event FormationPublished (address teacherAddress, uint teacherFormationId);
-    event FormationCertified (address teacherAddress, uint teacherFormationId, address studentAddress);
-    event AnnouncePublished (address recruiterAddress, uint announceId);
-
-    event TeacherRewarded(address teacherAddress);
-    event RecruitmentReward(address studentAddress, uint16 jobId);
 
 
 /******************************* DEFAULT FUNCTIONS *******************************/
@@ -79,6 +69,18 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     fallback() external payable {}
 
 /*********************************** MODIFIERS ***********************************/
+/************************************ EVENTS *************************************/
+
+    event StudentRegistered (address studentAddress);
+    event TeacherRegistered (address teacherAddress);
+    event RecruiterRegistered (address recruiterAddress);
+
+    event FormationPublished (address teacherAddress, uint teacherFormationId);
+    event FormationCertified (address teacherAddress, uint teacherFormationId, address studentAddress);
+    event AnnouncePublished (address recruiterAddress, uint announceId);
+
+    event TeacherRewarded(address teacherAddress);
+    event RecruitmentReward(address studentAddress, uint16 jobId);
 /*********************************** FUNCTIONS ***********************************/
 /***************** UTILS ********************/
 
@@ -97,50 +99,45 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 /************* GETTERS & SETTERS ************/
 
     function register(bool _asStudent, bool _asTeacher, bool _asRecruiter) external {
-        if (_asStudent) {
+        if (_asStudent && !students[msg.sender].isRegistered) {
+            studentsAddress.push(msg.sender);
             students[msg.sender].isRegistered = true;
             emit StudentRegistered(msg.sender);
         }
-        if (_asTeacher) {
+        if (_asTeacher && !teachers[msg.sender].isRegistered) {
+            teachersAddress.push(msg.sender);
             teachers[msg.sender].isRegistered = true;
             emit TeacherRegistered(msg.sender);
         }
-        if (_asRecruiter) {
+        if (_asRecruiter && !recruiters[msg.sender].isRegistered) {
+            recruitersAddress.push(msg.sender);
             recruiters[msg.sender].isRegistered = true;
             emit RecruiterRegistered(msg.sender);
         }
     }
 
-    function getAnnounceForRecruiter (address _recruiterAddress, uint16 _announceId)
-    external view returns(MLEUtils.Announce memory) {
+    function getAnnounceForRecruiter (address _recruiterAddress)
+    external view returns(MLEUtils.Announce[] memory) {
         require (recruiters[_recruiterAddress].isRegistered, "Recruiter address not registered");
-        require (_announceId < recruiters[_recruiterAddress].announces.length, "Announce not found");
-        return recruiters[_recruiterAddress].announces[_announceId];
+        return recruiters[_recruiterAddress].announces;
     }
 
-    function getFormations() external view returns(MLEUtils.TeacherFormation[] memory) {
-        return formations;
-    }
-
-    function getFormationForTeacher (address _teacherAddress, uint16 _formationId)
-    external view returns(MLEUtils.TeacherFormation memory) {
+    function getFormationForTeacher (address _teacherAddress)
+    external view returns(MLEUtils.TeacherFormation[] memory) {
         require (teachers[_teacherAddress].isRegistered, "Teacher address not registered");
-        require (_formationId < teachers[_teacherAddress].formations.length, "Formation not found");
-        return teachers[_teacherAddress].formations[_formationId];
+        return teachers[_teacherAddress].formations;
     }
 
-    function getFormationForStudent (address _studentAddress, uint16 _formationId)
-    external view returns(MLEUtils.StudentFormation memory) {
+    function getFormationForStudent (address _studentAddress)
+    external view returns(MLEUtils.StudentFormation[] memory) {
         require (students[_studentAddress].isRegistered, "Student address not registered");
-        require (_formationId < students[_studentAddress].formations.length, "Formation not found");
-        return students[_studentAddress].formations[_formationId];
+        return students[_studentAddress].formations;
     }
 
-    function getJobsForStudent (address _studentAddress, uint16 _jobId)
-    external view returns(MLEUtils.Job memory) {
+    function getJobsForStudent (address _studentAddress)
+    external view returns(MLEUtils.Job[] memory) {
         require (students[_studentAddress].isRegistered, "Student address not registered");
-        require (_jobId < students[_studentAddress].jobs.length, "Formation not found");
-        return students[_studentAddress].jobs[_jobId];
+        return students[_studentAddress].jobs;
     }
 
     function setAnnouncePostPrice (uint _announcePostPrice) external onlyOwner {
@@ -167,7 +164,6 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
 /********** FORMATIONS FUNCTIONS ************/
 
-
     function postFormation (
         uint8 _modulesCount,
         uint32 _duration,
@@ -189,9 +185,8 @@ contract MLE is ERC20, ERC20Votes, Ownable {
             stds
         );
         teachers[msg.sender].formations.push(newTeacherFormation);
-        formations.push(newTeacherFormation);
 
-        emit FormationPublished(msg.sender, formations.length - 1);
+        emit FormationPublished(msg.sender, teachers[msg.sender].formations.length - 1);
     }
 
     function validateUserModule (address _studentAddress, uint16 _teacherFormationId) external {

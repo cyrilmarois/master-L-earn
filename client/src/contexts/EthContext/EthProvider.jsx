@@ -12,8 +12,8 @@ function EthProvider({ children }) {
       // TODO: change connexion process, do not call it directly
       const accounts = await web3.eth.requestAccounts();
       const networkID = await web3.eth.net.getId();
-      const { abiMLE } = artifactMLE;
-      const { abiMLEStaking } = artifactMLEStaking;
+      const abiMLE = artifactMLE.abi;
+      const abiMLEStaking = artifactMLEStaking.abi;
       let addressMLE, contractMLE;
       let addressMLEStaking, contractMLEStaking;
       try {

@@ -8,14 +8,14 @@ const Plan = (props) => {
       <p>
         APR : {props.apr}%
         <br />
-        Periode de blocage : {props.lockPeriod} mois
+        Période de blocage : {props.lockPeriod} mois
         <br />
-        Minimum deposable : {props.minAmount} MLE <br />
-        Maximum de tokens deposables : {props.maxAmount} MLE
+        Minimum déposable : {props.minAmount} MLE <br />
+        Maximum déposable : {props.maxAmount} MLE
       </p>
       <hr />
       <p>
-        Nombre de tokens deposes : {props.tokenDeposit} MLE
+        Nombre de tokens stake : {props.tokenDeposit} MLE
         <br />
         Nombre de staker : {props.totalStaker}
       </p>

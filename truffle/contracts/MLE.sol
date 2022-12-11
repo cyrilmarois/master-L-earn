@@ -21,12 +21,9 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     mapping (address => MLEUtils.Teacher) teachers;
     mapping (address => MLEUtils.Recruiter) recruiters;
 
-    mapping (address => MLEUtils.StakingRecord[][2]) public userStakingDepositBalance;
-    mapping (address => MLEUtils.StakingRecord[][2]) public userStakingWithdrawalBalance;
     mapping (address => uint256) formationStakingBalance;
 
-    address[] stakers;
-    MLEUtils.StakingPlan[] stakingPlans;
+    MLEUtils.TeacherFormation[] public formations;
     uint announcePostPrice = 50e18;
     uint formationFee = 3; // %
     uint formationFeeBurn = 0; // %
@@ -52,9 +49,6 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     event TeacherRewarded(address teacherAddress);
     event RecruitmentReward(address studentAddress, uint16 jobId);
 
-    event StakeDeposit (uint256 amount, address from, uint8 planId, uint256 totalDeposit);
-    event StakeWithdrawal (uint256 amount, address from, uint8 planId, uint256 newUserStakingBalanceTotal);
-
 
 /******************************* DEFAULT FUNCTIONS *******************************/
 
@@ -63,23 +57,21 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     **/
     constructor() ERC20("Master L&Earn", "MLE") Ownable() ERC20Permit("Master L&Earn") {
         _mint(msg.sender, INITIAL_SUPPLY);
-
-        _initStakingPlans();
-
-        address teacher1 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
-        address student1 = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db;
-        address student2 = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB;
-        address recruiter1 = 0x617F2E2fD72FD9D5503197092aC168c91465E7f2;
+        //0x5666eD746E98FA440ceD3714d5915c2556888a5c
+        address teacher1 = 0xC2d1a543861Ea9A99FBd57db0F8820026c887768;
+        address student1 = 0xE38613fb92CAB66312C2A7110836A43CC4BA9CF3;
+        // address student2 = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB;
+        // address recruiter1 = 0x617F2E2fD72FD9D5503197092aC168c91465E7f2;
 
         //teacher
         transfer(teacher1, 1000e18);
 
         //student
         transfer(student1, 1000e18);
-        transfer(student2, 1000e18);
+        // transfer(student2, 1000e18);
 
         // recruiter
-        transfer(recruiter1, 1000e18);
+        // transfer(recruiter1, 1000e18);
 
     }
 
@@ -124,6 +116,10 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         require (recruiters[_recruiterAddress].isRegistered, "Recruiter address not registered");
         require (_announceId < recruiters[_recruiterAddress].announces.length, "Announce not found");
         return recruiters[_recruiterAddress].announces[_announceId];
+    }
+
+    function getFormations() external view returns(MLEUtils.TeacherFormation[] memory) {
+        return formations;
     }
 
     function getFormationForTeacher (address _teacherAddress, uint16 _formationId)
@@ -171,15 +167,17 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
 /********** FORMATIONS FUNCTIONS ************/
 
+
     function postFormation (
         uint8 _modulesCount,
-        uint16 _duration,
+        uint32 _duration,
         uint _price,
         string memory _title,
         string[] memory _tags
     ) external {
         address[] memory stds;
-        teachers[msg.sender].formations.push( MLEUtils.TeacherFormation (
+        MLEUtils.TeacherFormation memory newTeacherFormation;
+        newTeacherFormation = MLEUtils.TeacherFormation (
             _modulesCount,
             0,
             0,
@@ -189,7 +187,11 @@ contract MLE is ERC20, ERC20Votes, Ownable {
             _title,
             _tags,
             stds
-        ));
+        );
+        teachers[msg.sender].formations.push(newTeacherFormation);
+        formations.push(newTeacherFormation);
+
+        emit FormationPublished(msg.sender, formations.length - 1);
     }
 
     function validateUserModule (address _studentAddress, uint16 _teacherFormationId) external {
@@ -364,164 +366,6 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         // Reward the DAO by minting 1000 MLE
         _mint(owner(), jobSignedReward);
         emit RecruitmentReward(_studentAddress, _jobId);
-    }
-
-/************ TOKEN FUNCTIONS ***************/
-
-    function _initStakingPlans() internal {
-        MLEUtils.StakingPlan memory stakingPlanOne = MLEUtils.StakingPlan({
-            planId : 0,
-            apr: 10,
-            totalStakers: 0,
-            totalStakingDeposit: 0,
-            lockPeriod: 12 * 4 weeks,       // 1 year
-            minTokenAmount: 500,
-            maxTokenDeposit: 2500000e18,
-            title: "Plan 1"
-        });
-        MLEUtils.StakingPlan memory stakingPlanTwo = MLEUtils.StakingPlan({
-            planId : 1,
-            apr: 20,
-            totalStakers: 0,
-            totalStakingDeposit: 0,
-            lockPeriod: 24 * 4 weeks,        //2 years
-            minTokenAmount: 500,
-            maxTokenDeposit: 5000000e18,
-            title: "Plan 2"
-        });
-        stakingPlans.push(stakingPlanOne);
-        stakingPlans.push(stakingPlanTwo);
-    }
-
-    function stakeDeposit(uint256 _amount, uint8 _planId) external {
-        require(_planId <= 1, "Error, staking plan does not exists");
-        require(stakingPlans[_planId].totalStakingDeposit + _amount < stakingPlans[_planId].maxTokenDeposit, "Error, staking deposit limit reach");
-        require(balanceOf(msg.sender) >= _amount, "Error, insuffisant funds to stake");
-        require(transfer(owner(), _amount), "Error, failed staking deposit");
-
-        uint256 newUserStakingDepositBalanceTotal = _afterDepositStakingTransfer(_planId, _amount);
-
-        emit StakeDeposit(_amount, msg.sender, _planId, newUserStakingDepositBalanceTotal);
-    }
-
-    function stakeWithdraw(uint256 _amount, uint8 _planId) external {
-        require(_planId <= 1, "Error, staking plan does not exists");
-
-        uint256 userStakingBalanceTotal = _beforeWithdrawalStakingTransfer(_planId, _amount);
-
-        _transfer(owner(), msg.sender, _amount);
-
-        uint256 newUserStakingBalanceTotal = _afterWithdrawalStakingTransfer(_planId, _amount, userStakingBalanceTotal);
-
-        emit StakeWithdrawal(_amount, msg.sender, _planId, newUserStakingBalanceTotal);
-    }
-
-    function _afterDepositStakingTransfer(uint _planId, uint _amount) internal returns (uint) {
-        // register deposit
-        MLEUtils.StakingRecord memory userStakingDeposit = MLEUtils.StakingRecord({
-            date: block.timestamp,
-            amount: _amount
-        });
-        userStakingDepositBalance[msg.sender][_planId].push(userStakingDeposit);
-
-        // update total deposit from all users
-        stakingPlans[_planId].totalStakingDeposit += _amount;
-
-        // update stakers
-        _registerStakers();
-
-        // update staking plan stakers total
-        stakingPlans[_planId].totalStakers = stakers.length;
-
-        // update user total staking deposit balance
-        uint256 newUserStakingDepositBalanceTotal;
-        MLEUtils.StakingRecord[] memory deposits = userStakingDepositBalance[msg.sender][_planId];
-        for (uint i = 0; i < deposits.length; i++) {
-            newUserStakingDepositBalanceTotal += deposits[i].amount;
-        }
-
-        return newUserStakingDepositBalanceTotal;
-    }
-
-    function _registerStakers() internal {
-        for (uint i =0; i < stakers.length; i++) {
-            if (stakers[i] == msg.sender) {
-                return;
-            }
-        }
-        stakers.push(msg.sender);
-    }
-
-    function _beforeWithdrawalStakingTransfer(uint _planId, uint _amount) internal view returns (uint) {
-        // count withdraw amount
-        uint256 userStakingWithdrawalBalanceTotal = _getUserWithdrawalBalance(_planId);
-
-        // count deposit amount
-        uint256 userStakingDepositBalanceTotal;
-        uint256 firstDepositDate;
-        (userStakingDepositBalanceTotal, firstDepositDate) = _getUserStakingDepositBalance(_planId);
-
-        uint256 userStakingBalanceTotal = userStakingDepositBalanceTotal - userStakingWithdrawalBalanceTotal;
-        require(userStakingBalanceTotal  - _amount >= 0, "Error, insuffisant funds in staking to withdraw");
-
-        // uint256 lockPeriod = stakingPlans[_planId].lockPeriod;
-        // require(block.timestamp > firstDepositDate + lockPeriod, "Error, You can't withdraw before lockPeriod");
-
-        return userStakingBalanceTotal;
-    }
-
-    function _afterWithdrawalStakingTransfer(uint _planId, uint _amount, uint _userStakingBalanceTotal) internal returns (uint) {
-        // register withdraw
-        MLEUtils.StakingRecord memory tmpUserStakingWithdraw = MLEUtils.StakingRecord({
-            date: block.timestamp,
-            amount: _amount
-        });
-        userStakingWithdrawalBalance[msg.sender][_planId].push(tmpUserStakingWithdraw);
-
-        // update staking plan total Staking amount deposit
-        stakingPlans[_planId].totalStakingDeposit -= _amount;
-
-        // if user withdrawal all staking balance, remove it from staker
-        uint256 userStakingBalanceTotal = _userStakingBalanceTotal - _amount;
-        if (userStakingBalanceTotal == 0) {
-            stakingPlans[_planId].totalStakers--;
-            deleteStakers();
-        }
-
-        return userStakingBalanceTotal;
-    }
-
-
-    function _getUserStakingDepositBalance(uint _planId) internal view returns (uint, uint) {
-        MLEUtils.StakingRecord[] memory tmpUserStakingDepositBalances = userStakingDepositBalance[msg.sender][_planId];
-        uint256 userStakingDepositBalanceTotal;
-        uint256 firstDepositDate;
-        for (uint i; i < tmpUserStakingDepositBalances.length; i++) {
-            if (i == 0) {
-                firstDepositDate = tmpUserStakingDepositBalances[i].date;
-            }
-            userStakingDepositBalanceTotal += tmpUserStakingDepositBalances[i].amount;
-        }
-
-        return (userStakingDepositBalanceTotal, firstDepositDate);
-    }
-
-    function _getUserWithdrawalBalance(uint _planId) internal view returns (uint) {
-        MLEUtils.StakingRecord[] memory tmpUserStakingWithdrawalBalances = userStakingWithdrawalBalance[msg.sender][_planId];
-        uint256 userStakingWithdrawalBalanceTotal;
-        for (uint i; i < tmpUserStakingWithdrawalBalances.length; i++) {
-            userStakingWithdrawalBalanceTotal += tmpUserStakingWithdrawalBalances[i].amount;
-        }
-
-        return userStakingWithdrawalBalanceTotal;
-    }
-
-    function deleteStakers() internal {
-        for (uint i; i < stakers.length; i++) {
-            if (stakers[i] == msg.sender) {
-                delete(stakers[i]);
-            }
-        }
     }
 
     function DAOmint(uint _amount) onlyOwner external {

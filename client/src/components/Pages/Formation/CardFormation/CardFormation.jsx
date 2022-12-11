@@ -1,11 +1,10 @@
-import "./Card.css";
-import logo from "../../../images/Alyra-logo.png";
+import "./CardFormation.css";
+import logo from "../../../../images/Alyra-logo.png";
 import React from "react";
 
-const Card = (props) => {
-  // return <div className="row">{{ children }}</div>;
+const CardFormation = (props) => {
+  console.log({ props });
   return (
-    // <div id="card" className="d-inline-flex justify-content-between">
     <div id="card">
       <img className="thumbnail" src={logo} />
       <div className="d-flex">
@@ -14,16 +13,17 @@ const Card = (props) => {
           {props.rating}
           <i className="bi bi-star-fill"></i>
         </div>
+        <div className="mt-2">{props.duration}</div>
       </div>
 
       <div>
-        <p className="author">Auteur : {props.teacherFullName}</p>
-        {/* <p className="author">{props.creationDate}</p> */}
-        <p className="tags">blockchain, web3</p>
+        {/* <p className="author">Auteur : {props.teacherFullName}</p> */}
+        <p className="author">{props.creationDate}</p>
+        <p className="tags">{props.tags.join(", ")}</p>
         <p className="price">{props.price} MLE</p>
       </div>
     </div>
   );
 };
 
-export default Card;
+export default CardFormation;

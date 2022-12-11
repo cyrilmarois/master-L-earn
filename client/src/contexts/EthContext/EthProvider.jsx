@@ -7,9 +7,9 @@ function EthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const init = useCallback(async (artifact) => {
-    console.log({ EthProvider: artifact });
     if (artifact) {
       const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
+      // TODO: change connexion process, do not call it directly
       const accounts = await web3.eth.requestAccounts();
       const networkID = await web3.eth.net.getId();
       const { abi } = artifact;
@@ -30,7 +30,7 @@ function EthProvider({ children }) {
   useEffect(() => {
     const tryInit = async () => {
       try {
-        const artifact = require("../../contracts/Staking.json");
+        const artifact = require("../../contracts/MLE.json");
         init(artifact);
       } catch (err) {
         console.error(err);

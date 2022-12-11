@@ -18,14 +18,14 @@ const SubHeader = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav">
             <li className="nav-item">
-              <a className="nav-link active" aria-current="page" href="#">
+              <a className="nav-link active" aria-current="page" href="/">
                 Accueil
               </a>
             </li>
             <li className="nav-item">
               <div className="text-end">
                 <a
-                  href="#"
+                  href="/formations"
                   className="d-block nav-link text-decoration-none"
                   aria-expanded="false"
                 >
@@ -34,7 +34,7 @@ const SubHeader = () => {
               </div>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <a className="nav-link" href="/staking">
                 Communaute
               </a>
             </li>

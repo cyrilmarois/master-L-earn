@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import useEth from "../../../contexts/EthContext/useEth";
 import "./Header.css";
+import { Toaster } from "react-hot-toast";
 
 const Header = () => {
   const [loggedAddress, setLoggedAddress] = useState("Connexion");
@@ -55,8 +56,6 @@ const Header = () => {
   };
 
   useEffect(() => {
-    // const account = JSON.parse(localStorage.getItem("connexion"));
-
     if (accounts && accounts[0]) {
       const addressConnexion = transformAddress(accounts[0]);
       setLoggedAddress(addressConnexion);
@@ -64,47 +63,54 @@ const Header = () => {
   }, [contract, accounts]);
 
   return (
-    <header>
-      <div className="container">
-        <div id="header" className="row align-items-center">
-          <div className="col-1">
-            <div id="logo">
-              <img src={logo} />
-            </div>
-          </div>
-          <div className="col-11 align-items-center">
-            <div className="row">
-              <div className="col-12">
-                <form className="row" role="search">
-                  <div className="col-6 ms-3">
-                    <input
-                      className="form-control"
-                      type="search"
-                      placeholder="Rechercher"
-                      aria-label="Search"
-                    />
-                  </div>
-
-                  <div className="col-1 offset-4">
-                    <button
-                      id="connect"
-                      onClick={handleConnexion}
-                      type="button"
-                      className={`btn btn-metamask ${hasError ? `error` : ``}`}
-                    >
-                      {loggedAddress}
-                    </button>
-                  </div>
-                </form>
+    <>
+      <div>
+        <Toaster />
+      </div>
+      <header>
+        <div className="container">
+          <div id="header" className="row align-items-center">
+            <div className="col-1">
+              <div id="logo">
+                <img src={logo} />
               </div>
-              <div className="col-12">
-                <SubHeader />
+            </div>
+            <div className="col-11 align-items-center">
+              <div className="row">
+                <div className="col-12">
+                  <form className="row" role="search">
+                    <div className="col-6 ms-3">
+                      <input
+                        className="form-control"
+                        type="search"
+                        placeholder="Rechercher"
+                        aria-label="Search"
+                      />
+                    </div>
+
+                    <div className="col-1 offset-4">
+                      <button
+                        id="connect"
+                        onClick={handleConnexion}
+                        type="button"
+                        className={`btn btn-metamask ${
+                          hasError ? `error` : ``
+                        }`}
+                      >
+                        {loggedAddress}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+                <div className="col-12">
+                  <SubHeader />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 };
 

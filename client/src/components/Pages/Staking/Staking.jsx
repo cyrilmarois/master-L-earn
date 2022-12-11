@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import useEth from "../../../contexts/EthContext/useEth";
 import moment from "moment";
 import Plans from "./Plans/Plans";
+import toast from "react-hot-toast";
 import "./Staking.css";
 
 const Staking = () => {
@@ -51,21 +52,32 @@ const Staking = () => {
   };
 
   const handleStakingPlanOne = async () => {
-    try {
-      await contract.methods
-        .stakeDeposit(convertAmount(stakePlanOneAmount), 0)
-        .call({
-          from: accounts[0],
-        });
-      await contract.methods
-        .stakeDeposit(convertAmount(stakePlanOneAmount), 0)
-        .send({
-          from: accounts[0],
-        });
-      getBalance();
-    } catch (e) {
-      console.error(e);
-    }
+    const myPromise = new Promise(async (resolve, reject) => {
+      try {
+        await contract.methods
+          .stakeDeposit(convertAmount(stakePlanOneAmount), 0)
+          .call({
+            from: accounts[0],
+          });
+        await contract.methods
+          .stakeDeposit(convertAmount(stakePlanOneAmount), 0)
+          .send({
+            from: accounts[0],
+          });
+
+        resolve("Deposit created");
+        getBalance();
+      } catch (e) {
+        console.error(e);
+        reject("Error during deposit");
+      }
+    });
+
+    toast.promise(myPromise, {
+      loading: "Staking en cours...",
+      success: <b>Dépot réalisé avec succès.</b>,
+      error: <b>Erreur durant le staking.</b>,
+    });
   };
 
   const convertAmount = (amount) => {
@@ -73,58 +85,91 @@ const Staking = () => {
   };
 
   const handleStakingPlanTwo = async () => {
-    try {
-      await contract.methods
-        .stakeDeposit(convertAmount(stakePlanTwoAmount), 1)
-        .call({
-          from: accounts[0],
-        });
-      await contract.methods
-        .stakeDeposit(convertAmount(stakePlanTwoAmount), 1)
-        .send({
-          from: accounts[0],
-        });
-      getBalance();
-    } catch (e) {
-      console.error(e);
-    }
+    const myPromise = new Promise(async (resolve, reject) => {
+      try {
+        await contract.methods
+          .stakeDeposit(convertAmount(stakePlanTwoAmount), 1)
+          .call({
+            from: accounts[0],
+          });
+        await contract.methods
+          .stakeDeposit(convertAmount(stakePlanTwoAmount), 1)
+          .send({
+            from: accounts[0],
+          });
+
+        resolve("Deposit created");
+        getBalance();
+      } catch (e) {
+        console.error(e);
+        reject("Error during deposit");
+      }
+    });
+
+    toast.promise(myPromise, {
+      loading: "Staking en cours...",
+      success: <b>Dépot réalisé avec succès.</b>,
+      error: <b>Erreur durant le staking.</b>,
+    });
   };
 
   const handleUnstakePlanOne = async () => {
-    try {
-      await contract.methods
-        .stakeTithdraw(convertAmount(depositStakingPlanOneTotal), 0)
-        .call({
-          from: accounts[0],
-        });
-      await contract.methods
-        .stakeTithdraw(convertAmount(depositStakingPlanOneTotal), 0)
-        .send({
-          from: accounts[0],
-        });
-      getBalance();
-    } catch (e) {
-      console.error(e);
-    }
+    const myPromise = new Promise(async (resolve, reject) => {
+      try {
+        await contract.methods
+          .stakeTithdraw(convertAmount(depositStakingPlanOneTotal), 0)
+          .call({
+            from: accounts[0],
+          });
+        await contract.methods
+          .stakeTithdraw(convertAmount(depositStakingPlanOneTotal), 0)
+          .send({
+            from: accounts[0],
+          });
+
+        resolve("Withdrawal created");
+        getBalance();
+      } catch (e) {
+        console.error(e);
+        reject("Error during withdrawal");
+      }
+    });
+
+    toast.promise(myPromise, {
+      loading: "Unstaking en cours...",
+      success: <b>Retrait réalisé avec succès.</b>,
+      error: <b>Erreur durant le retrait.</b>,
+    });
   };
 
   const handleUnstakePlanTwo = async () => {
-    try {
-      await contract.methods
-        .stakeTithdraw(convertAmount(stakePlanOneAmount), 0)
-        .call({
-          from: accounts[0],
-        });
-      await contract.methods
-        .stakeTithdraw(convertAmount(stakePlanOneAmount), 0)
-        .send({
-          from: accounts[0],
-        });
-      getBalance();
-    } catch (e) {
-      console.error(e);
-    }
+    const myPromise = new Promise(async (resolve, reject) => {
+      try {
+        await contract.methods
+          .stakeTithdraw(convertAmount(stakePlanOneAmount), 0)
+          .call({
+            from: accounts[0],
+          });
+        await contract.methods
+          .stakeTithdraw(convertAmount(stakePlanOneAmount), 0)
+          .send({
+            from: accounts[0],
+          });
+        resolve("Withdrawal created");
+        getBalance();
+      } catch (e) {
+        console.error(e);
+        reject("Error during withdrawal");
+      }
+    });
+
+    toast.promise(myPromise, {
+      loading: "Unstaking en cours...",
+      success: <b>Retrait réalisé avec succès.</b>,
+      error: <b>Erreur durant le retrait.</b>,
+    });
   };
+
   useEffect(() => {
     if ((contract, accounts)) {
       // calcul total thought old deposits

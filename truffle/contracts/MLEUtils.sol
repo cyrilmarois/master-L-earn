@@ -64,22 +64,6 @@ library MLEUtils {
         Announce[] announces;
     }
 
-    struct StakingRecord {
-        uint256 date;
-        uint256 amount;
-    }
-
-    struct StakingPlan {
-        uint8 planId;
-        uint8 apr;
-        uint128 lockPeriod;     // exprimed in seconds
-        uint256 totalStakers;
-        uint256 totalStakingDeposit;
-        uint256 minTokenAmount; // exprimed in MLE
-        uint256 maxTokenDeposit; // exprimed in MLE
-        string title;
-    }
-
     function _removeAddressFromTab(address[] memory _tab, address _address)
     internal pure returns(address[] memory) {
         for (uint _i; _i < _tab.length; _i++) {

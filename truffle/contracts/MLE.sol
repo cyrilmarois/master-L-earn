@@ -22,12 +22,12 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     mapping (address => MLEUtils.Teacher) teachers;
     mapping (address => MLEUtils.Recruiter) recruiters;
 
-    address[] teachersAddress;
-    address[] studentsAddress;
-    address[] recruitersAddress;
+    address[] public teachersAddress;
+    address[] public studentsAddress;
+    address[] public recruitersAddress;
 
     mapping (address => uint256) formationStakingBalance;
-    MLEStaking mleStaking;
+    MLEStaking public mleStaking;
 
     uint announcePostPrice = 50e18;
     uint formationFee = 3; // %
@@ -50,6 +50,24 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     constructor() ERC20("Master L&Earn", "MLE") Ownable() ERC20Permit("Master L&Earn") {
         _mint(msg.sender, INITIAL_SUPPLY);
         mleStaking = new MLEStaking();
+        address teacher1 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
+        address student1 = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db;
+        address student2 = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB;
+        address recruiter1 = 0x617F2E2fD72FD9D5503197092aC168c91465E7f2;
+        
+        //teacher
+        transfer(teacher1, 1000e18);
+        registerUser(teacher1, false, true, false);
+        
+        //student
+        transfer(student1, 1000e18);
+        registerUser(student1, true, false, false);
+        transfer(student2, 1000e18);
+        registerUser(student2, true, false, false);
+        
+        // recruiter
+        transfer(recruiter1, 1000e18);
+        registerUser(recruiter1, false, false, true);
     }
 
     receive() external payable {}

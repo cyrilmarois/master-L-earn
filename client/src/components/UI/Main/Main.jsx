@@ -1,4 +1,5 @@
 import "./Main.css";
+import React from "react";
 
 import NoticeWrongNetwork from "../Notice/NoticeWrongNetwork";
 import NoticeNoArtifact from "../Notice/NoticeNoArtifact";
@@ -9,14 +10,14 @@ import Formation from "../../Pages/Formation/Formation";
 
 const Main = () => {
   return (
-    <main>
-      {/* <NoticeWrongNetwork /> */}
-      {/* <NoticeNoArtifact /> */}
-      {/* <Home /> */}
-      <Formation />
-      {/* <Login /> */}
-      {/* <Staking /> */}
-    </main>
+  <main>
+    {/* <NoticeWrongNetwork /> */}
+    {/* <NoticeNoArtifact /> */}
+    {/* <Home /> */}
+    {/* <Formation /> */}
+    {/* <Login /> */}
+    <Staking />
+  </main>
   );
 };
 

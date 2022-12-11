@@ -1,5 +1,6 @@
 import "./Card.css";
 import logo from "../../../images/Alyra-logo.png";
+import React from "react";
 
 const Card = (props) => {
   // return <div className="row">{{ children }}</div>;

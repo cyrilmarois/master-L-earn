@@ -1,6 +1,7 @@
 import "./Formation.css";
 import Card from "../../UI/Card/Card";
 import Filters from "./Filters/Filters";
+import React from "react";
 
 const Formation = () => {
   const fakeFormations = [

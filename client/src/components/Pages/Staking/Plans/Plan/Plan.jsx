@@ -1,4 +1,5 @@
 import "./Plan.css";
+import React from "react";
 
 const Plan = (props) => {
   return (

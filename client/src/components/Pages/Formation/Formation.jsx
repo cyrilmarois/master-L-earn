@@ -1,97 +1,103 @@
 import "./Formation.css";
-import Card from "../../UI/Card/Card";
 import Filters from "./Filters/Filters";
-import React from "react";
+import React, { useState } from "react";
+import useEth from "../../../contexts/EthContext/useEth";
+import { useEffect } from "react";
+import CardFormation from "./CardFormation/CardFormation";
 
 const Formation = () => {
-  const fakeFormations = [
-    {
-      title: "Learn Solidity",
-      duration: 4500,
-      rating: 4,
-      teacherFullName: "Mathilde Passy",
-      creationDate: "2022-01-01 21:43:22",
-      price: 1500,
-    },
-    {
-      title: "Learn Consulting",
-      duration: 1800,
-      rating: 4.5,
-      teacherFullName: "Christophe Pepin",
-      creationDate: "2022-05-07 18:55:32",
-      price: 3800,
-    },
-    {
-      title: "Learn Defi",
-      duration: 10800,
-      rating: 5,
-      teacherFullName: "Dimitry Axel",
-      creationDate: "2022-02-22 10:09:16",
-      price: 7600,
-    },
-    {
-      title: "Learn algorithm",
-      duration: 7200,
-      rating: 4,
-      teacherFullName: "Maxence Guillemain d'Echon",
-      creationDate: "2022-11-18 11:01:54",
-      price: 2300,
-    },
-    {
-      title: "Learn Metamask",
-      duration: 2000,
-      rating: 1,
-      teacherFullName: "Cyril Marois",
-      creationDate: "2022-06-08 12:33:44",
-      price: 666,
-    },
-  ];
+  const {
+    state: { web3, contract, accounts },
+  } = useEth();
+  const [formations, setFormations] = useState([]);
+
+  useEffect(() => {
+    if (contract && accounts) {
+      const getFormations = async () => {
+        try {
+          console.log({ methods: contract.methods });
+          const tmpFormations = await contract.methods.getFormations().call({
+            from: accounts[0],
+          });
+          console.log({ tmpFormations });
+          setFormations(tmpFormations);
+        } catch (e) {
+          console.error(e);
+        }
+      };
+      getFormations();
+    }
+  }, [accounts, contract]);
+
+  // get all formations
+  useEffect(() => {
+    if ((contract, accounts)) {
+      // calcul total thought old deposits
+      const getPastEvents = async () => {
+        let oldFormationEvents = await contract.getPastEvents(
+          "FormationPublished",
+          {
+            fromBlock: 0,
+            toBlock: "latest",
+          }
+        );
+
+        let formations = [];
+        oldFormationEvents.forEach((event) => {
+          const planId = parseInt(event.returnValues.planId);
+          const amount = parseInt(
+            web3.utils.fromWei(event.returnValues.amount, "ether")
+          );
+          formations[planId] += amount;
+        });
+      };
+
+      getPastEvents();
+
+      // get current total deposit amount
+      // const getRecentDeposit = async () => {
+      //   await contract.events
+      //     .StakeDeposit({
+      //       fromBlock: "earliest",
+      //     })
+      //     .on("data", (event) => {
+      //       let newEventDeposit = event.returnValues.totalDeposit;
+      //       const planId = parseInt(event.returnValues.planId);
+      //       const amount = web3.utils.fromWei(newEventDeposit, "ether");
+      //       if (planId === 0) {
+      //         setDepositStakingPlanOneTotal(amount);
+      //       } else if (planId === 1) {
+      //         setDepositStakingPlanTwoTotal(amount);
+      //       }
+      //     })
+      //     .on("changed", (changed) => console.log(changed))
+      //     .on("error", (err) => console.log(err))
+      //     .on("connected", (str) => console.log(str));
+      // };
+      // getRecentDeposit();
+    }
+  }, [contract, accounts]);
+
   return (
     <>
       <Filters />
 
       <section id="Formation" className="container">
         <div className="d-flex flex-wrap pt-3 pb-5">
-          <Card
-            title={fakeFormations[0].title}
-            duration={fakeFormations[0].duration}
-            rating={fakeFormations[0].rating}
-            teacherFullName={fakeFormations[0].teacherFullName}
-            creationDate={fakeFormations[0].creationDate}
-            price={fakeFormations[0].price}
-          />
-          <Card
-            title={fakeFormations[1].title}
-            duration={fakeFormations[1].duration}
-            rating={fakeFormations[1].rating}
-            teacherFullName={fakeFormations[1].teacherFullName}
-            creationDate={fakeFormations[1].creationDate}
-            price={fakeFormations[1].price}
-          />
-          <Card
-            title={fakeFormations[2].title}
-            duration={fakeFormations[2].duration}
-            rating={fakeFormations[2].rating}
-            teacherFullName={fakeFormations[2].teacherFullName}
-            creationDate={fakeFormations[2].creationDate}
-            price={fakeFormations[2].price}
-          />
-          <Card
-            title={fakeFormations[3].title}
-            duration={fakeFormations[3].duration}
-            rating={fakeFormations[3].rating}
-            teacherFullName={fakeFormations[3].teacherFullName}
-            creationDate={fakeFormations[3].creationDate}
-            price={fakeFormations[3].price}
-          />
-          <Card
-            title={fakeFormations[4].title}
-            duration={fakeFormations[4].duration}
-            rating={fakeFormations[4].rating}
-            teacherFullName={fakeFormations[4].teacherFullName}
-            creationDate={fakeFormations[4].creationDate}
-            price={fakeFormations[4].price}
-          />
+          {formations.length > 0
+            ? formations.map((item, i) => (
+                <CardFormation
+                  key={i}
+                  title={item.title}
+                  duration={item.duration}
+                  rating={item.rating}
+                  teacherFullName={item.teacherFullName}
+                  creationDate={item.creationDate}
+                  price={web3.utils.fromWei(item.price, "ether")}
+                  tags={item.tags}
+                />
+              ))
+            : ""}
         </div>
       </section>
     </>

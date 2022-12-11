@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import useEth from "../../../../contexts/EthContext/useEth";
 import moment from "moment";
+import toast from "react-hot-toast";
+
 import "./AddFormation.css";
 import React from "react";
 
@@ -76,36 +78,48 @@ const AddFormation = () => {
   };
 
   const postFormation = async () => {
-    try {
-      const formationDuration = convertFormDuration();
-      const newFormationPrice = web3.utils.toWei(formationPrice);
-      const newFormationTag = formationTag.replace(", ", ",").split(",");
+    const myPromise = new Promise(async (resolve, reject) => {
+      try {
+        const formationDuration = convertFormDuration();
+        console.log({ formationPrice });
+        const newFormationPrice = web3.utils.toWei(formationPrice);
+        const newFormationTag = formationTag.replace(", ", ",").split(",");
+        await contract.methods
+          .postFormation(
+            formationModuleCount,
+            formationDuration,
+            newFormationPrice,
+            formationTitle,
+            // formationDescription,
+            // formationResource,
+            newFormationTag
+          )
+          .call({ from: accounts[0] });
 
-      await contract.methods
-        .postFormation(
-          formationModuleCount,
-          formationDuration,
-          newFormationPrice,
-          formationTitle,
-          // formationDescription,
-          // formationResource,
-          newFormationTag
-        )
-        .call({ from: accounts[0] });
-      await contract.methods
-        .postFormation(
-          formationModuleCount,
-          formationDuration,
-          newFormationPrice,
-          formationTitle,
-          // formationDescription,
-          // formationResource,
-          newFormationTag
-        )
-        .send({ from: accounts[0] });
-    } catch (e) {
-      console.error(e);
-    }
+        await contract.methods
+          .postFormation(
+            formationModuleCount,
+            formationDuration,
+            newFormationPrice,
+            formationTitle,
+            // formationDescription,
+            // formationResource,
+            newFormationTag
+          )
+          .send({ from: accounts[0] });
+
+        resolve("Formation created");
+      } catch (e) {
+        console.error(e);
+        reject("Error while creating");
+      }
+    });
+
+    toast.promise(myPromise, {
+      loading: "Sauvegarde en cours...",
+      success: <b>Formation créée avec succès.</b>,
+      error: <b>Erreur durant la création.</b>,
+    });
   };
 
   const convertFormDuration = () => {
@@ -305,7 +319,7 @@ const AddFormation = () => {
                   className="btn btn-primary"
                   onClick={postFormation}
                 >
-                  Creer
+                  Cr&eacute;er
                 </button>
               </div>
             </form>

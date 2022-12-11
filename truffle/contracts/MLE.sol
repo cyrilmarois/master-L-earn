@@ -84,6 +84,23 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     }
 
 /************* GETTERS & SETTERS ************/
+    function registerUser(address _addr, bool _asStudent, bool _asTeacher, bool _asRecruiter) internal {
+        if (_asStudent && !students[_addr].isRegistered) {
+            studentsAddress.push(_addr);
+            students[_addr].isRegistered = true;
+            emit StudentRegistered(_addr);
+        }
+        if (_asTeacher && !teachers[_addr].isRegistered) {
+            teachersAddress.push(_addr);
+            teachers[_addr].isRegistered = true;
+            emit TeacherRegistered(_addr);
+        }
+        if (_asRecruiter && !recruiters[_addr].isRegistered) {
+            recruitersAddress.push(_addr);
+            recruiters[_addr].isRegistered = true;
+            emit RecruiterRegistered(_addr);
+        }
+    }
 
     function register(bool _asStudent, bool _asTeacher, bool _asRecruiter) external {
         if (_asStudent && !students[msg.sender].isRegistered) {
@@ -352,7 +369,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
 /************ TOKEN FUNCTIONS ***************/
 
-    function DAOmint(uint _amount) onlyOwner external {
+    function DAOMint(uint _amount) onlyOwner external {
         _mint(address(this), _amount);
     }
 

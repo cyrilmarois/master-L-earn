@@ -59,7 +59,7 @@ contract MLEStaking is Ownable {
             apr: 10,
             totalStakers: 0,
             totalStakingDeposit: 0,
-            lockPeriod: 2 minutes,       // demo purpose, otherise 12 * 4 weeks (1 year)
+            lockPeriod: 1 minutes,       // demo purpose, otherise 12 * 4 weeks (1 year)
             minTokenAmount: 500e18,
             maxTokenDeposit: 2500000e18,
             title: "Plan 1"
@@ -147,10 +147,10 @@ contract MLEStaking is Ownable {
         (userStakingDepositBalanceTotal, firstDepositDate) = _getUserStakingDepositBalance(_planId);
 
         uint256 userStakingBalanceTotal = userStakingDepositBalanceTotal - userStakingWithdrawalBalanceTotal;
-        require(userStakingBalanceTotal  - _amount >= 0, "Error, insuffisant funds in staking to withdraw");
+        require(userStakingBalanceTotal - _amount >= 0, "Error, insuffisant funds in staking to withdraw");
 
-        // uint256 lockPeriod = stakingPlans[_planId].lockPeriod;
-        // require(block.timestamp > firstDepositDate + lockPeriod, "Error, You can't withdraw before lockPeriod");
+        uint256 lockPeriod = stakingPlans[_planId].lockPeriod;
+        require(block.timestamp > firstDepositDate + lockPeriod, "Error, You can't withdraw before lockPeriod");
 
         return userStakingBalanceTotal;
     }

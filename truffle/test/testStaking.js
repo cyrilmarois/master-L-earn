@@ -36,10 +36,38 @@ contract("MLE", accounts => {
       
       stakeReal = balanceOfContractAfter.sub(balanceOfContractBefore);
       expect (stakeReal).to.be.bignumber.equal(stakeAmount);
-
-      
-
     });
+
+    it('Does not allow an MLE staker to withdraw before unlock', async() => {
+      var stakeAmount = BN("100000000000000000000");
+      var balanceOfTeacherBefore = await MLEInstance.balanceOf(teacher1);
+      var balanceOfContractBefore = await MLEInstance.balanceOf(MLEInstance.address);
+
+      await expectRevert(MLEInstance.stakeWithdraw(stakeAmount, 0, {from: teacher1}), 
+        "Error, You can't withdraw before lockPeriod.");
+      
+      var balanceOfTeacherAfter = await MLEInstance.balanceOf(teacher1);
+      var balanceOfContractAfter = await MLEInstance.balanceOf(MLEInstance.address);
+      expect (balanceOfTeacherBefore.sub(balanceOfTeacherAfter)).to.be.bignumber.equal(BN(0));
+      expect (balanceOfContractAfter.sub(balanceOfContractBefore)).to.be.bignumber.equal(BN(0));
+    });
+    
+    it('Allows an MLE staker to withdraw after unlock', async() => {
+      const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+      await delay(70*1000);
+      var stakeAmount = BN("100000000000000000000");
+      var balanceOfTeacherBefore = await MLEInstance.balanceOf(teacher1);
+      var balanceOfContractBefore = await MLEInstance.balanceOf(MLEInstance.address);
+
+      await MLEInstance.stakeWithdraw(stakeAmount, 0, {from: teacher1});
+      
+      var balanceOfTeacherAfter = await MLEInstance.balanceOf(teacher1);
+      var balanceOfContractAfter = await MLEInstance.balanceOf(MLEInstance.address);
+      expect (balanceOfTeacherBefore.sub(balanceOfTeacherAfter)).to.be.bignumber.equal(BN(0));
+      expect (balanceOfContractAfter.sub(balanceOfContractBefore)).to.be.bignumber.equal(BN(0));
+    });
+
+
 
 
 })

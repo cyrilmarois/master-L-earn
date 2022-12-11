@@ -6,21 +6,18 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./MLE.sol";
 
 /**
- * @title The smart contract to handle the MLE token, and interractions between :
- * - the students,
- * - the teachers,
- * - the recruiters.
+ * @title The smart contract to handle the MLE Staking
  * @author Cyril Marois & Maxence Guillemain d'Echon
 **/
-contract MLEStaking is MLE {
+contract MLEStaking is Ownable {
 /******************************** STRUCTS & ENUMS ********************************/
 
-    struct stakingRecord {
+    struct StakingRecord {
         uint256 date;
         uint256 amount;
     }
 
-    struct stakingPlan {
+    struct StakingPlan {
         uint8 planId;
         uint8 apr;
         uint128 lockPeriod;     // exprimed in seconds
@@ -34,12 +31,13 @@ contract MLEStaking is MLE {
 
 /******************************** STATE VARIABLES ********************************/
 
+    MLE mle; 
 
-    mapping (address => stakingRecord[][2]) public userStakingDepositBalance;
-    mapping (address => stakingRecord[][2]) public userStakingWithdrawalBalance;
+    mapping (address => StakingRecord[][2]) public userStakingDepositBalance;
+    mapping (address => StakingRecord[][2]) public userStakingWithdrawalBalance;
 
     address[] stakers;
-    stakingPlan[] public stakingPlans;
+    StakingPlan[] public stakingPlans;
 
 
 /************************************ EVENTS *************************************/
@@ -47,24 +45,26 @@ contract MLEStaking is MLE {
     event StakeDeposit (uint256 amount, address from, uint8 planId, uint256 totalDeposit);
     event StakeWithdrawal (uint256 amount, address from, uint8 planId, uint256 newUserStakingBalanceTotal);
 
+/*********************************** FUNCTIONS ***********************************/
     /************ TOKEN FUNCTIONS ***************/
 
-    constructor() MLE() {
+    constructor() Ownable() {
         _initStakingPlans();
+        mle = MLE(payable(msg.sender));
     }
 
     function _initStakingPlans() internal {
-        stakingPlan memory stakingPlanOne = stakingPlan({
+        StakingPlan memory stakingPlanOne = StakingPlan({
             planId : 0,
             apr: 10,
             totalStakers: 0,
             totalStakingDeposit: 0,
-            lockPeriod: 2 minutes,       // demo purpose, otherise 12 * 4 weeks (1 year)
+            lockPeriod: 0 seconds,       // demo purpose, otherise 12 * 4 weeks (1 year)
             minTokenAmount: 500e18,
             maxTokenDeposit: 2500000e18,
             title: "Plan 1"
         });
-        stakingPlan memory stakingPlanTwo = stakingPlan({
+        StakingPlan memory stakingPlanTwo = StakingPlan({
             planId : 1,
             apr: 20,
             totalStakers: 0,
@@ -78,49 +78,50 @@ contract MLEStaking is MLE {
         stakingPlans.push(stakingPlanTwo);
     }
 
-    function stakeDeposit(uint256 _amount, uint8 _planId) external {
+    function stakeDeposit(address _from, uint256 _amount, uint8 _planId) onlyOwner external {
         require(_planId <= 1, "Error, staking plan does not exists");
         require(stakingPlans[_planId].totalStakingDeposit + _amount < stakingPlans[_planId].maxTokenDeposit, "Error, staking deposit limit reach");
-        require(balanceOf(msg.sender) >= _amount, "Error, insuffisant funds to stake");
-        require(transfer(owner(), _amount), "Error, failed staking deposit");
+        require(mle.balanceOf(_from) >= _amount, "Error, insuffisant funds to stake");
+        require(mle.transferFrom(_from, address(mle), _amount), "Error, failed staking deposit");
 
-        uint256 newUserStakingDepositBalanceTotal = _afterDepositStakingTransfer(_planId, _amount);
+        uint256 newUserStakingDepositBalanceTotal = _afterDepositStakingTransfer(_from, _planId, _amount);
 
-        emit StakeDeposit(_amount, msg.sender, _planId, newUserStakingDepositBalanceTotal);
+        emit StakeDeposit(_amount, _from, _planId, newUserStakingDepositBalanceTotal);
     }
 
-    function stakeWithdraw(uint256 _amount, uint8 _planId) external {
+    function stakeWithdraw(address _to, uint256 _amount, uint8 _planId) onlyOwner external {
         require(_planId <= 1, "Error, staking plan does not exists");
 
-        uint256 userStakingBalanceTotal = _beforeWithdrawalStakingTransfer(_planId, _amount);
+        uint256 userStakingBalanceTotal = _beforeWithdrawalStakingTransfer(_to, _planId, _amount);
 
-        _transfer(owner(), msg.sender, _amount);
+        mle.transferFrom(address(mle), _to, _amount);
 
-        uint256 newUserStakingBalanceTotal = _afterWithdrawalStakingTransfer(_planId, _amount, userStakingBalanceTotal);
+        uint256 newUserStakingBalanceTotal = 
+            _afterWithdrawalStakingTransfer(_to, _planId, _amount, userStakingBalanceTotal);
 
-        emit StakeWithdrawal(_amount, msg.sender, _planId, newUserStakingBalanceTotal);
+        emit StakeWithdrawal(_amount, _to, _planId, newUserStakingBalanceTotal);
     }
 
-    function _afterDepositStakingTransfer(uint _planId, uint _amount) internal returns (uint) {
+    function _afterDepositStakingTransfer(address _from, uint _planId, uint _amount) internal returns (uint) {
         // register deposit
-        stakingRecord memory userStakingDeposit = stakingRecord({
+        StakingRecord memory userStakingDeposit = StakingRecord({
             date: block.timestamp,
             amount: _amount
         });
-        userStakingDepositBalance[msg.sender][_planId].push(userStakingDeposit);
+        userStakingDepositBalance[_from][_planId].push(userStakingDeposit);
 
         // update total deposit from all users
         stakingPlans[_planId].totalStakingDeposit += _amount;
 
         // update stakers
-        _registerStakers();
+        _registerStakers(_from);
 
         // update staking plan stakers total
         stakingPlans[_planId].totalStakers = stakers.length;
 
         // update user total staking deposit balance
         uint256 newUserStakingDepositBalanceTotal;
-        stakingRecord[] memory deposits = userStakingDepositBalance[msg.sender][_planId];
+        StakingRecord[] memory deposits = userStakingDepositBalance[_from][_planId];
         for (uint i = 0; i < deposits.length; i++) {
             newUserStakingDepositBalanceTotal += deposits[i].amount;
         }
@@ -128,40 +129,40 @@ contract MLEStaking is MLE {
         return newUserStakingDepositBalanceTotal;
     }
 
-    function _registerStakers() internal {
+    function _registerStakers(address _addr) internal {
         for (uint i =0; i < stakers.length; i++) {
-            if (stakers[i] == msg.sender) {
+            if (stakers[i] == _addr) {
                 return;
             }
         }
-        stakers.push(msg.sender);
+        stakers.push(_addr);
     }
 
-    function _beforeWithdrawalStakingTransfer(uint _planId, uint _amount) internal view returns (uint) {
+    function _beforeWithdrawalStakingTransfer(address _to, uint _planId, uint _amount) internal view returns (uint) {
         // count withdraw amount
-        uint256 userStakingWithdrawalBalanceTotal = _getUserWithdrawalBalance(_planId);
+        uint256 userStakingWithdrawalBalanceTotal = _getUserWithdrawalBalance(_to, _planId);
 
         // count deposit amount
         uint256 userStakingDepositBalanceTotal;
         uint256 firstDepositDate;
-        (userStakingDepositBalanceTotal, firstDepositDate) = _getUserStakingDepositBalance(_planId);
+        (userStakingDepositBalanceTotal, firstDepositDate) = _getUserStakingDepositBalance(_to, _planId);
 
         uint256 userStakingBalanceTotal = userStakingDepositBalanceTotal - userStakingWithdrawalBalanceTotal;
-        require(userStakingBalanceTotal  - _amount >= 0, "Error, insuffisant funds in staking to withdraw");
+        require(userStakingBalanceTotal - _amount >= 0, "Error, insuffisant funds in staking to withdraw");
 
-        // uint256 lockPeriod = stakingPlans[_planId].lockPeriod;
-        // require(block.timestamp > firstDepositDate + lockPeriod, "Error, You can't withdraw before lockPeriod");
+        uint256 lockPeriod = stakingPlans[_planId].lockPeriod;
+        require(block.timestamp > firstDepositDate + lockPeriod, "Error, You can't withdraw before lockPeriod");
 
         return userStakingBalanceTotal;
     }
 
-    function _afterWithdrawalStakingTransfer(uint _planId, uint _amount, uint _userStakingBalanceTotal) internal returns (uint) {
+    function _afterWithdrawalStakingTransfer(address _to, uint _planId, uint _amount, uint _userStakingBalanceTotal) internal returns (uint) {
         // register withdraw
-        stakingRecord memory tmpUserStakingWithdraw = stakingRecord({
+        StakingRecord memory tmpUserStakingWithdraw = StakingRecord({
             date: block.timestamp,
             amount: _amount
         });
-        userStakingWithdrawalBalance[msg.sender][_planId].push(tmpUserStakingWithdraw);
+        userStakingWithdrawalBalance[_to][_planId].push(tmpUserStakingWithdraw);
 
         // update staking plan total Staking amount deposit
         stakingPlans[_planId].totalStakingDeposit -= _amount;
@@ -170,15 +171,14 @@ contract MLEStaking is MLE {
         uint256 userStakingBalanceTotal = _userStakingBalanceTotal - _amount;
         if (userStakingBalanceTotal == 0) {
             stakingPlans[_planId].totalStakers--;
-            deleteStakers();
+            deleteStakers(_to);
         }
 
         return userStakingBalanceTotal;
     }
 
-
-    function _getUserStakingDepositBalance(uint _planId) internal view returns (uint, uint) {
-        stakingRecord[] memory tmpUserStakingDepositBalances = userStakingDepositBalance[msg.sender][_planId];
+    function _getUserStakingDepositBalance(address _addr, uint _planId) internal view returns (uint, uint) {
+        StakingRecord[] memory tmpUserStakingDepositBalances = userStakingDepositBalance[_addr][_planId];
         uint256 userStakingDepositBalanceTotal;
         uint256 firstDepositDate;
         for (uint i = 0; i < tmpUserStakingDepositBalances.length; i++) {
@@ -191,8 +191,9 @@ contract MLEStaking is MLE {
         return (userStakingDepositBalanceTotal, firstDepositDate);
     }
 
-    function _getUserWithdrawalBalance(uint _planId) internal view returns (uint) {
-        stakingRecord[] memory tmpUserStakingWithdrawalBalances = userStakingWithdrawalBalance[msg.sender][_planId];
+    function _getUserWithdrawalBalance(address _to, uint _planId) internal view returns (uint) {
+        StakingRecord[] memory tmpUserStakingWithdrawalBalances = 
+            userStakingWithdrawalBalance[_to][_planId];
         uint256 userStakingWithdrawalBalanceTotal;
         for (uint i = 0; i < tmpUserStakingWithdrawalBalances.length; i++) {
             userStakingWithdrawalBalanceTotal += tmpUserStakingWithdrawalBalances[i].amount;
@@ -201,9 +202,9 @@ contract MLEStaking is MLE {
         return userStakingWithdrawalBalanceTotal;
     }
 
-    function deleteStakers() internal {
+    function deleteStakers(address _addr) internal {
         for (uint i = 0; i < stakers.length; i++) {
-            if (stakers[i] == msg.sender) {
+            if (stakers[i] == _addr) {
                 delete(stakers[i]);
             }
         }

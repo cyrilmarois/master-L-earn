@@ -81,12 +81,20 @@ const FormationForm = () => {
     const myPromise = new Promise(async (resolve, reject) => {
       try {
         const formationDuration = convertFormDuration();
-        console.log({ formationPrice });
         const newFormationPrice = web3.utils.toWei(formationPrice);
         const newFormationTag = formationTag.replace(", ", ",").split(",");
+        console.log({
+          formationModuleCount,
+          formationDuration,
+          formationPrice,
+          newFormationPrice,
+          formationTitle,
+          formationTag,
+          newFormationTag,
+        });
         await contract.methods
           .postFormation(
-            formationModuleCount,
+            parseInt(formationModuleCount),
             formationDuration,
             newFormationPrice,
             formationTitle,
@@ -98,7 +106,7 @@ const FormationForm = () => {
 
         await contract.methods
           .postFormation(
-            formationModuleCount,
+            parseInt(formationModuleCount),
             formationDuration,
             newFormationPrice,
             formationTitle,

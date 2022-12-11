@@ -43,6 +43,7 @@ const Home = () => {
             Master L&Earn veut être le COMMUN des talents du Web3. Une
             plateforme E-Learning, de confiance, certifiante et reconnaissante,
             <span style={{ fontStyle: "italic", fontWeight: "bold" }}>
+              {" "}
               un Coursera décentralisé et augmenté
             </span>{" "}
             qui répond aux enjeux du marché de la Formation de demain. Pour vous

@@ -16,11 +16,14 @@ const Formations = () => {
     if (contract && accounts) {
       const getFormations = async () => {
         try {
-          const tmpFormations = await contract.methods.getFormations().call({
-            from: accounts[0],
-          });
-
-          setFormations(tmpFormations);
+          const MLEFormations = await contract.methods
+            .getFormationForTeacher(accounts[0])
+            .call({
+              from: accounts[0],
+            });
+          if (MLEFormations.length > 0) {
+            setFormations(MLEFormations);
+          }
         } catch (e) {
           console.error(e);
         }
@@ -29,10 +32,9 @@ const Formations = () => {
     }
   }, [accounts, contract]);
 
-  // get all formations
+  // GET CURRENT FORMATION
   useEffect(() => {
     if ((contract, accounts)) {
-      // get current formation
       const getCurrentFormationPost = async () => {
         await contract.events
           .FormationPublished({
@@ -94,11 +96,12 @@ const Formations = () => {
             creationDate={newFormation.creationDate}
             price={newFormation.price}
             tags={newFormation.tags}
+            basket="false"
           />
         ) : (
           ""
         )}
-
+        {/* <pre>{JSON.stringify({ l: formations.length })}</pre> */}
         {formations.length > 0
           ? formations.map((item, i) => (
               <CardFormation
@@ -110,6 +113,7 @@ const Formations = () => {
                 creationDate={item.creationDate}
                 price={item.price}
                 tags={item.tags}
+                basket="false"
               />
             ))
           : ""}
@@ -125,6 +129,7 @@ const Formations = () => {
                 creationDate={item.creationDate}
                 price={item.price}
                 tags={item.tags}
+                basket="false"
               />
             ))
           : ""}

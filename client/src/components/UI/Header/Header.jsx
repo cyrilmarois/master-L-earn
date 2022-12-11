@@ -8,7 +8,6 @@ import { Toaster } from "react-hot-toast";
 
 const Header = () => {
   const [loggedAddress, setLoggedAddress] = useState("Connexion");
-  const [hasError, setHasError] = useState(false);
 
   const {
     state: { web3, contract, accounts },
@@ -29,8 +28,7 @@ const Header = () => {
     //       setLoggedAddress(address);
     //     }
     //   })
-    //   .catch(() => {
-    //     setHasError(true);
+    //   .catch(e => console.error(true));
     //   });
   };
 
@@ -93,9 +91,7 @@ const Header = () => {
                         id="connect"
                         onClick={handleConnexion}
                         type="button"
-                        className={`btn btn-metamask ${
-                          hasError ? `error` : ``
-                        }`}
+                        className="btn btn-metamask"
                       >
                         {loggedAddress}
                       </button>

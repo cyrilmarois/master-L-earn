@@ -171,7 +171,7 @@ const Staking = () => {
   };
 
   useEffect(() => {
-    if ((contract, accounts)) {
+    if (contract && accounts) {
       // calcul total thought old deposits
       const getPastEvents = async () => {
         let oldDepositEvents = await contract.getPastEvents("StakeDeposit", {
@@ -199,7 +199,7 @@ const Staking = () => {
       getPastEvents();
 
       // get current total deposit amount
-      const getRecentDeposit = async () => {
+      const getCurrentDeposit = async () => {
         await contract.events
           .StakeDeposit({
             fromBlock: "earliest",
@@ -218,7 +218,7 @@ const Staking = () => {
           .on("error", (err) => console.log(err))
           .on("connected", (str) => console.log(str));
       };
-      getRecentDeposit();
+      getCurrentDeposit();
     }
   }, [contract, accounts]);
 
@@ -227,7 +227,7 @@ const Staking = () => {
       const tmpBalance = await contract.methods
         .balanceOf(accounts[0])
         .call({ from: accounts[0] });
-
+      console.log({ tmpBalance });
       setUserBalance(web3.utils.fromWei(tmpBalance, "ether"));
     } catch (e) {
       console.error(e);

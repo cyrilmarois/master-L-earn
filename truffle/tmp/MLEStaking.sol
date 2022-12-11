@@ -59,7 +59,7 @@ contract MLEStaking is MLE {
             apr: 10,
             totalStakers: 0,
             totalStakingDeposit: 0,
-            lockPeriod: 12 * 4 weeks,       // 1 year
+            lockPeriod: 2 minutes,       // demo purpose, otherise 12 * 4 weeks (1 year)
             minTokenAmount: 500e18,
             maxTokenDeposit: 2500000e18,
             title: "Plan 1"

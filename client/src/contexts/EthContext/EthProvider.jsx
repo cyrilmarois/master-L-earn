@@ -10,13 +10,6 @@ function EthProvider({ children }) {
     console.log({ EthProvider: artifact });
     if (artifact) {
       const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
-      // if (e && e[0]) {
-      //   const addressAccount = JSON.parse(localStorage.getItem("connexion"));
-      //   console.log({ addressAccount, condition: addressAccount !== e[0] });
-      //   if (addressAccount !== e[0]) {
-      //     localStorage.setItem("connexion", JSON.stringify(e[0]));
-      //   }
-      // }
       const accounts = await web3.eth.requestAccounts();
       const networkID = await web3.eth.net.getId();
       const { abi } = artifact;
@@ -48,18 +41,12 @@ function EthProvider({ children }) {
   }, [init]);
 
   useEffect(() => {
-    const events = [
-      "connected",
-      "chainChanged",
-      "accountsChanged",
-      "disconnect",
-    ];
+    const events = ["chainChanged", "accountsChanged", "disconnect"];
     const handleChange = () => {
       init(state.artifact);
     };
 
     events.forEach((e) => {
-      // console.log({ e });
       window.ethereum.on(e, handleChange);
     });
     return () => {

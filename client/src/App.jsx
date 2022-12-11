@@ -1,11 +1,11 @@
 import { EthProvider } from "./contexts/EthContext";
-import Demo from "./components/Demo";
 import "./App.css";
 import Header from "./components/UI/Header/Header";
 import Main from "./components/UI/Main/Main";
 import Footer from "./components/UI/Footer/Footer";
+import React from "react";
 
-function App() {
+const App = () => {
   return (
     <EthProvider>
       <div id="App">
@@ -17,6 +17,6 @@ function App() {
       </div>
     </EthProvider>
   );
-}
+};
 
 export default App;

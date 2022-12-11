@@ -1,3 +1,5 @@
+import React from "react";
+
 function NoticeWrongNetwork() {
   return (
     <div id="notice">

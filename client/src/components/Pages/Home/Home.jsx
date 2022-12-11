@@ -1,6 +1,7 @@
 import "./Home.css";
 import profile1 from "../../../images/profile-1-2.jpg";
 import profile2 from "../../../images/profile-2-2.jpg";
+import React from "react";
 
 const Home = () => {
   return (

@@ -1,5 +1,6 @@
 import "./Footer.css";
 import SubFooter from "./SubFooter/SubFooter";
+import React from "react";
 
 const Footer = () => {
   return (

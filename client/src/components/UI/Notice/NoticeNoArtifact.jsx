@@ -1,4 +1,5 @@
 import "./Notice.css";
+import React from "react";
 
 function NoticeNoArtifact() {
   return (

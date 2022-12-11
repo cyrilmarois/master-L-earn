@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import useEth from "../../../contexts/EthContext/useEth";
 import moment from "moment";
 import Plans from "./Plans/Plans";
@@ -11,10 +11,12 @@ const Staking = () => {
   const [stakePlanOneAmount, setStakePlanOneAmount] = useState(0);
   const [stakePlanTwoAmount, setStakePlanTwoAmount] = useState(0);
   const [userBalance, setUserBalance] = useState(0);
-  const [depositStakingPlanOneTotal, setDepositStakingPlanOneTotal] =
-    useState(0);
-  const [depositStakingPlanTwoTotal, setDepositStakingPlanTwoTotal] =
-    useState(0);
+  const [depositStakingPlanOneTotal, setDepositStakingPlanOneTotal] = useState(
+    0
+  );
+  const [depositStakingPlanTwoTotal, setDepositStakingPlanTwoTotal] = useState(
+    0
+  );
 
   const handleStakePlanOneInputChange = (e) => {
     if (/^\d+$|^$/.test(e.target.value)) {

@@ -1,7 +1,7 @@
 #card {
   background-color: white;
   width: 250px;
-  min-height: 400px;
+  height: 350px;
   border-radius: 5px;
   box-shadow: 0 3px 6px -1px rgb(0 0 0 / 7%);
   margin: 40px 40px 0 0;
@@ -9,7 +9,7 @@
   vertical-align: middle;
   padding: 16px 16px;
   overflow: hidden;
-  cursor: crosshair;
+  cursor: pointer;
 }
 
 .title {

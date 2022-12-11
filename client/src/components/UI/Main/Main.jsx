@@ -11,13 +11,14 @@ const Main = () => {
 
   return (
     <main>
-      {!state.artifact ? (
+      {/* {!state.artifact ? (
         <NoticeNoArtifact />
       ) : !state.contract ? (
         <NoticeWrongNetwork />
       ) : (
         <Outlet />
-      )}
+      )} */}
+      <Outlet />
     </main>
   );
 };

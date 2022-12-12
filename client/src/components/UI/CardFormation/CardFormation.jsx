@@ -48,7 +48,7 @@ const CardFormation = (props) => {
   return (
     <div id="card" className="d-flex-inline p-3">
       <div className="row">
-        <img className="thumbnail" src={logo} />
+        <img className="thumbnail" src={logo} alt="logo" />
       </div>
       <div className="d-flex">
         <div className="title mt-2 flex-grow-1">{props.title}</div>

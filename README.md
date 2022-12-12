@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# master-L-earn
-=======
 # Master L&Earn
 
 This is the Dapp for the future of e-learning.
@@ -47,4 +44,3 @@ Starting the client app...
 ```
 
 It should runs the dapp on your 3000 local port [`http://localhost:3000/`](http://localhost:3000/)
->>>>>>> release/0.1.0

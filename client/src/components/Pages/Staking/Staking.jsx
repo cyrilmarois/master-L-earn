@@ -251,13 +251,6 @@ const Staking = () => {
               web3.utils.fromWei(newEventDeposit, "ether")
             );
             if (planId === 0) {
-              let totalDepositPlanOne = 0;
-              tmpDeposit.forEach((value, key) => {
-                if (planId === key) {
-                  totalDepositPlanOne += value;
-                }
-              });
-
               setDepositStakingPlanOneTotal(amount);
             } else if (planId === 1) {
               setDepositStakingPlanTwoTotal(amount);

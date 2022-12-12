@@ -50,10 +50,15 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     constructor() ERC20("Master L&Earn", "MLE") Ownable() ERC20Permit("Master L&Earn") {
         _mint(msg.sender, INITIAL_SUPPLY);
         mleStaking = new MLEStaking();
-        address teacher1 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
-        address student1 = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db;
-        address student2 = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB;
-        address recruiter1 = 0x617F2E2fD72FD9D5503197092aC168c91465E7f2;
+        //0xD98c5d2949653CDb3F8935802E208E87C71dc7f7
+        address teacher1 = 0x97635a8AEcB3CfcaE96F7a11Ec6A0AB213E3F065;
+        address student1 = 0x5F33213C35933CEe1E32e8796710D24CfC844ddf;
+        address student2 = 0x51B58B2583c49De79bbaf762F7EeAf1cbC33b7Ce;
+        address recruiter1 = 0x4F76FD57f86C14fAa7d4DfF8EdD9986d982BA569;
+        // address teacher1 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
+        // address student1 = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db;
+        // address student2 = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB;
+        // address recruiter1 = 0x617F2E2fD72FD9D5503197092aC168c91465E7f2;
 
         //teacher
         transfer(teacher1, 1000e18);

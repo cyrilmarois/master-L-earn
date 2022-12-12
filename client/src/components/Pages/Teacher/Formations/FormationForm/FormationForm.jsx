@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import useEth from "../../../../../contexts/EthContext/useEth";
 import moment from "moment";
 import toast from "react-hot-toast";
-import { redirect } from "react-router-dom";
 import "./FormationForm.css";
 import React from "react";
 
@@ -77,7 +76,7 @@ const FormationForm = () => {
     // }
   };
 
-  const postFormation = async () => {
+  const createFormation = async () => {
     const myPromise = new Promise(async (resolve, reject) => {
       try {
         const formationDuration = convertFormDuration();
@@ -117,7 +116,6 @@ const FormationForm = () => {
           .send({ from: accounts[0] });
 
         resolve("Formation created");
-        // redirect("/teacher/1/formations");
       } catch (e) {
         console.error(e);
         reject("Error while creating");
@@ -344,7 +342,7 @@ const FormationForm = () => {
                   id="create-formation"
                   type="button"
                   className="btn btn-primary"
-                  onClick={postFormation}
+                  onClick={createFormation}
                 >
                   Créer ma formation
                 </button>

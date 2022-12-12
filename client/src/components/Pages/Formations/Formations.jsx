@@ -22,7 +22,7 @@ const Formations = () => {
               from: accounts[0],
             });
           let MLEFormations = [];
-          console.log({ teachersAddresses });
+
           for (let i = 0; i < teachersAddresses.length; i++) {
             const address = teachersAddresses[i];
             const tmpFormationTeachers = await contractMLE.methods
@@ -32,7 +32,6 @@ const Formations = () => {
               });
 
             // we have array of formations
-            console.log({ tmpFormationTeachers });
             if (tmpFormationTeachers.length > 0) {
               tmpFormationTeachers.forEach((item) => MLEFormations.push(item));
             }
@@ -107,7 +106,7 @@ const Formations = () => {
 
       <section id="Formations" className="container">
         <div className="d-flex flex-wrap pb-5">
-          {/* {formations.length > 0
+          {formations.length > 0
             ? formations.map((item, i) => (
                 <CardFormation
                   key={i}
@@ -120,7 +119,7 @@ const Formations = () => {
                   tags={item.tags}
                 />
               ))
-            : ""} */}
+            : ""}
 
           {fakeFormations.map((item, i) => (
             <CardFormation

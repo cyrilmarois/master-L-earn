@@ -12,9 +12,7 @@ You can find the individuals notes project [here](https://drive.google.com/drive
 
 You can check the video content on how it works [`here`](https://www.loom.com/share/37be4de3ac354d17a8f87eaccc3e164c)
 
-Check the demo [`here`](https://alyra-voting-dapp-akt4.vercel.app/)
-
-You can check the `smart contract` at this [`address`](https://goerli.etherscan.io/address/0x9f6a50DE3ee8DFBcF19c16f75beA133F886E91Ec) . It has been deployed on `Goerli` test network.
+Check the demo [`here`](https://master-l-earn.vercel.app/)
 
 The solidity compiler version is `0.8.17`
 

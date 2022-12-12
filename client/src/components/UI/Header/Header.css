@@ -1,0 +1,15 @@
+header {
+  border-bottom: 3px solid #0070d2;
+}
+#header {
+  height: 120px;
+}
+
+.btn-metamask,
+.btn-metamask:hover {
+  background-color: #ee811a;
+  color: white;
+}
+#connect.error {
+  border: 2px solid red;
+}

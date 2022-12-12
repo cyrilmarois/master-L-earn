@@ -21,23 +21,24 @@ const Formations = () => {
             .call({
               from: accounts[0],
             });
+
           let MLEFormations = [];
 
           for (let i = 0; i < teachersAddresses.length; i++) {
-            const address = teachersAddresses[i];
+            const teacherAddress = teachersAddresses[i];
             const tmpFormationTeachers = await contractMLE.methods
-              .getFormationForTeacher(address)
+              .getFormationForTeacher(teacherAddress)
               .call({
                 from: accounts[0],
               });
+            console.log({ tmpFormationTeachers });
 
-            // we have array of formations
-            if (tmpFormationTeachers.length > 0) {
-              tmpFormationTeachers.forEach((item) => MLEFormations.push(item));
-            }
+            const obj = {};
+            obj[teacherAddress] = tmpFormationTeachers;
+            MLEFormations.push(obj);
           }
-
           setFormations(MLEFormations);
+          console.log({ MLEFormations });
         } catch (e) {
           console.error(e);
         }
@@ -45,6 +46,31 @@ const Formations = () => {
       getFormations();
     }
   }, [accounts, contractMLE]);
+
+  const buildCardFormation = (items) => {
+    // console.log({ items });
+    const address = Object.keys(items);
+    const itum = items[address];
+
+    let cards = [];
+    itum.map((item, i) => {
+      cards.push(
+        <CardFormation
+          key={i}
+          formationId={i}
+          title={item.title}
+          duration={item.duration}
+          rating={item.rating}
+          teacherAddress={address[0]}
+          creationDate={item.creationDate}
+          price={item.price}
+          tags={item.tags}
+        />
+      );
+    });
+
+    return cards;
+  };
 
   // GET FORMATIONS THOUGHT PAST EVENTS
   // useEffect(() => {
@@ -107,32 +133,10 @@ const Formations = () => {
       <section id="Formations" className="container">
         <div className="d-flex flex-wrap pb-5">
           {formations.length > 0
-            ? formations.map((item, i) => (
-                <CardFormation
-                  key={i}
-                  title={item.title}
-                  duration={item.duration}
-                  rating={item.rating}
-                  teacherFullName={item.teacherFullName}
-                  creationDate={item.creationDate}
-                  price={item.price}
-                  tags={item.tags}
-                />
-              ))
+            ? formations.map((items) => {
+                return buildCardFormation(items);
+              })
             : ""}
-
-          {fakeFormations.map((item, i) => (
-            <CardFormation
-              key={i}
-              title={item.title}
-              duration={item.duration}
-              rating={item.rating}
-              teacherFullName={item.teacherFullName}
-              creationDate={item.creationDate}
-              price={item.price}
-              tags={item.tags}
-            />
-          ))}
         </div>
       </section>
     </>

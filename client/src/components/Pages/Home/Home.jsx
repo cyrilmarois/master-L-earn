@@ -65,7 +65,7 @@ const Home = () => {
                 sollicitudin sapien sed vestibulum. Quisque vitae porttitor
                 felis, ac sodales lacus.
               </blockquote>
-              <img src={profile1} />
+              <img src={profile1} alt="profile1" />
               <figcaption className="blockquote-footer mt-3">
                 Julie R. 25 ans, certifi&eacute;e en Solidity
               </figcaption>
@@ -77,7 +77,7 @@ const Home = () => {
                 Vivamus eros ante, fringilla sit amet leo hendrerit, vestibulum
                 consectetur velit. Aliquam quis molestie arcu
               </blockquote>
-              <img src={profile2} />
+              <img src={profile2} alt="profile2" />
               <figcaption className="blockquote-footer mt-3">
                 Radjani M. 22 ans, certifi&eacute; en Solidity
               </figcaption>

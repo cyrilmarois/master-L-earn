@@ -10,7 +10,7 @@ const SubFooter = () => {
           <div className="col-10">
             <div className="row">
               <div className="col-12">
-                <img src={logo} className="me-3" />
+                <img src={logo} alt="logo" className="me-3" />
                 &copy; 2022 Master & LEarn, Inc. Tous droits réservés.
               </div>
             </div>

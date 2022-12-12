@@ -10,7 +10,7 @@ const Header = () => {
   const [loggedAddress, setLoggedAddress] = useState("Connexion");
 
   const {
-    state: { web3, contractMLE, accounts },
+    state: { contractMLE, accounts },
   } = useEth();
 
   const handleConnexion = async () => {
@@ -18,18 +18,6 @@ const Header = () => {
       const addressConnexion = transformAddress(accounts[0]);
       setLoggedAddress(addressConnexion);
     }
-    // await web3.eth
-    //   .requestAccounts()
-    //   .then((account) => {
-    //     console.log({ account });
-    //     if (account && account[0]) {
-    //       localStorage.setItem("connexion", JSON.stringify(account[0]));
-    //       const address = transformAddress(account[0]);
-    //       setLoggedAddress(address);
-    //     }
-    //   })
-    //   .catch(e => console.error(true));
-    //   });
   };
 
   // LATER multiple wallet managment
@@ -70,7 +58,7 @@ const Header = () => {
           <div id="header" className="row align-items-center">
             <div className="col-1">
               <div id="logo">
-                <img src={logo} />
+                <img src={logo} alt="logo" />
               </div>
             </div>
             <div className="col-11 align-items-center">

@@ -1,21 +1,37 @@
-<<<<<<< HEAD
-# master-L-earn
-=======
 # Master L&Earn
 
-This is the Dapp for the future of e-learning.
+### IN COLLABORATION WITH:
 
-We build a MVP of an amazing project, the future of e-learning, combining ERC20 and DAO to democratize the knowledge
+- Christophe
+- Dimitry
+- Mathilde
+- Mourad
+
+### SPECIAL MENTION TO:
+
+- Maxence
+
+## PRESENTATION
+
+This is the final project for Alyra certification.
+
+We build an alpha version of a Dapp, Master L&Earn the future of e-learning.
+
+We build a MVP of an amazing project, combining ERC20 and DAO to democratize the knowledge
 
 It should be available on polygon network in the future.
 
 # Side notes
 
-You can find the individuals notes project [here](https://drive.google.com/drive/folders/1OnJMKihG8lrAxZaTreTvT459m-y-kgQl)
+You can find the drive content [here](https://drive.google.com/drive/folders/1OnJMKihG8lrAxZaTreTvT459m-y-kgQl)
 
-You can check the video content on how it works [`here`](https://www.loom.com/share/37be4de3ac354d17a8f87eaccc3e164c)
+Our [Notion](https://cyrilmarois.notion.site/cyrilmarois/Master-L-Earn-32abd10f50d048e083e99838480a1f1f)
 
-Check the demo [`here`](https://master-l-earn.vercel.app/)
+Our presentation is [here](https://prezi.com/view/f5rQT8kdCKmQMCzePBev)
+
+Our [demo](https://www.youtube.com/watch?v=WJI_FxiO3G4)
+
+You can play with it, [`here`](https://master-l-earn.vercel.app/)
 
 The solidity compiler version is `0.8.17`
 
@@ -47,4 +63,3 @@ Starting the client app...
 ```
 
 It should runs the dapp on your 3000 local port [`http://localhost:3000/`](http://localhost:3000/)
->>>>>>> release/0.1.0

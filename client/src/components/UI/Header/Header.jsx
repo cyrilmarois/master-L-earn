@@ -10,7 +10,7 @@ const Header = () => {
   const [loggedAddress, setLoggedAddress] = useState("Connexion");
 
   const {
-    state: { web3, contract, accounts },
+    state: { web3, contractMLE, accounts },
   } = useEth();
 
   const handleConnexion = async () => {
@@ -58,7 +58,7 @@ const Header = () => {
       const addressConnexion = transformAddress(accounts[0]);
       setLoggedAddress(addressConnexion);
     }
-  }, [contract, accounts]);
+  }, [contractMLE, accounts]);
 
   return (
     <>

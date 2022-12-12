@@ -6,23 +6,27 @@ import { reducer, actions, initialState } from "./state";
 function EthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const init = useCallback(async (artifact) => {
-    if (artifact) {
+  const init = useCallback(async (artifactMLE, artifactMLEStaking) => {
+    if (artifactMLE && artifactMLEStaking) {
       const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
       // TODO: change connexion process, do not call it directly
       const accounts = await web3.eth.requestAccounts();
       const networkID = await web3.eth.net.getId();
-      const { abi } = artifact;
-      let address, contract;
+      const abiMLE = artifactMLE.abi;
+      const abiMLEStaking = artifactMLEStaking.abi;
+      let addressMLE, contractMLE;
+      let addressMLEStaking, contractMLEStaking;
       try {
-        address = artifact.networks[networkID].address;
-        contract = new web3.eth.Contract(abi, address);
+        addressMLE = artifactMLE.networks[networkID].address;
+        contractMLE = new web3.eth.Contract(abiMLE, addressMLE);
+        addressMLEStaking = await contractMLE.methods.mleStaking().call();
+        contractMLEStaking = new web3.eth.Contract(abiMLEStaking, addressMLEStaking);
       } catch (err) {
         console.error(err);
       }
       dispatch({
         type: actions.init,
-        data: { artifact, web3, accounts, networkID, contract },
+        data: { artifactMLE, artifactMLEStaking, web3, accounts, networkID, contractMLE, contractMLEStaking },
       });
     }
   }, []);
@@ -30,8 +34,9 @@ function EthProvider({ children }) {
   useEffect(() => {
     const tryInit = async () => {
       try {
-        const artifact = require("../../contracts/MLE.json");
-        init(artifact);
+        const artifactMLE = require("../../contracts/MLE.json");
+        const artifactMLEStaking = require("../../contracts/MLEStaking.json");
+        init(artifactMLE, artifactMLEStaking);
       } catch (err) {
         console.error(err);
       }
@@ -43,7 +48,7 @@ function EthProvider({ children }) {
   useEffect(() => {
     const events = ["chainChanged", "accountsChanged", "disconnect"];
     const handleChange = () => {
-      init(state.artifact);
+      init(state.artifactMLE);
     };
 
     events.forEach((e) => {
@@ -52,8 +57,21 @@ function EthProvider({ children }) {
     return () => {
       events.forEach((e) => window.ethereum.removeListener(e, handleChange));
     };
-  }, [init, state.artifact]);
+  }, [init, state.artifactMLE]);
 
+  useEffect(() => {
+    const events = ["chainChanged", "accountsChanged", "disconnect"];
+    const handleChange = () => {
+      init(state.artifactMLEStaking);
+    };
+
+    events.forEach((e) => {
+      window.ethereum.on(e, handleChange);
+    });
+    return () => {
+      events.forEach((e) => window.ethereum.removeListener(e, handleChange));
+    };
+  }, [init, state.artifactMLEStaking]);
   return (
     <EthContext.Provider
       value={{

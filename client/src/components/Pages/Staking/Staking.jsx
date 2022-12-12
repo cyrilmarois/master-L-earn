@@ -7,7 +7,7 @@ import "./Staking.css";
 
 const Staking = () => {
   const {
-    state: { contract, web3, accounts },
+    state: { contractMLE, web3, accounts, contractMLEStaking },
   } = useEth();
   const [stakePlanOneAmount, setStakePlanOneAmount] = useState(0);
   const [stakePlanTwoAmount, setStakePlanTwoAmount] = useState(0);
@@ -54,12 +54,12 @@ const Staking = () => {
   const handleStakingPlanOne = async () => {
     const myPromise = new Promise(async (resolve, reject) => {
       try {
-        await contract.methods
+        await contractMLE.methods
           .stakeDeposit(convertAmount(stakePlanOneAmount), 0)
           .call({
             from: accounts[0],
           });
-        await contract.methods
+        await contractMLE.methods
           .stakeDeposit(convertAmount(stakePlanOneAmount), 0)
           .send({
             from: accounts[0],
@@ -87,12 +87,12 @@ const Staking = () => {
   const handleStakingPlanTwo = async () => {
     const myPromise = new Promise(async (resolve, reject) => {
       try {
-        await contract.methods
+        await contractMLE.methods
           .stakeDeposit(convertAmount(stakePlanTwoAmount), 1)
           .call({
             from: accounts[0],
           });
-        await contract.methods
+        await contractMLE.methods
           .stakeDeposit(convertAmount(stakePlanTwoAmount), 1)
           .send({
             from: accounts[0],
@@ -116,17 +116,22 @@ const Staking = () => {
   const handleUnstakePlanOne = async () => {
     const myPromise = new Promise(async (resolve, reject) => {
       try {
-        await contract.methods
-          .stakeTithdraw(convertAmount(depositStakingPlanOneTotal), 0)
+        await contractMLE.methods
+          .stakeWithdraw(
+            convertAmount(depositStakingPlanOneTotal.toString()),
+            0
+          )
           .call({
             from: accounts[0],
           });
-        await contract.methods
-          .stakeTithdraw(convertAmount(depositStakingPlanOneTotal), 0)
+        await contractMLE.methods
+          .stakeWithdraw(
+            convertAmount(depositStakingPlanOneTotal.toString()),
+            0
+          )
           .send({
             from: accounts[0],
           });
-
         resolve("Withdrawal created");
         getBalance();
       } catch (e) {
@@ -134,7 +139,6 @@ const Staking = () => {
         reject("Error during withdrawal");
       }
     });
-
     toast.promise(myPromise, {
       loading: "Unstaking en cours...",
       success: <b>Retrait réalisé avec succès.</b>,
@@ -145,13 +149,19 @@ const Staking = () => {
   const handleUnstakePlanTwo = async () => {
     const myPromise = new Promise(async (resolve, reject) => {
       try {
-        await contract.methods
-          .stakeTithdraw(convertAmount(stakePlanOneAmount), 0)
+        await contractMLE.methods
+          .stakeWithdraw(
+            convertAmount(depositStakingPlanTwoTotal.toString()),
+            1
+          )
           .call({
             from: accounts[0],
           });
-        await contract.methods
-          .stakeTithdraw(convertAmount(stakePlanOneAmount), 0)
+        await contractMLE.methods
+          .stakeWithdraw(
+            convertAmount(depositStakingPlanTwoTotal.toString()),
+            1
+          )
           .send({
             from: accounts[0],
           });
@@ -171,13 +181,18 @@ const Staking = () => {
   };
 
   useEffect(() => {
-    if (contract && accounts) {
-      // calcul total thought old deposits
-      const getPastEvents = async () => {
-        let oldDepositEvents = await contract.getPastEvents("StakeDeposit", {
-          fromBlock: 0,
-          toBlock: "latest",
-        });
+    console.log({ contractMLE, contractMLEStaking });
+    if (contractMLE && contractMLEStaking && accounts) {
+      // Deposit
+      let tmpDeposit = [0, 0];
+      const getPastDepositEvents = async () => {
+        let oldDepositEvents = await contractMLEStaking.getPastEvents(
+          "StakeDeposit",
+          {
+            fromBlock: 0,
+            toBlock: "latest",
+          }
+        );
 
         let deposits = [];
         deposits[0] = 0;
@@ -191,24 +206,58 @@ const Staking = () => {
             deposits[planId] += amount;
           }
 
-          setDepositStakingPlanOneTotal(deposits[0]);
-          setDepositStakingPlanTwoTotal(deposits[1]);
+          tmpDeposit = deposits;
         });
       };
 
-      getPastEvents();
+      getPastDepositEvents();
+      // Withdrawal
+      const getPastWithdrawalEvents = async () => {
+        let oldWithdrawalEvents = await contractMLEStaking.getPastEvents(
+          "StakeWithdrawal",
+          {
+            fromBlock: 0,
+            toBlock: "latest",
+          }
+        );
+
+        let withdrawals = [];
+        withdrawals[0] = 0;
+        withdrawals[1] = 0;
+        oldWithdrawalEvents.forEach((event) => {
+          if (event.returnValues.from === accounts[0]) {
+            const planId = parseInt(event.returnValues.planId);
+            const amount = parseInt(
+              web3.utils.fromWei(event.returnValues.amount, "ether")
+            );
+            withdrawals[planId] += amount;
+          }
+        });
+        reCalculDepositStakingBalanceTotal(tmpDeposit, withdrawals);
+      };
+
+      getPastWithdrawalEvents();
 
       // get current total deposit amount
       const getCurrentDeposit = async () => {
-        await contract.events
+        await contractMLEStaking.events
           .StakeDeposit({
             fromBlock: "earliest",
           })
           .on("data", (event) => {
-            let newEventDeposit = event.returnValues.totalDeposit;
+            let newEventDeposit = event.returnValues.amount;
             const planId = parseInt(event.returnValues.planId);
-            const amount = web3.utils.fromWei(newEventDeposit, "ether");
+            const amount = parseInt(
+              web3.utils.fromWei(newEventDeposit, "ether")
+            );
             if (planId === 0) {
+              let totalDepositPlanOne = 0;
+              tmpDeposit.forEach((value, key) => {
+                if (planId === key) {
+                  totalDepositPlanOne += value;
+                }
+              });
+
               setDepositStakingPlanOneTotal(amount);
             } else if (planId === 1) {
               setDepositStakingPlanTwoTotal(amount);
@@ -219,15 +268,64 @@ const Staking = () => {
           .on("connected", (str) => console.log(str));
       };
       getCurrentDeposit();
+
+      // get current total withdraw amount
+      const getCurrentWithdrawal = async () => {
+        await contractMLEStaking.events
+          .StakeWithdrawal({
+            fromBlock: "earliest",
+          })
+          .on("data", (event) => {
+            let newEventDeposit = web3.utils.fromWei(
+              event.returnValues.newUserStakingBalanceTotal,
+              "ether"
+            );
+            const planId = parseInt(event.returnValues.planId);
+            if (planId === 0) {
+              setDepositStakingPlanOneTotal(newEventDeposit);
+            } else if (planId === 1) {
+              setDepositStakingPlanTwoTotal(newEventDeposit);
+            }
+          })
+          .on("changed", (changed) => console.log(changed))
+          .on("error", (err) => console.log(err))
+          .on("connected", (str) => console.log(str));
+      };
+      getCurrentWithdrawal();
     }
-  }, [contract, accounts]);
+  }, [contractMLE, contractMLEStaking, accounts]);
+
+  const reCalculDepositStakingBalanceTotal = (tmpDeposit, tmpWithdraw) => {
+    let totalDepositPlanOne = 0;
+    let totalWithdrawPlanOne = 0;
+    let totalDepositPlanTwo = 0;
+    let totalWithdrawPlanTwo = 0;
+    tmpDeposit.forEach((value, key) => {
+      if (key === 0) {
+        totalDepositPlanOne += value;
+      }
+      if (key === 1) {
+        totalDepositPlanTwo += value;
+      }
+    });
+    tmpWithdraw.forEach((value, key) => {
+      if (key === 0) {
+        totalWithdrawPlanOne += value;
+      }
+      if (key === 1) {
+        totalWithdrawPlanTwo += value;
+      }
+    });
+    setDepositStakingPlanOneTotal(totalDepositPlanOne - totalWithdrawPlanOne);
+    setDepositStakingPlanTwoTotal(totalDepositPlanTwo - totalWithdrawPlanTwo);
+  };
 
   const getBalance = async () => {
     try {
-      const tmpBalance = await contract.methods
+      const tmpBalance = await contractMLE.methods
         .balanceOf(accounts[0])
         .call({ from: accounts[0] });
-      console.log({ tmpBalance });
+
       setUserBalance(web3.utils.fromWei(tmpBalance, "ether"));
     } catch (e) {
       console.error(e);
@@ -235,10 +333,10 @@ const Staking = () => {
   };
 
   useEffect(() => {
-    if (contract && accounts) {
+    if (contractMLE && accounts) {
       getBalance();
     }
-  }, [contract, accounts]);
+  }, [contractMLE, accounts]);
 
   return (
     <div id="staking">
@@ -351,7 +449,7 @@ const Staking = () => {
               <span></span> STAKE
             </button>
           </div>
-          {depositStakingPlanOneTotal !== 0 ? (
+          {depositStakingPlanTwoTotal !== 0 ? (
             <>
               <div className="mb-3 input-group">
                 <input

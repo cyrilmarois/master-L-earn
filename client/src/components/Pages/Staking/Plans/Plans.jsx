@@ -4,21 +4,25 @@ import Plan from "./Plan/Plan";
 
 const Plans = () => {
   const {
-    state: { contract, web3, accounts },
+    state: { contractMLE, web3, accounts, contractMLEStaking },
   } = useEth();
   const [stakingPlans, setStakingPlans] = useState([]);
 
   // GET STAKING PLANS
   useEffect(() => {
-    if (contract) {
+    if (contractMLEStaking) {
       const getPlans = async () => {
         try {
-          const stakingPlanOne = await contract.methods.stakingPlans(0).call({
-            from: accounts[0],
-          });
-          const stakingPlanTwo = await contract.methods.stakingPlans(1).call({
-            from: accounts[0],
-          });
+          const stakingPlanOne = await contractMLEStaking.methods
+            .stakingPlans(0)
+            .call({
+              from: accounts[0],
+            });
+          const stakingPlanTwo = await contractMLEStaking.methods
+            .stakingPlans(1)
+            .call({
+              from: accounts[0],
+            });
           setStakingPlans([stakingPlanOne, stakingPlanTwo]);
         } catch (e) {
           console.error(e);
@@ -26,7 +30,7 @@ const Plans = () => {
       };
       getPlans();
     }
-  }, [contract, accounts]);
+  }, [contractMLE, contractMLEStaking, accounts]);
 
   return (
     <>

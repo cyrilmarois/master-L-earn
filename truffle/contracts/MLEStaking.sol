@@ -31,7 +31,7 @@ contract MLEStaking is Ownable {
 
 /******************************** STATE VARIABLES ********************************/
 
-    MLE mle; 
+    MLE mle;
 
     mapping (address => StakingRecord[][2]) public userStakingDepositBalance;
     mapping (address => StakingRecord[][2]) public userStakingWithdrawalBalance;
@@ -59,7 +59,7 @@ contract MLEStaking is Ownable {
             apr: 10,
             totalStakers: 0,
             totalStakingDeposit: 0,
-            lockPeriod: 0 seconds,       // demo purpose, otherise 12 * 4 weeks (1 year)
+            lockPeriod: 0,       // demo purpose, otherise 12 * 4 weeks (1 year)
             minTokenAmount: 500e18,
             maxTokenDeposit: 2500000e18,
             title: "Plan 1"
@@ -96,7 +96,7 @@ contract MLEStaking is Ownable {
 
         mle.transferFrom(address(mle), _to, _amount);
 
-        uint256 newUserStakingBalanceTotal = 
+        uint256 newUserStakingBalanceTotal =
             _afterWithdrawalStakingTransfer(_to, _planId, _amount, userStakingBalanceTotal);
 
         emit StakeWithdrawal(_amount, _to, _planId, newUserStakingBalanceTotal);
@@ -192,7 +192,7 @@ contract MLEStaking is Ownable {
     }
 
     function _getUserWithdrawalBalance(address _to, uint _planId) internal view returns (uint) {
-        StakingRecord[] memory tmpUserStakingWithdrawalBalances = 
+        StakingRecord[] memory tmpUserStakingWithdrawalBalances =
             userStakingWithdrawalBalance[_to][_planId];
         uint256 userStakingWithdrawalBalanceTotal;
         for (uint i = 0; i < tmpUserStakingWithdrawalBalances.length; i++) {

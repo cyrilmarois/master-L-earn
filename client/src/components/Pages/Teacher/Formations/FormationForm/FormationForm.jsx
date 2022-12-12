@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import useEth from "../../../../../contexts/EthContext/useEth";
 import moment from "moment";
 import toast from "react-hot-toast";
-import { redirect } from "react-router-dom";
 import "./FormationForm.css";
 import React from "react";
 
@@ -20,7 +19,7 @@ const FormationForm = () => {
   const [minutes, setMinutes] = useState([]);
   const [seconds, setSeconds] = useState([]);
   const {
-    state: { contract, accounts, web3 },
+    state: { contractMLE, accounts, web3 },
   } = useEth();
 
   const handleFormationTitleChange = (e) => {
@@ -77,7 +76,7 @@ const FormationForm = () => {
     // }
   };
 
-  const postFormation = async () => {
+  const createFormation = async () => {
     const myPromise = new Promise(async (resolve, reject) => {
       try {
         const formationDuration = convertFormDuration();
@@ -92,7 +91,7 @@ const FormationForm = () => {
           formationTag,
           newFormationTag,
         });
-        await contract.methods
+        await contractMLE.methods
           .postFormation(
             parseInt(formationModuleCount),
             formationDuration,
@@ -104,7 +103,7 @@ const FormationForm = () => {
           )
           .call({ from: accounts[0] });
 
-        await contract.methods
+        await contractMLE.methods
           .postFormation(
             parseInt(formationModuleCount),
             formationDuration,
@@ -117,7 +116,6 @@ const FormationForm = () => {
           .send({ from: accounts[0] });
 
         resolve("Formation created");
-        // redirect("/teacher/1/formations");
       } catch (e) {
         console.error(e);
         reject("Error while creating");
@@ -178,7 +176,7 @@ const FormationForm = () => {
   useEffect(() => {
     getHoursOptions();
     getMinutesSecondsOptions();
-  }, [contract]);
+  }, [contractMLE]);
 
   return (
     <div id="post-formation">
@@ -344,7 +342,7 @@ const FormationForm = () => {
                   id="create-formation"
                   type="button"
                   className="btn btn-primary"
-                  onClick={postFormation}
+                  onClick={createFormation}
                 >
                   Créer ma formation
                 </button>

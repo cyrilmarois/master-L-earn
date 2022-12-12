@@ -7,7 +7,7 @@ import moment from "moment";
 
 const CardFormation = (props) => {
   const {
-    state: { web3, accounts, contract },
+    state: { web3, accounts, contractMLE },
   } = useEth();
   const [tags, setTags] = useState("");
   const [price, setPrice] = useState("");
@@ -16,7 +16,7 @@ const CardFormation = (props) => {
   const handleBuyFormation = async () => {
     const myPromise = new Promise(async (resolve, reject) => {
       try {
-        await contract.methods.buyFormation().call();
+        await contractMLE.methods.buyFormation().call();
         resolve("Buy formation success");
       } catch (e) {
         console.error(e);
@@ -43,7 +43,7 @@ const CardFormation = (props) => {
         setDuration(moment.utc(props.duration * 1000).format("HH:mm:ss"));
       }
     }
-  }, [accounts, contract]);
+  }, [accounts, contractMLE]);
 
   return (
     <div id="card" className="d-flex-inline p-3">

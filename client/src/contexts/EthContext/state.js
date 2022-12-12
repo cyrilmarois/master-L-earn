@@ -3,11 +3,13 @@ const actions = {
 };
 
 const initialState = {
-  artifact: null,
+  artifactMLE: null,
+  artifactMLEStaking: null,
   web3: null,
   accounts: null,
   networkID: null,
-  contract: null
+  contractMLE: null,
+  contractMLEStaking: null,
 };
 
 const reducer = (state, action) => {
@@ -20,8 +22,4 @@ const reducer = (state, action) => {
   }
 };
 
-export {
-  actions,
-  initialState,
-  reducer
-};
+export { actions, initialState, reducer };

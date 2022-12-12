@@ -7,32 +7,31 @@ import CardFormation from "../../UI/CardFormation/CardFormation";
 
 const Formations = () => {
   const {
-    state: { contract, accounts },
+    state: { contractMLE, accounts },
   } = useEth();
   const [formations, setFormations] = useState([]);
 
   // GET ALL FORMATIONS
   useEffect(() => {
-    if (contract && accounts) {
+    if (contractMLE && accounts) {
       const getFormations = async () => {
         try {
-          const teachersAddresses = await contract.methods
+          const teachersAddresses = await contractMLE.methods
             .getTeachersAddresses()
             .call({
               from: accounts[0],
             });
           let MLEFormations = [];
-          console.log({ teachersAddresses });
+
           for (let i = 0; i < teachersAddresses.length; i++) {
             const address = teachersAddresses[i];
-            const tmpFormationTeachers = await contract.methods
+            const tmpFormationTeachers = await contractMLE.methods
               .getFormationForTeacher(address)
               .call({
                 from: accounts[0],
               });
 
             // we have array of formations
-            console.log({ tmpFormationTeachers });
             if (tmpFormationTeachers.length > 0) {
               tmpFormationTeachers.forEach((item) => MLEFormations.push(item));
             }
@@ -45,13 +44,13 @@ const Formations = () => {
       };
       getFormations();
     }
-  }, [accounts, contract]);
+  }, [accounts, contractMLE]);
 
   // GET FORMATIONS THOUGHT PAST EVENTS
   // useEffect(() => {
-  //   if (contract && accounts) {
+  //   if (contractMLE && accounts) {
   //     const getPastEvents = async () => {
-  //       let oldFormationEvents = await contract.getPastEvents(
+  //       let oldFormationEvents = await contractMLE.getPastEvents(
   //         "FormationPublished",
   //         {
   //           fromBlock: 0,
@@ -71,7 +70,7 @@ const Formations = () => {
 
   //     getPastEvents();
   //   }
-  // }, [contract, accounts]);
+  // }, [contractMLE, accounts]);
 
   const fakeFormations = [
     {
@@ -107,7 +106,7 @@ const Formations = () => {
 
       <section id="Formations" className="container">
         <div className="d-flex flex-wrap pb-5">
-          {/* {formations.length > 0
+          {formations.length > 0
             ? formations.map((item, i) => (
                 <CardFormation
                   key={i}
@@ -120,7 +119,7 @@ const Formations = () => {
                   tags={item.tags}
                 />
               ))
-            : ""} */}
+            : ""}
 
           {fakeFormations.map((item, i) => (
             <CardFormation

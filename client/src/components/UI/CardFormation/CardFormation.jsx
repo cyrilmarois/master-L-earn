@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useEth } from "../../../contexts/EthContext";
 import toast from "react-hot-toast";
 import moment from "moment";
+import ErrorHelper from "../../Helpers/ErrorHelper";
 
 const CardFormation = (props) => {
   const {
@@ -14,19 +15,29 @@ const CardFormation = (props) => {
   const [duration, setDuration] = useState("");
 
   const handleBuyFormation = async () => {
+    let tmpBalance = await contractMLE.methods
+      .balanceOf(accounts[0])
+      .call({ from: accounts[0] });
+
+    tmpBalance = web3.utils.fromWei(tmpBalance, "ether");
+
     const myPromise = new Promise(async (resolve, reject) => {
       try {
-        await contractMLE.methods.buyFormation().call();
+        await contractMLE.methods
+          .buyFormation(props.teacherAddress, props.formationId)
+          .call();
         resolve("Buy formation success");
       } catch (e) {
         console.error(e);
-        reject("Buy formation failed");
+        const error = ErrorHelper.parseError(e);
+        reject(error);
       }
-      toast.promise(myPromise, {
-        loading: "Achat en cours...",
-        success: <b>Achat réalisé avec succès.</b>,
-        error: <b>Erreur durant l'achat.</b>,
-      });
+    });
+
+    toast.promise(myPromise, {
+      loading: "Transaction en cours...",
+      success: <b>Achat réalisé avec succès.</b>,
+      error: (err) => `Erreur lors de la transaction : ${err.toString()}`,
     });
   };
 

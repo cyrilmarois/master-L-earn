@@ -4,6 +4,7 @@ import moment from "moment";
 import Plans from "./Plans/Plans";
 import toast from "react-hot-toast";
 import "./Staking.css";
+import ErrorHelper from "../../Helpers/ErrorHelper";
 
 const Staking = () => {
   const {
@@ -69,14 +70,15 @@ const Staking = () => {
         getBalance();
       } catch (e) {
         console.error(e);
-        reject("Error during deposit");
+        const error = ErrorHelper.parseError(e);
+        reject(error);
       }
     });
 
     toast.promise(myPromise, {
       loading: "Staking en cours...",
       success: <b>Dépot réalisé avec succès.</b>,
-      error: <b>Erreur durant le staking.</b>,
+      error: (err) => `Erreur durant le staking : ${err.toString()}`,
     });
   };
 
@@ -102,14 +104,15 @@ const Staking = () => {
         getBalance();
       } catch (e) {
         console.error(e);
-        reject("Error during deposit");
+        const error = ErrorHelper.parseError(e);
+        reject(error);
       }
     });
 
     toast.promise(myPromise, {
       loading: "Staking en cours...",
       success: <b>Dépot réalisé avec succès.</b>,
-      error: <b>Erreur durant le staking.</b>,
+      error: (err) => `Erreur durant le staking : ${err.toString()}`,
     });
   };
 
@@ -136,13 +139,15 @@ const Staking = () => {
         getBalance();
       } catch (e) {
         console.error(e);
-        reject("Error during withdrawal");
+        const error = ErrorHelper.parseError(e);
+        reject(error);
       }
     });
+
     toast.promise(myPromise, {
       loading: "Unstaking en cours...",
       success: <b>Retrait réalisé avec succès.</b>,
-      error: <b>Erreur durant le retrait.</b>,
+      error: (err) => `Erreur durant le retrait : ${err.toString()}`,
     });
   };
 
@@ -169,14 +174,15 @@ const Staking = () => {
         getBalance();
       } catch (e) {
         console.error(e);
-        reject("Error during withdrawal");
+        const error = ErrorHelper.parseError(e);
+        reject(error);
       }
     });
 
     toast.promise(myPromise, {
       loading: "Unstaking en cours...",
       success: <b>Retrait réalisé avec succès.</b>,
-      error: <b>Erreur durant le retrait.</b>,
+      error: (err) => `Erreur durant le retrait : ${err.toString()}`,
     });
   };
 
@@ -318,7 +324,7 @@ const Staking = () => {
       const tmpBalance = await contractMLE.methods
         .balanceOf(accounts[0])
         .call({ from: accounts[0] });
-
+      console.log({ tmpBalance });
       setUserBalance(web3.utils.fromWei(tmpBalance, "ether"));
     } catch (e) {
       console.error(e);
@@ -359,6 +365,7 @@ const Staking = () => {
               placeholder="MLE"
               value={stakePlanOneAmount}
               onChange={handleStakePlanOneInputChange}
+              required
             />
             <span className="input-group-text">MLE</span>
           </div>
@@ -367,6 +374,7 @@ const Staking = () => {
               id="staking-button"
               type="submit"
               onClick={handleStakingPlanOne}
+              required
             >
               <span></span>
               <span></span>
@@ -385,6 +393,7 @@ const Staking = () => {
                   placeholder="MLE"
                   value={depositStakingPlanOneTotal}
                   onChange={handleUnstakePlanOneInputChange}
+                  required
                 />
                 <span className="input-group-text">MLE</span>
               </div>
@@ -393,6 +402,7 @@ const Staking = () => {
                   id="staking-button"
                   type="submit"
                   onClick={handleUnstakePlanOne}
+                  required
                 >
                   <span></span>
                   <span></span>

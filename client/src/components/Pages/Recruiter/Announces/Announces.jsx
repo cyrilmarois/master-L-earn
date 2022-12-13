@@ -9,47 +9,47 @@ const Announces = () => {
     state: { contractMLE, accounts },
   } = useEth();
   const [announces, setAnnounces] = useState([]);
-  const [newFormation, setNewFormation] = useState({});
+  const [newAnnounce, setNewAnnounce] = useState({});
 
   useEffect(() => {
-    // if (contractMLE && accounts) {
-    //   const getFormations = async () => {
-    //     try {
-    //       const MLEFormations = await contractMLE.methods
-    //         .getFormationForStudent(accounts[0])
-    //         .call({
-    //           from: accounts[0],
-    //         });
-    //       console.log({ MLEFormations });
-    //       // if (MLEFormations.length > 0) {
-    //       //   setFormations(MLEFormations);
-    //       // }
-    //     } catch (e) {
-    //       console.error(e);
-    //     }
-    //   };
-    //   getFormations();
-    // }
+    if (contractMLE && accounts) {
+      const getAnnounces = async () => {
+        try {
+          const MLEAnnounces = await contractMLE.methods
+            .getAnnounceForRecruiter(accounts[0])
+            .call({
+              from: accounts[0],
+            });
+          console.log({ MLEAnnounces });
+          if (MLEAnnounces.length > 0) {
+            setAnnounces(MLEAnnounces);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      };
+      getAnnounces();
+    }
   }, [accounts, contractMLE]);
 
-  // GET CURRENT FORMATION
+  // GET CURRENT ANNOUNCE
   useEffect(() => {
-    // if ((contractMLE, accounts)) {
-    //   const getCurrentFormationPost = async () => {
-    //     await contractMLE.events
-    //       .FormationPublished({
-    //         fromBlock: "earliest",
-    //       })
-    //       .on("data", (event) => {
-    //         console.log({ event });
-    //         setNewFormation(event.returnValues);
-    //       })
-    //       .on("changed", (changed) => console.log(changed))
-    //       .on("error", (err) => console.log(err))
-    //       .on("connected", (str) => console.log(str));
-    //   };
-    //   getCurrentFormationPost();
-    // }
+    if ((contractMLE, accounts)) {
+      const getCurrentAnnouncePost = async () => {
+        await contractMLE.events
+          .AnnouncePublished({
+            fromBlock: "earliest",
+          })
+          .on("data", (event) => {
+            console.log({ event });
+            setNewAnnounce(event.returnValues);
+          })
+          .on("changed", (changed) => console.log(changed))
+          .on("error", (err) => console.log(err))
+          .on("connected", (str) => console.log(str));
+      };
+      getCurrentAnnouncePost();
+    }
   }, [contractMLE, accounts]);
 
   return (
@@ -65,37 +65,36 @@ const Announces = () => {
       </div>
       <h2>Vos annonces existantes</h2>
       <div className="d-flex flex-wrap pt-3 pb-5">
-        {/* {newFormation.length > 0 ? (
+        {newAnnounce.length > 0 ? (
           <CardAnnounce
             key={666}
-            title={newFormation.title}
-            duration={newFormation.duration}
-            rating={newFormation.rating}
-            teacherFullName={newFormation.teacherFullName}
-            creationDate={newFormation.creationDate}
-            price={newFormation.price}
-            tags={newFormation.tags}
-            basket="false"
+            title={newAnnounce.title}
+            duration={newAnnounce.duration}
+            rating={newAnnounce.rating}
+            teacherFullName={newAnnounce.teacherFullName}
+            creationDate={newAnnounce.creationDate}
+            price={newAnnounce.price}
+            tags={newAnnounce.tags}
+            action="false"
           />
         ) : (
           ""
-        )} */}
+        )}
 
-        {/* {formations.length > 0
-          ? formations.map((item, i) => (
-              <CardFormation
+        {announces.length > 0
+          ? announces.map((item, i) => (
+              <CardAnnounce
                 key={i}
+                announceId={i}
                 title={item.title}
-                duration={item.duration}
-                rating={item.rating}
-                teacherFullName={item.teacherFullName}
+                recruiterAddress={item.recruiterAddress}
                 creationDate={item.creationDate}
-                price={item.price}
+                description={item.description}
                 tags={item.tags}
-                basket="false"
+                action="false"
               />
             ))
-          : ""} */}
+          : ""}
         <CardAnnounce
           key="666"
           announceId="666"

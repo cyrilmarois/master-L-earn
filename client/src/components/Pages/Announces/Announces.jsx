@@ -39,6 +39,7 @@ const Announces = () => {
               recruitersAnnounces.push(cards);
             }
           }
+
           setAnnounces(recruitersAnnounces);
         } catch (e) {
           console.error(e);
@@ -54,13 +55,11 @@ const Announces = () => {
       cards.push(
         <CardAnnounce
           key={i}
-          formationId={i}
+          announceId={i}
           title={item.title}
-          duration={item.duration}
-          rating={item.rating}
-          recruiterAddress={recruiterAddress}
+          recruiterAddress={item.recruiterAddress}
           creationDate={item.creationDate}
-          price={item.price}
+          description={item.description}
           tags={item.tags}
         />
       );

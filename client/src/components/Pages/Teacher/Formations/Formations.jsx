@@ -10,7 +10,6 @@ const Formations = () => {
   } = useEth();
   const [formations, setFormations] = useState([]);
   const [newFormation, setNewFormation] = useState({});
-  const [fakeFormations, setFakeFormations] = useState([]);
 
   useEffect(() => {
     if (contractMLE && accounts) {
@@ -52,32 +51,11 @@ const Formations = () => {
     }
   }, [contractMLE, accounts]);
 
-  useEffect(() => {
-    setFakeFormations([
-      {
-        title: "Learn Defi",
-        duration: 10800,
-        rating: 5,
-        creationDate: "2022-02-22 10:09:16",
-        price: "7600000000000000000000",
-        tags: ["test", "test2"],
-      },
-      {
-        title: "Learn Metamask",
-        duration: 2000,
-        rating: 3,
-        creationDate: "2022-06-08 12:33:44",
-        price: "666000000000000000000",
-        tags: ["test2"],
-      },
-    ]);
-  }, []);
-
   return (
     <section id="Formation" className="container">
       <div className="pt-5 mb-5">
         <a
-          href="/teacher/1/formations/add"
+          href="/teacher/formation/add"
           role="button"
           className="btn btn-primary"
         >
@@ -101,25 +79,8 @@ const Formations = () => {
         ) : (
           ""
         )}
-        {/* <pre>{JSON.stringify({ l: formations.length })}</pre> */}
         {formations.length > 0
           ? formations.map((item, i) => (
-              <CardFormation
-                key={i}
-                title={item.title}
-                duration={item.duration}
-                rating={item.rating}
-                teacherFullName={item.teacherFullName}
-                creationDate={item.creationDate}
-                price={item.price}
-                tags={item.tags}
-                basket="false"
-              />
-            ))
-          : ""}
-
-        {fakeFormations.length > 0
-          ? fakeFormations.map((item, i) => (
               <CardFormation
                 key={i}
                 title={item.title}

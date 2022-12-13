@@ -50,12 +50,12 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     constructor() ERC20("Master L&Earn", "MLE") Ownable() ERC20Permit("Master L&Earn") {
         _mint(msg.sender, INITIAL_SUPPLY);
         mleStaking = new MLEStaking();
-        //0x49B912A15B7d277812CC097a9DFB8c9732476580
-        address teacher1 = 0xEEf02CF3Dd4d8719aFd331271Edc797eE1Ff077e;
+        //0xDCC7e7F59446507bD2C28c5E6746dfDCc3A1E7b8
+        address teacher1 = 0xe579c4c5572838C617960383c93B6c28aBEB8419;
         address teacher2 = 0x754dfb5C73D38d4aF7475B5244AA57EB5013556c;
-        address student1 = 0xbEA6C00E57CFCF1Ad5e20c6977498ca8dD7b6ca1;
+        address student1 = 0x2885075734E226985557276b6f7c7206F9f3f3cE;
         address student2 = 0xc3d2860Ca5Ca7feB0C6345bA87b077CEfA7aA86C;
-        address recruiter1 = 0x4E5FC164295839C457B5C2fB167cbF092a73c346;
+        address recruiter1 = 0xDcDE43bfa6ea64A56389c80F24129D25b8C94551;
         // address teacher1 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
         // address student1 = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db;
         // address student2 = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB;
@@ -148,6 +148,14 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
     function getTeachersAddresses() external view returns(address[] memory) {
         return teachersAddress;
+    }
+
+    function getStudentsAddress() external view returns(address[] memory) {
+        return studentsAddress;
+    }
+
+    function getRecruitersAddress() external view returns(address[] memory) {
+        return recruitersAddress;
     }
 
     function getAnnounceForRecruiter (address _recruiterAddress)
@@ -330,6 +338,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
     function postAnnounce(
         string memory _title,
+        string memory _description,
         string[] memory _tags
     ) external {
         require (transfer(address(this), announcePostPrice), "Insufficient balance");
@@ -338,9 +347,11 @@ contract MLE is ERC20, ERC20Votes, Ownable {
             true,
             block.timestamp,
             _title,
+            _description,
             _tags,
             candidates
         ));
+        emit AnnouncePublished(msg.sender, recruiters[msg.sender].announces.length - 1);
     }
 
     function offerJob(

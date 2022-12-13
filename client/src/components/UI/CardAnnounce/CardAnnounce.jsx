@@ -50,14 +50,10 @@ const CardAnnounce = (props) => {
 
   return (
     <div id="card" className="p-3">
-      <div className="title m-2 flex-grow-1">{props.title}</div>
-      <div className="m-2 flex-grow-1">{props.description}</div>
-      <p className="m-2 author">Publiée le : {props.creationDate}</p>
-      <p className="m-2 tags">{tags}</p>
-
-      <div className="d-flex justify-content-between align-items-end">
+      <div className="d-flex justify-content-between flex-grow-1">
+        <div className="title">{props.title}</div>
         {!props.action ? (
-          <div>
+          <div className="apply">
             <span onClick={handleApplyAnnounce}>
               <i className="fa-regular fa-handshake"></i>
             </span>
@@ -66,6 +62,9 @@ const CardAnnounce = (props) => {
           ""
         )}
       </div>
+      <div className="m-2 flex-grow-1">{props.description}</div>
+      <p className="m-2 author">Publiée le : {props.creationDate}</p>
+      <p className="m-2 tags">{tags}</p>
     </div>
   );
 };

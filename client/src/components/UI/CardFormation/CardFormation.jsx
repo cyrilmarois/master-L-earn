@@ -76,18 +76,18 @@ const CardFormation = (props) => {
         <p className="tags">{tags}</p>
       </div>
 
-      {!props.basket ? (
-        <div className="d-flex justify-content-between align-items-end">
-          <div className="price">{price} MLE</div>
+      <div className="d-flex justify-content-between align-items-end">
+        <div className="price">{!props.basket ? price * 2 : price} MLE</div>
+        {!props.basket ? (
           <div>
             <span onClick={handleBuyFormation}>
               <i className="fa-solid fa-basket-shopping"></i>
             </span>
           </div>
-        </div>
-      ) : (
-        ""
-      )}
+        ) : (
+          ""
+        )}
+      </div>
     </div>
   );
 };

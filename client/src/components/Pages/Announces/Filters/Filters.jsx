@@ -45,8 +45,9 @@ const Filters = () => {
                 Domaine
               </label>
               <select
-                className="form-select"
-                aria-label="Default select example"
+                multiple
+                className="form-control"
+                id="exampleFormControlSelect2"
               >
                 <option defaultValue>Selectionnez...</option>
                 <option value="1">Blockchain</option>

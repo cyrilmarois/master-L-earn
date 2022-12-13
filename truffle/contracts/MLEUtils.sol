@@ -34,6 +34,7 @@ library MLEUtils {
         bool isActive;
         uint creationDate;     // exprimed in seconds since 1970
         string title;
+        string description;
         string[] tags;
         address[] candidates;
         // TBD : add specific conditions to be able to apply ?

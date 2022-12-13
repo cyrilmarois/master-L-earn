@@ -11,16 +11,20 @@ const Main = () => {
 
   return (
     <main>
-      {/* {!state.artifact ? (
-        <NoticeNoArtifact />
-      ) : !state.contract ? (
-        <NoticeWrongNetwork />
-      ) : (
-        <Outlet />
-      )} */}
+      {" "}
       <Outlet />
     </main>
   );
+  // <main>
+  //   {/* {!state.artifact ? (
+  //     <NoticeNoArtifact />
+  //   ) : !state.contract ? (
+  //     <NoticeWrongNetwork />
+  //   ) : (
+  //     <Outlet />
+  //   )} */}
+  // </main>
+  // );
 };
 
 export default Main;

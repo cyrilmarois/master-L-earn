@@ -21,23 +21,25 @@ const Formations = () => {
             .call({
               from: accounts[0],
             });
-          let MLEFormations = [];
 
+          let teachersFormations = [];
           for (let i = 0; i < teachersAddresses.length; i++) {
-            const address = teachersAddresses[i];
-            const tmpFormationTeachers = await contractMLE.methods
-              .getFormationForTeacher(address)
+            const teacherAddress = teachersAddresses[i];
+            const teacherFormations = await contractMLE.methods
+              .getFormationForTeacher(teacherAddress)
               .call({
                 from: accounts[0],
               });
 
-            // we have array of formations
-            if (tmpFormationTeachers.length > 0) {
-              tmpFormationTeachers.forEach((item) => MLEFormations.push(item));
+            const cards = buildCardFormations(
+              teacherAddress,
+              teacherFormations
+            );
+            if (cards.length > 0) {
+              teachersFormations.push(cards);
             }
           }
-
-          setFormations(MLEFormations);
+          setFormations(teachersFormations);
         } catch (e) {
           console.error(e);
         }
@@ -46,59 +48,26 @@ const Formations = () => {
     }
   }, [accounts, contractMLE]);
 
-  // GET FORMATIONS THOUGHT PAST EVENTS
-  // useEffect(() => {
-  //   if (contractMLE && accounts) {
-  //     const getPastEvents = async () => {
-  //       let oldFormationEvents = await contractMLE.getPastEvents(
-  //         "FormationPublished",
-  //         {
-  //           fromBlock: 0,
-  //           toBlock: "latest",
-  //         }
-  //       );
+  const buildCardFormations = (teacherAddress, teacherFormations) => {
+    let cards = [];
+    teacherFormations.map((item, i) => {
+      cards.push(
+        <CardFormation
+          key={i}
+          formationId={i}
+          title={item.title}
+          duration={item.duration}
+          rating={item.rating}
+          teacherAddress={teacherAddress}
+          creationDate={item.creationDate}
+          price={item.price}
+          tags={item.tags}
+        />
+      );
+    });
 
-  //       let tmpFormations = [];
-  //       console.log({ oldFormationEvents });
-  //       oldFormationEvents.forEach((event) => {
-  //         console.log({ eventValues: event.returnValues });
-  //         tmpFormations.push(event.returnValues);
-  //       });
-  //       console.log({ tmpFormations });
-  //       setFormations(tmpFormations);
-  //     };
-
-  //     getPastEvents();
-  //   }
-  // }, [contractMLE, accounts]);
-
-  const fakeFormations = [
-    {
-      title: "Learn Solidity",
-      duration: 3600000,
-      rating: 4,
-      creationDate: "2022-11-01",
-      price: "2500000000000000000000",
-      tags: ["blockchain", "solidity"],
-    },
-
-    {
-      title: "Learn Metamask",
-      duration: 300,
-      rating: 3,
-      creationDate: "2022-10-25",
-      price: "666000000000000000000",
-      tags: ["blockchain", "metamask"],
-    },
-    {
-      title: "Learn Defi",
-      duration: 10800,
-      rating: 5,
-      creationDate: "2022-09-18",
-      price: "1230000000000000000000",
-      tags: ["blockchain", "defi"],
-    },
-  ];
+    return cards;
+  };
 
   return (
     <>
@@ -106,33 +75,18 @@ const Formations = () => {
 
       <section id="Formations" className="container">
         <div className="d-flex flex-wrap pb-5">
-          {formations.length > 0
-            ? formations.map((item, i) => (
-                <CardFormation
-                  key={i}
-                  title={item.title}
-                  duration={item.duration}
-                  rating={item.rating}
-                  teacherFullName={item.teacherFullName}
-                  creationDate={item.creationDate}
-                  price={item.price}
-                  tags={item.tags}
-                />
-              ))
-            : ""}
-
-          {fakeFormations.map((item, i) => (
-            <CardFormation
-              key={i}
-              title={item.title}
-              duration={item.duration}
-              rating={item.rating}
-              teacherFullName={item.teacherFullName}
-              creationDate={item.creationDate}
-              price={item.price}
-              tags={item.tags}
-            />
-          ))}
+          {formations.length > 0 ? formations : ""}
+          <CardFormation
+            key="666"
+            formationId="666"
+            title="Learn consulting"
+            duration="3600000"
+            rating="4"
+            teacherAddress="0x5666eD746E98FA440ceD3714d5915c2556888a5c"
+            creationDate="16708547791"
+            price="250000000000000000000"
+            tags={["blockchain", "solidity"]}
+          />
         </div>
       </section>
     </>

@@ -25,7 +25,7 @@ It should be available on polygon network in the future.
 
 You can find the drive content [here](https://drive.google.com/drive/folders/1OnJMKihG8lrAxZaTreTvT459m-y-kgQl)
 
-Our [Notion](https://cyrilmarois.notion.site/cyrilmarois/Master-L-Earn-32abd10f50d048e083e99838480a1f1f)
+Our [Notion](https://cyrilmarois.notion.site/ETAPES-DU-PROJET-bf135b31c0b84e2cbfdd9994039a762d)
 
 Our presentation is [here](https://prezi.com/view/f5rQT8kdCKmQMCzePBev)
 

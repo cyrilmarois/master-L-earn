@@ -79,10 +79,10 @@ contract MLEStaking is Ownable {
     }
 
     function stakeDeposit(address _from, uint256 _amount, uint8 _planId) onlyOwner external {
-        require(_planId <= 1, "Error, staking plan does not exists");
-        require(stakingPlans[_planId].totalStakingDeposit + _amount < stakingPlans[_planId].maxTokenDeposit, "Error, staking deposit limit reach");
-        require(mle.balanceOf(_from) >= _amount, "Error, insuffisant funds to stake");
-        require(mle.transferFrom(_from, address(mle), _amount), "Error, failed staking deposit");
+        require(_planId <= 1, "Staking plan does not exists");
+        require(stakingPlans[_planId].totalStakingDeposit + _amount < stakingPlans[_planId].maxTokenDeposit, "Staking deposit limit reached");
+        require(mle.balanceOf(_from) >= _amount, "Insufficient balance");
+        require(mle.transferFrom(_from, address(mle), _amount), "Failed staking deposit");
 
         uint256 newUserStakingDepositBalanceTotal = _afterDepositStakingTransfer(_from, _planId, _amount);
 
@@ -90,7 +90,7 @@ contract MLEStaking is Ownable {
     }
 
     function stakeWithdraw(address _to, uint256 _amount, uint8 _planId) onlyOwner external {
-        require(_planId <= 1, "Error, staking plan does not exists");
+        require(_planId <= 1, "Staking plan does not exists");
 
         uint256 userStakingBalanceTotal = _beforeWithdrawalStakingTransfer(_to, _planId, _amount);
 
@@ -148,10 +148,10 @@ contract MLEStaking is Ownable {
         (userStakingDepositBalanceTotal, firstDepositDate) = _getUserStakingDepositBalance(_to, _planId);
 
         uint256 userStakingBalanceTotal = userStakingDepositBalanceTotal - userStakingWithdrawalBalanceTotal;
-        require(userStakingBalanceTotal - _amount >= 0, "Error, insuffisant funds in staking to withdraw");
+        require(userStakingBalanceTotal - _amount >= 0, "Insufficient balance to withdraw");
 
         uint256 lockPeriod = stakingPlans[_planId].lockPeriod;
-        require(block.timestamp > firstDepositDate + lockPeriod, "Error, You can't withdraw before lockPeriod");
+        require(block.timestamp > firstDepositDate + lockPeriod, "You can't withdraw before lockPeriod");
 
         return userStakingBalanceTotal;
     }

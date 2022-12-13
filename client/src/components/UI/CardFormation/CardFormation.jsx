@@ -64,7 +64,7 @@ const CardFormation = (props) => {
   }, [accounts, contractMLE]);
 
   return (
-    <div id="card" className="d-flex-inline p-3">
+    <div id="card-formation" className="d-flex-inline p-3">
       <div className="row">
         <img className="thumbnail" src={logo} alt="logo" />
       </div>

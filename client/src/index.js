@@ -12,6 +12,7 @@ import Error404 from "./components/Pages/Error/404/Error404";
 import Announces from "./components/Pages/Announces/Announces";
 import RecruiterAnnounces from "./components/Pages/Recruiter/Announces/Announces";
 import AnnounceForm from "./components/Pages/Recruiter/Announces/AnnounceForm/AnnounceForm";
+import Student from "./components/Pages/Student/Student";
 
 const router = createBrowserRouter([
   {
@@ -28,12 +29,11 @@ const router = createBrowserRouter([
         element: <Formations />,
       },
       {
-        path: "/teacher/1/formations",
+        path: "/teacher",
         element: <TeacherFormations />,
       },
-
       {
-        path: "/teacher/1/formations/add",
+        path: "/teacher/formation/add",
         element: <FormationForm />,
       },
       {
@@ -41,12 +41,16 @@ const router = createBrowserRouter([
         element: <Announces />,
       },
       {
-        path: "/recruiter/1/announces",
+        path: "/recruiter",
         element: <RecruiterAnnounces />,
       },
       {
-        path: "/recruiter/1/announces/add",
+        path: "/recruiter/announce/add",
         element: <AnnounceForm />,
+      },
+      {
+        path: "/student",
+        element: <Student />,
       },
       {
         path: "/staking",

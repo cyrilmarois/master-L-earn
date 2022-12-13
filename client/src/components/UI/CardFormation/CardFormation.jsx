@@ -25,7 +25,14 @@ const CardFormation = (props) => {
       try {
         await contractMLE.methods
           .buyFormation(props.teacherAddress, props.formationId)
-          .call();
+          .call({
+            from: accounts[0],
+          });
+        await contractMLE.methods
+          .buyFormation(props.teacherAddress, props.formationId)
+          .send({
+            from: accounts[0],
+          });
         resolve("Buy formation success");
       } catch (e) {
         console.error(e);

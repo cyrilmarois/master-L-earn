@@ -20,7 +20,7 @@ const Announces = () => {
             .call({
               from: accounts[0],
             });
-          console.log({ MLEAnnounces });
+
           if (MLEAnnounces.length > 0) {
             setAnnounces(MLEAnnounces);
           }
@@ -56,7 +56,7 @@ const Announces = () => {
     <section id="Formation" className="container">
       <div className="pt-5 mb-5">
         <a
-          href="/recruiter/1/announces/add"
+          href="/recruiter/announce/add"
           role="button"
           className="btn btn-primary"
         >

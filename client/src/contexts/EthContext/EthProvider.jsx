@@ -60,7 +60,7 @@ function EthProvider({ children }) {
   useEffect(() => {
     const events = ["chainChanged", "accountsChanged", "disconnect"];
     const handleChange = () => {
-      init(state.artifactMLE);
+      init(state.artifactMLE, state.artifactMLEStaking);
     };
 
     events.forEach((e) => {
@@ -69,21 +69,8 @@ function EthProvider({ children }) {
     return () => {
       events.forEach((e) => window.ethereum.removeListener(e, handleChange));
     };
-  }, [init, state.artifactMLE]);
+  }, [init, state.artifactMLE, state.artifactMLEStaking]);
 
-  useEffect(() => {
-    const events = ["chainChanged", "accountsChanged", "disconnect"];
-    const handleChange = () => {
-      init(state.artifactMLEStaking);
-    };
-
-    events.forEach((e) => {
-      window.ethereum.on(e, handleChange);
-    });
-    return () => {
-      events.forEach((e) => window.ethereum.removeListener(e, handleChange));
-    };
-  }, [init, state.artifactMLEStaking]);
   return (
     <EthContext.Provider
       value={{

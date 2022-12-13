@@ -23,7 +23,7 @@ contract MLEStaking is Ownable {
         uint256 lockPeriod;     // exprimed in seconds
         uint256 totalStakedValue;
         uint256 minTokenAmount; // exprimed in MLE
-        uint256 maxTokenDeposit; // exprimed in MLE
+        uint256 maxTokenAmount; // exprimed in MLE
         string title;
         address[] stakers;
     }
@@ -76,7 +76,7 @@ function getUsertotalStakedValue(address _addr, uint8 _planId) external view ret
             totalStakedValue: 0,
             lockPeriod: 0,       // demo purpose, otherise 12 * 4 weeks (1 year)
             minTokenAmount: 500e18,
-            maxTokenDeposit: 2500000e18,
+            maxTokenAmount: 2500000e18,
             title: "Plan 1",
             stakers: s0
         });
@@ -85,7 +85,7 @@ function getUsertotalStakedValue(address _addr, uint8 _planId) external view ret
             totalStakedValue: 0,
             lockPeriod: 10, // demo purpose, otherise 24 * 4 weeks (2 years)
             minTokenAmount: 500e18,
-            maxTokenDeposit: 5000000e18,
+            maxTokenAmount: 5000000e18,
             title: "Plan 2",
             stakers: s1
         });
@@ -95,7 +95,7 @@ function getUsertotalStakedValue(address _addr, uint8 _planId) external view ret
 
     function stakeDeposit(address _from, uint256 _amount, uint8 _planId) onlyOwner external {
         require(_planId <= 1, "Staking plan does not exists");
-        require(stakingPlans[_planId].totalStakedValue + _amount < stakingPlans[_planId].maxTokenDeposit, "Staking deposit limit reached");
+        require(stakingPlans[_planId].totalStakedValue + _amount < stakingPlans[_planId].maxTokenAmount, "Staking deposit limit reached");
         require(mle.balanceOf(_from) >= _amount, "Insufficient balance");
         require(mle.transferFrom(_from, address(mle), _amount), "Failed staking deposit");
 

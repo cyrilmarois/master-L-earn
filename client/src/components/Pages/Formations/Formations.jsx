@@ -65,7 +65,7 @@ const Formations = () => {
         />
       );
     });
-
+    console.log(cards);
     return cards;
   };
 
@@ -76,7 +76,7 @@ const Formations = () => {
       <section id="Formations" className="container">
         <div className="d-flex flex-wrap pb-5">
           {formations.length > 0 ? formations : ""}
-          <CardFormation
+          {/* <CardFormation
             key="666"
             formationId="666"
             title="Learn consulting"
@@ -86,7 +86,7 @@ const Formations = () => {
             creationDate="16708547791"
             price="250000000000000000000"
             tags={["blockchain", "solidity"]}
-          />
+          /> */}
         </div>
       </section>
     </>

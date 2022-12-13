@@ -120,27 +120,13 @@ contract("MLE", accounts => {
         "Dev react, 45K$", 
         ["dev", "js", "react", "web"], 
         {from: recruiter1});
-
-      // 
-      console.log({profits:(await MLEInstance.profitToDistribute()).toString()});
-      console.log({contractBalance:(await MLEInstance.balanceOf(MLEInstance.address)).toString()});
-      console.log({teacher1Balance:(await MLEInstance.balanceOf(teacher1)).toString()});
-      console.log({student1Balance:(await MLEInstance.balanceOf(student1)).toString()});
-      
-      
       await MLEInstance.distributeProfits({from:owner});
 
-      
-      console.log({contractBalance:(await MLEInstance.balanceOf(MLEInstance.address)).toString()});
-      console.log({teacher1Balance:(await MLEInstance.balanceOf(teacher1)).toString()});
-      console.log({student1Balance:(await MLEInstance.balanceOf(student1)).toString()});
-      
-      
       var teacherStakeValueAfter = await MLEStakingInstance.getUsertotalStakedValue(teacher1, 0);
       var studentStakeValueAfter = await MLEStakingInstance.getUsertotalStakedValue(student1, 0);
       
-      // expect (teacherStakeValueAfter.sub(teacherStakeValueBefore)).to.be.bignumber.equal(BN("1"));
-      // expect (studentStakeValueAfter.sub(studentStakeValueBefore)).to.be.bignumber.equal(BN("1"));
+      expect (teacherStakeValueAfter.sub(teacherStakeValueBefore)).to.be.bignumber.equal(BN("1"));
+      expect (studentStakeValueAfter.sub(studentStakeValueBefore)).to.be.bignumber.equal(BN("1"));
     });
     
 

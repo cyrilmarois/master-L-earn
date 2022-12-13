@@ -1,5 +1,5 @@
 import "./CardAnnounce.css";
-import logo from "../../../images/Alyra-logo.png";
+// import logo from "../../../images/Alyra-logo.png";
 import React, { useEffect, useState } from "react";
 import { useEth } from "../../../contexts/EthContext";
 import toast from "react-hot-toast";

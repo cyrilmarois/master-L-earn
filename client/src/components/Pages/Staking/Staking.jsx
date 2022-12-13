@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import useEth from "../../../contexts/EthContext/useEth";
-import moment from "moment";
 import Plans from "./Plans/Plans";
 import toast from "react-hot-toast";
 import "./Staking.css";
 import ErrorHelper from "../../Helpers/ErrorHelper";
+import StakingRewardBtn from "./StakingReward/StakingRewardBtn";
 
 const Staking = () => {
   const {
@@ -13,12 +13,8 @@ const Staking = () => {
   const [stakePlanOneAmount, setStakePlanOneAmount] = useState(0);
   const [stakePlanTwoAmount, setStakePlanTwoAmount] = useState(0);
   const [userBalance, setUserBalance] = useState(0);
-  const [depositStakingPlanOneTotal, setDepositStakingPlanOneTotal] = useState(
-    0
-  );
-  const [depositStakingPlanTwoTotal, setDepositStakingPlanTwoTotal] = useState(
-    0
-  );
+  const [depositStakingPlanOneTotal, setDepositStakingPlanOneTotal] = useState(0);
+  const [depositStakingPlanTwoTotal, setDepositStakingPlanTwoTotal] = useState(0);
 
   const handleStakePlanOneInputChange = (e) => {
     if (/^\d+$|^$/.test(e.target.value)) {
@@ -187,61 +183,11 @@ const Staking = () => {
   };
 
   useEffect(() => {
-    console.log({ contractMLE, contractMLEStaking });
     if (contractMLE && contractMLEStaking && accounts) {
-      // Deposit
-      let tmpDeposit = [0, 0];
-      const getPastDepositEvents = async () => {
-        let oldDepositEvents = await contractMLEStaking.getPastEvents(
-          "StakeDeposit",
-          {
-            fromBlock: 0,
-            toBlock: "latest",
-          }
-        );
-
-        let deposits = [];
-        deposits[0] = 0;
-        deposits[1] = 0;
-        oldDepositEvents.forEach((event) => {
-          if (event.returnValues.from === accounts[0]) {
-            const planId = parseInt(event.returnValues.planId);
-            const amount = parseInt(
-              web3.utils.fromWei(event.returnValues.amount, "ether")
-            );
-            deposits[planId] += amount;
-          }
-
-          tmpDeposit = deposits;
-        });
-      };
-
-      getPastDepositEvents();
       // Withdrawal
       const getPastWithdrawalEvents = async () => {
-        let oldWithdrawalEvents = await contractMLEStaking.getPastEvents(
-          "StakeWithdrawal",
-          {
-            fromBlock: 0,
-            toBlock: "latest",
-          }
-        );
-
-        let withdrawals = [];
-        withdrawals[0] = 0;
-        withdrawals[1] = 0;
-        oldWithdrawalEvents.forEach((event) => {
-          if (event.returnValues.from === accounts[0]) {
-            const planId = parseInt(event.returnValues.planId);
-            const amount = parseInt(
-              web3.utils.fromWei(event.returnValues.amount, "ether")
-            );
-            withdrawals[planId] += amount;
-          }
-        });
-        reCalculDepositStakingBalanceTotal(tmpDeposit, withdrawals);
+        reCalculDepositStakingBalanceTotal();
       };
-
       getPastWithdrawalEvents();
 
       // get current total deposit amount
@@ -251,16 +197,7 @@ const Staking = () => {
             fromBlock: "earliest",
           })
           .on("data", (event) => {
-            let newEventDeposit = event.returnValues.amount;
-            const planId = parseInt(event.returnValues.planId);
-            const amount = parseInt(
-              web3.utils.fromWei(newEventDeposit, "ether")
-            );
-            if (planId === 0) {
-              setDepositStakingPlanOneTotal(amount);
-            } else if (planId === 1) {
-              setDepositStakingPlanTwoTotal(amount);
-            }
+            reCalculDepositStakingBalanceTotal();
           })
           .on("changed", (changed) => console.log(changed))
           .on("error", (err) => console.log(err))
@@ -275,16 +212,7 @@ const Staking = () => {
             fromBlock: "earliest",
           })
           .on("data", (event) => {
-            let newEventDeposit = web3.utils.fromWei(
-              event.returnValues.newUserStakingBalanceTotal,
-              "ether"
-            );
-            const planId = parseInt(event.returnValues.planId);
-            if (planId === 0) {
-              setDepositStakingPlanOneTotal(newEventDeposit);
-            } else if (planId === 1) {
-              setDepositStakingPlanTwoTotal(newEventDeposit);
-            }
+            reCalculDepositStakingBalanceTotal();
           })
           .on("changed", (changed) => console.log(changed))
           .on("error", (err) => console.log(err))
@@ -294,29 +222,13 @@ const Staking = () => {
     }
   }, [contractMLE, contractMLEStaking, accounts]);
 
-  const reCalculDepositStakingBalanceTotal = (tmpDeposit, tmpWithdraw) => {
-    let totalDepositPlanOne = 0;
-    let totalWithdrawPlanOne = 0;
-    let totalDepositPlanTwo = 0;
-    let totalWithdrawPlanTwo = 0;
-    tmpDeposit.forEach((value, key) => {
-      if (key === 0) {
-        totalDepositPlanOne += value;
-      }
-      if (key === 1) {
-        totalDepositPlanTwo += value;
-      }
-    });
-    tmpWithdraw.forEach((value, key) => {
-      if (key === 0) {
-        totalWithdrawPlanOne += value;
-      }
-      if (key === 1) {
-        totalWithdrawPlanTwo += value;
-      }
-    });
-    setDepositStakingPlanOneTotal(totalDepositPlanOne - totalWithdrawPlanOne);
-    setDepositStakingPlanTwoTotal(totalDepositPlanTwo - totalWithdrawPlanTwo);
+  const reCalculDepositStakingBalanceTotal = async () => {
+    const usertotalStakedValuePlan0 = await contractMLEStaking.methods.getUsertotalStakedValue(accounts[0], 0)
+      .call({from: accounts[0]});
+    const usertotalStakedValuePlan1 = await contractMLEStaking.methods.getUsertotalStakedValue(accounts[0], 1)
+      .call({from: accounts[0]});
+    setDepositStakingPlanOneTotal(usertotalStakedValuePlan0 / 1e18);
+    setDepositStakingPlanTwoTotal(usertotalStakedValuePlan1 / 1e18);
   };
 
   const getBalance = async () => {
@@ -483,6 +395,7 @@ const Staking = () => {
           )}
         </div>
       </section>
+      <StakingRewardBtn />
     </div>
   );
 };

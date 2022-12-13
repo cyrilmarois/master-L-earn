@@ -75,7 +75,7 @@ const Announces = () => {
       <section id="Announces" className="container">
         <div className="d-flex flex-wrap pb-5">
           {announces.length > 0 ? announces : ""}
-          <CardAnnounce
+          {/* <CardAnnounce
             key="666"
             announceId="666"
             title="Search Solidity developer senior"
@@ -83,7 +83,7 @@ const Announces = () => {
             creationDate="16708547791"
             description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec ipsum nec lacus mattis efficitur. Nam facilisis leo sem, vitae tristique est sollicitudin eu. Integer nec varius lectus, eget lacinia magna."
             tags={["blockchain", "solidity"]}
-          />
+          /> */}
         </div>
       </section>
     </>

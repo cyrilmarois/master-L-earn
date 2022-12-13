@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import moment from "moment";
 import useEth from "../../../../contexts/EthContext/useEth";
 import Plan from "./Plan/Plan";
 
@@ -42,16 +43,14 @@ const Plans = () => {
               <Plan
                 key={i}
                 title={item.title}
-                apr={item.apr}
-                // lockPeriod={moment.unix(item.lockPeriod).month()}
-                lockPeriod={i === 0 ? 12 : 24}
-                minAmount={web3.utils.fromWei(item.minTokenAmount, "ether")}
-                maxAmount={web3.utils.fromWei(item.maxTokenDeposit, "ether")}
-                tokenDeposit={web3.utils.fromWei(
-                  item.totalStakingDeposit,
+                lockPeriod={moment.unix(item.lockPeriod).month()}
+                // lockPeriod={i === 0 ? 12 : 24}
+                minTokenAmount={web3.utils.fromWei(item.minTokenAmount, "ether")}
+                maxTokenAmount={web3.utils.fromWei(item.maxTokenAmount, "ether")}
+                totalStakedValue={web3.utils.fromWei(
+                  item.totalStakedValue,
                   "ether"
                 )}
-                totalStaker={item.totalStakers}
               />
             ))
           : ""}

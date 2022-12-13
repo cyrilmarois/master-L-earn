@@ -51,10 +51,16 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     constructor() ERC20("Master L&Earn", "MLE") Ownable() ERC20Permit("Master L&Earn") {
         _mint(msg.sender, INITIAL_SUPPLY);
         mleStaking = new MLEStaking();
-        // address teacher1 = 0xE54D8e99307905168bfc3eb21b344d28625cCE3D;
-        // address student1 = 0x0b590f008D03F176DAc8016225bfa1bc1cd69Ef5;
-        // address student2 = 0xF7F252bE0D61C0bDCA2F186F2C146eE6f343c242;
-        // address recruiter1 = 0x3935Dd462c695d4f2B23BA0E9fC9CBFde9c45aa5;
+        //0xDCC7e7F59446507bD2C28c5E6746dfDCc3A1E7b8
+        address teacher1 = 0xe579c4c5572838C617960383c93B6c28aBEB8419;
+        address teacher2 = 0x754dfb5C73D38d4aF7475B5244AA57EB5013556c;
+        address student1 = 0x2885075734E226985557276b6f7c7206F9f3f3cE;
+        address student2 = 0xc3d2860Ca5Ca7feB0C6345bA87b077CEfA7aA86C;
+        address recruiter1 = 0xDcDE43bfa6ea64A56389c80F24129D25b8C94551;
+        // address teacher1 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
+        // address student1 = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db;
+        // address student2 = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB;
+        // address recruiter1 = 0x617F2E2fD72FD9D5503197092aC168c91465E7f2;
 
         // //teacher
         // transfer(teacher1, 1000e18);
@@ -141,6 +147,14 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
     function getTeachersAddresses() external view returns(address[] memory) {
         return teachersAddress;
+    }
+
+    function getStudentsAddress() external view returns(address[] memory) {
+        return studentsAddress;
+    }
+
+    function getRecruitersAddress() external view returns(address[] memory) {
+        return recruitersAddress;
     }
 
     function getAnnounceForRecruiter (address _recruiterAddress)
@@ -324,6 +338,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
     function postAnnounce(
         string memory _title,
+        string memory _description,
         string[] memory _tags
     ) external {
         require (transfer(address(this), announcePostPrice), "Insufficient balance");
@@ -333,9 +348,11 @@ contract MLE is ERC20, ERC20Votes, Ownable {
             true,
             block.timestamp,
             _title,
+            _description,
             _tags,
             candidates
         ));
+        emit AnnouncePublished(msg.sender, recruiters[msg.sender].announces.length - 1);
     }
 
     function offerJob(

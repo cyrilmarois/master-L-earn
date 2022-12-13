@@ -36,6 +36,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     uint jobSignedReward = 1000e18;
     uint32 minRatingCountForTeacherReward = 5;
     uint32 minRatingForTeacherReward = 35;
+    uint public profitToDistribute;
 
     uint constant INITIAL_SUPPLY = 1000000e18;
     uint constant RECRUITMENT_COMMISSION = 10; // %
@@ -50,32 +51,24 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     constructor() ERC20("Master L&Earn", "MLE") Ownable() ERC20Permit("Master L&Earn") {
         _mint(msg.sender, INITIAL_SUPPLY);
         mleStaking = new MLEStaking();
-        //0x49B912A15B7d277812CC097a9DFB8c9732476580
-        address teacher1 = 0xEEf02CF3Dd4d8719aFd331271Edc797eE1Ff077e;
-        address teacher2 = 0x754dfb5C73D38d4aF7475B5244AA57EB5013556c;
-        address student1 = 0xbEA6C00E57CFCF1Ad5e20c6977498ca8dD7b6ca1;
-        address student2 = 0xc3d2860Ca5Ca7feB0C6345bA87b077CEfA7aA86C;
-        address recruiter1 = 0x4E5FC164295839C457B5C2fB167cbF092a73c346;
-        // address teacher1 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
-        // address student1 = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db;
-        // address student2 = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB;
-        // address recruiter1 = 0x617F2E2fD72FD9D5503197092aC168c91465E7f2;
+        // address teacher1 = 0xE54D8e99307905168bfc3eb21b344d28625cCE3D;
+        // address student1 = 0x0b590f008D03F176DAc8016225bfa1bc1cd69Ef5;
+        // address student2 = 0xF7F252bE0D61C0bDCA2F186F2C146eE6f343c242;
+        // address recruiter1 = 0x3935Dd462c695d4f2B23BA0E9fC9CBFde9c45aa5;
 
-        //teacher
-        transfer(teacher1, 1000e18);
-        transfer(teacher2, 1000e18);
-        registerUser(teacher1, false, true, false);
-        registerUser(teacher2, false, true, false);
+        // //teacher
+        // transfer(teacher1, 1000e18);
+        // registerUser(teacher1, false, true, false);
 
-        //student
-        transfer(student1, 1000e18);
-        registerUser(student1, true, false, false);
-        transfer(student2, 1000e18);
-        registerUser(student2, true, false, false);
+        // //student
+        // transfer(student1, 1000e18);
+        // registerUser(student1, true, false, false);
+        // transfer(student2, 1000e18);
+        // registerUser(student2, true, false, false);
 
-        // recruiter
-        transfer(recruiter1, 1000e18);
-        registerUser(recruiter1, false, false, true);
+        // // recruiter
+        // transfer(recruiter1, 1000e18);
+        // registerUser(recruiter1, false, false, true);
     }
 
     receive() external payable {}
@@ -293,6 +286,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
             MLEUtils.StudentFormation (_teacherAddress, _teacherFormationId, 0, false, false, cashback);
         students[msg.sender].formations.push(_studentFormation);
 
+        profitToDistribute += _fee - _feeBurn;
         // Add student address to formation
         teachers[_teacherAddress].formations[_teacherFormationId].students.push(msg.sender);
     }
@@ -333,6 +327,7 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         string[] memory _tags
     ) external {
         require (transfer(address(this), announcePostPrice), "Insufficient balance");
+        profitToDistribute += announcePostPrice;
         address[] memory candidates;
         recruiters[msg.sender].announces.push( MLEUtils.Announce (
             true,
@@ -394,13 +389,14 @@ contract MLE is ERC20, ERC20Votes, Ownable {
 
         // Reward the DAO by minting 1000 MLE
         _mint(address(this), jobSignedReward);
+        profitToDistribute += jobSignedReward;
         emit RecruitmentReward(_studentAddress, _jobId);
     }
 
 /************ TOKEN FUNCTIONS ***************/
 
     function DAOMint(uint _amount) onlyOwner external {
-        _mint(address(this), _amount);
+        _mint(owner(), _amount);
     }
 
     function stakeDeposit(uint256 _amount, uint8 _planId) external {
@@ -413,6 +409,13 @@ contract MLE is ERC20, ERC20Votes, Ownable {
         _approve(address(this), address(mleStaking), _amount);
         mleStaking.stakeWithdraw(msg.sender, _amount, _planId);
         _approve(address(this), address(mleStaking), 0);
+    }
+
+    function distributeProfits() onlyOwner external {
+        _approve(address(this), address(mleStaking), profitToDistribute);
+        mleStaking.distributeProfits(profitToDistribute);
+        _approve(address(this), address(mleStaking), 0);
+        profitToDistribute = 0;
     }
 
 }

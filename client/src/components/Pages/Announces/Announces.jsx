@@ -57,7 +57,7 @@ const Announces = () => {
           key={i}
           announceId={i}
           title={item.title}
-          recruiterAddress={item.recruiterAddress}
+          recruiterAddress={recruiterAddress}
           creationDate={item.creationDate}
           description={item.description}
           tags={item.tags}
@@ -75,15 +75,6 @@ const Announces = () => {
       <section id="Announces" className="container">
         <div className="d-flex flex-wrap pb-5">
           {announces.length > 0 ? announces : ""}
-          <CardAnnounce
-            key="666"
-            announceId="666"
-            title="Search Solidity developer senior"
-            recruiterAddress="0x5666eD746E98FA440ceD3714d5915c2556888a5c"
-            creationDate="16708547791"
-            description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec ipsum nec lacus mattis efficitur. Nam facilisis leo sem, vitae tristique est sollicitudin eu. Integer nec varius lectus, eget lacinia magna."
-            tags={["blockchain", "solidity"]}
-          />
         </div>
       </section>
     </>

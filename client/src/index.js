@@ -9,6 +9,8 @@ import Home from "./components/Pages/Home/Home";
 import TeacherFormations from "./components/Pages/Teacher/Formations/Formations";
 import FormationForm from "./components/Pages/Teacher/Formations/FormationForm/FormationForm";
 import Error404 from "./components/Pages/Error/404/Error404";
+import Announces from "./components/Pages/Announces/Announces";
+import RecruiterAnnounces from "./components/Pages/Recruiter/Announces/Announces";
 
 const router = createBrowserRouter([
   {
@@ -28,14 +30,23 @@ const router = createBrowserRouter([
         path: "/teacher/1/formations",
         element: <TeacherFormations />,
       },
-      // {
-      //   path: "/teacher/1/formations/1",
-      //   element: <TeacherFormation />,
-      // },
+
       {
         path: "/teacher/1/formations/add",
         element: <FormationForm />,
       },
+      {
+        path: "/announces",
+        element: <Announces />,
+      },
+      {
+        path: "/recruiter/1/Announces",
+        element: <RecruiterAnnounces />,
+      },
+      // {
+      //   path: "/teacher/1/formations/1",
+      //   element: <TeacherFormation />,
+      // },
       // {
       //   path: "/student/1/formations",
       //   element: <TeacherFormations />,

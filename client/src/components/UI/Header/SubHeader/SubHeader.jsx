@@ -40,7 +40,7 @@ const SubHeader = () => {
             </li>
             <li className="nav-item">
               <a className="nav-link" href="#">
-                Espace recruteurs
+                Espace recrutement
               </a>
             </li>
           </ul>

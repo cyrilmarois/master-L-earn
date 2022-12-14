@@ -85,8 +85,8 @@ const StudentFormations = () => {
 
   return (
     <section id="Student-formations" className="container">
-      <h2>Vos formations achetees</h2>
-      <div className="d-flex flex-wrap pt-3 pb-5">
+      <h2>Vos formations achetées</h2>
+      <div className="d-flex flex-wrap pb-5">
         {formations.length > 0 ? formations : ""}
       </div>
     </section>

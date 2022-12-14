@@ -51,26 +51,20 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     constructor() ERC20("Master L&Earn", "MLE") Ownable() ERC20Permit("Master L&Earn") {
         _mint(msg.sender, INITIAL_SUPPLY);
         mleStaking = new MLEStaking();
-        address teacher1 = 0x073e7f3ECd93BB1287F6dF415D3A233751e44292;
-        address student1 = 0xd138A9ecCF47Bb09dE143fcA1b755704a992872C;
-        address student2 = 0x3aa21eaB11E9813D6CBC685A7e6F5111859C22ee;
-        address recruiter1 = 0xf55eC171041972f17E6D39F866a37FE111B24e63;
-        address holder = 0x05430c9db9f373F8B3AE70d2A34027D26645E7AA;
+        address teacher1 = 0x8c558Db06F214a38AeDee77017560555F71A1402;
+        address teacher2 = 0x2AfdC89fDC0471CecB9afd277620b6E7aa25fcE2;
+        address student1 = 0x1e74A5Cc99ab4fEf6c567E133A92fAF679E16922;
+        address student2 = 0x791D5EC28598A7691fD17A98b8eaE83887628481;
+        address recruiter1 = 0xFb2f05F21D658D1c163BE1377eA9c37F8a87f9AF;
+        address holder = 0x914e4d81949dF38eB24439362d73db054A75ac98;
 
         //teacher
         transfer(holder, 1000e18);
         transfer(teacher1, 1000e18);
-        registerUser(teacher1, false, true, false);
-
-        //student
+        transfer(teacher2, 1000e18);
         transfer(student1, 1000e18);
-        registerUser(student1, true, false, false);
         transfer(student2, 1000e18);
-        registerUser(student2, true, false, false);
-
-        // recruiter
         transfer(recruiter1, 1000e18);
-        registerUser(recruiter1, false, false, true);
     }
 
     receive() external payable {}
@@ -119,24 +113,6 @@ contract MLE is ERC20, ERC20Votes, Ownable {
     }
 
 /************* GETTERS & SETTERS ************/
-    function registerUser(address _addr, bool _asStudent, bool _asTeacher, bool _asRecruiter) internal {
-        if (_asStudent && !students[_addr].isRegistered) {
-            studentsAddress.push(_addr);
-            students[_addr].isRegistered = true;
-            emit StudentRegistered(_addr);
-        }
-        if (_asTeacher && !teachers[_addr].isRegistered) {
-            teachersAddress.push(_addr);
-            teachers[_addr].isRegistered = true;
-            emit TeacherRegistered(_addr);
-        }
-        if (_asRecruiter && !recruiters[_addr].isRegistered) {
-            recruitersAddress.push(_addr);
-            recruiters[_addr].isRegistered = true;
-            emit RecruiterRegistered(_addr);
-        }
-    }
-
     function register(bool _asStudent, bool _asTeacher, bool _asRecruiter) external {
         if (_asStudent && !students[msg.sender].isRegistered) {
             studentsAddress.push(msg.sender);

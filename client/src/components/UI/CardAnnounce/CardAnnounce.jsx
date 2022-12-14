@@ -7,7 +7,7 @@ import ErrorHelper from "../../Helpers/ErrorHelper";
 
 const CardAnnounce = (props) => {
   const {
-    state: { web3, accounts, contractMLE },
+    state: { accounts, contractMLE },
   } = useEth();
   const [tags, setTags] = useState("");
 
@@ -34,22 +34,19 @@ const CardAnnounce = (props) => {
 
     toast.promise(myPromise, {
       loading: "Depot de candidature en cours...",
-      success: <b>"Candidature soumise avec succès.</b>,
+      success: <b>Candidature soumise avec succès.</b>,
       error: (err) => `Erreur lors du depot de candidature : ${err.toString()}`,
     });
   };
 
   useEffect(() => {
-    // console.log({ props });
-    if (web3) {
-      if (props.tags && props.tags.length !== 0) {
-        setTags(props.tags.join(", "));
-      }
+    if (props.tags && props.tags.length !== 0) {
+      setTags(props.tags.join(", "));
     }
   }, [accounts, contractMLE]);
 
   return (
-    <div id="card" className="p-3">
+    <div id="card-announce" className="p-3">
       <div className="d-flex justify-content-between flex-grow-1">
         <div className="title">{props.title}</div>
         {!props.action ? (

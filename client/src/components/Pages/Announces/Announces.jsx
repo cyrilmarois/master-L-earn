@@ -57,7 +57,7 @@ const Announces = () => {
           key={i}
           announceId={i}
           title={item.title}
-          recruiterAddress={item.recruiterAddress}
+          recruiterAddress={recruiterAddress}
           creationDate={item.creationDate}
           description={item.description}
           tags={item.tags}

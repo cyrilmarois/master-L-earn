@@ -135,19 +135,25 @@ const Header = () => {
                         className="btn btn-metamask"
                       >
                         {isTeacher ? (
-                          <span className="fa-solid fa-person-chalkboard pe-3"></span>
+                          <a href="/teacher" className="link-role">
+                            <span className="fa-solid fa-person-chalkboard pe-3"></span>
+                          </a>
                         ) : (
                           ""
                         )}
 
                         {isStudent ? (
-                          <span className="fa-solid fa-graduation-cap pe-3"></span>
+                          <a href="/student" className="link-role">
+                            <span className="fa-solid fa-graduation-cap pe-3"></span>
+                          </a>
                         ) : (
                           ""
                         )}
 
                         {isRecruiter ? (
-                          <span className="fa-solid fa-handshake pe-3"></span>
+                          <a href="/recruiter" className="link-role">
+                            <span className="fa-solid fa-handshake pe-3"></span>
+                          </a>
                         ) : (
                           ""
                         )}

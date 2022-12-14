@@ -10,6 +10,11 @@ header {
   background-color: #ee811a;
   color: white;
 }
+.btn-metamask a:hover,
+.btn-metamask a:visited {
+  background-color: #ee811a;
+  color: white;
+}
 #connect.error {
   border: 2px solid red;
 }

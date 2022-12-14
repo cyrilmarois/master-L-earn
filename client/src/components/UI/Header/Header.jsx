@@ -84,14 +84,6 @@ const Header = () => {
               setIsRecruiter(true);
             }
           }
-          console.log({
-            teachersAddresses,
-            teacherAddress,
-            studentsAddresses,
-            studentAddress,
-            recruitersAddresses,
-            recruiterAddress,
-          });
         } catch (e) {
           console.error(e);
         }
@@ -127,13 +119,7 @@ const Header = () => {
                     </div>
 
                     <div className="col-2 offset-3">
-                      <a
-                        id="connect"
-                        // onClick={handleConnexion}
-                        role="button"
-                        href="/register"
-                        className="btn btn-metamask"
-                      >
+                      <div className="btn btn-metamask">
                         {isTeacher ? (
                           <a href="/teacher" className="link-role">
                             <span className="fa-solid fa-person-chalkboard pe-3"></span>
@@ -141,7 +127,6 @@ const Header = () => {
                         ) : (
                           ""
                         )}
-
                         {isStudent ? (
                           <a href="/student" className="link-role">
                             <span className="fa-solid fa-graduation-cap pe-3"></span>
@@ -149,7 +134,6 @@ const Header = () => {
                         ) : (
                           ""
                         )}
-
                         {isRecruiter ? (
                           <a href="/recruiter" className="link-role">
                             <span className="fa-solid fa-handshake pe-3"></span>
@@ -157,9 +141,16 @@ const Header = () => {
                         ) : (
                           ""
                         )}
-
-                        {loggedAddress}
-                      </a>
+                        <a
+                          id="connect"
+                          // onClick={handleConnexion}
+                          role="button"
+                          href="/register"
+                          // className="btn btn-metamask"
+                        >
+                          {loggedAddress}
+                        </a>
+                      </div>
                     </div>
                   </form>
                 </div>

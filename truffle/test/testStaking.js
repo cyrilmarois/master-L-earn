@@ -8,11 +8,13 @@ const constants = require('@openzeppelin/test-helpers/src/constants');
 contract("MLE", accounts => {
     var MLEInstance;
     var MLEStakingInstance;
+    var stakeAmount;
     var owner = accounts[0];
     var teacher1 = accounts[1];
     var student1 = accounts[2];
     var student2 = accounts[3];
     var recruiter1 = accounts[4];
+    var holder = accounts[5];
     var price = BN("100000000000000000000");
     var module_count = BN(3);
     /*
@@ -87,6 +89,7 @@ contract("MLE", accounts => {
     before (async function() { 
       MLEInstance = await MLE.new({from: owner});
       var addressOfMLEStaking = await MLEInstance.mleStaking();
+      stakeAmount = BN("100000000000000000000");
       MLEStakingInstance = await MLEStaking.at(addressOfMLEStaking);
       await MLEInstance.register(false, true, false, {from: teacher1});
       await MLEInstance.transfer(teacher1, BN("2000000000000000000000"), {from: owner});
@@ -96,15 +99,15 @@ contract("MLE", accounts => {
       await MLEInstance.transfer(student2, BN("2000000000000000000000"), {from: owner});
       await MLEInstance.register(false, false, true, {from: recruiter1});
       await MLEInstance.transfer(recruiter1, BN("2000000000000000000000"), {from: owner});
+      await MLEInstance.transfer(holder, stakeAmount, {from: owner});
     });
     it('Allows an MLE staker to perceive profits', async() => {
-
       // teacher1 and student1 stake 100 MLE each 
-      var stakeAmount = BN("100000000000000000000");
-      var teacherStakeValueBefore = await MLEStakingInstance.getUsertotalStakedValue(teacher1, 0);
-      var studentStakeValueBefore = await MLEStakingInstance.getUsertotalStakedValue(student1, 0);      
+      var balanceBefore = await MLEInstance.balanceOf(holder);
+
+      console.log({after: balanceBefore.toString()});
       await MLEInstance.stakeDeposit(stakeAmount, 0, {from: teacher1});
-      await MLEInstance.stakeDeposit(stakeAmount, 0, {from: student1});
+      await MLEInstance.stakeDeposit(stakeAmount, 0, {from: holder});
 
       // profits are generated on the formation and job workflows
       await MLEInstance.postFormation(
@@ -116,17 +119,17 @@ contract("MLE", accounts => {
         {from: teacher1});
       await MLEInstance.buyFormation(teacher1, 0, {from: student1});
       await MLEInstance.buyFormation(teacher1, 0, {from: student2});
-      await MLEInstance.postAnnounce(
-        "Dev react, 45K$", 
-        ["dev", "js", "react", "web"], 
-        {from: recruiter1});
-      await MLEInstance.distributeProfits({from:owner});
+      await MLEInstance.postAnnounce("Dev react 45K", "Descp", ["dev", "js", "react", "web"], {from: recruiter1});
+      var profits = await MLEInstance.profitToDistribute();
+      console.log({profits: profits.toString()});
+      await MLEInstance.distributeProfits({from: owner});
 
-      var teacherStakeValueAfter = await MLEStakingInstance.getUsertotalStakedValue(teacher1, 0);
-      var studentStakeValueAfter = await MLEStakingInstance.getUsertotalStakedValue(student1, 0);
+      await MLEInstance.stakeWithdraw(stakeAmount, 0, {from: holder});
+      var balanceAfter = await MLEInstance.balanceOf(holder);
+      console.log({after: balanceAfter.toString()});
       
-      expect (teacherStakeValueAfter.sub(teacherStakeValueBefore)).to.be.bignumber.equal(BN("1"));
-      expect (studentStakeValueAfter.sub(studentStakeValueBefore)).to.be.bignumber.equal(BN("1"));
+      var expected = profits.div(BN(2));
+      expect (balanceAfter.sub(balanceBefore)).to.be.bignumber.equal(expected);
     });
     
 

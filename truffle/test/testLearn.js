@@ -120,7 +120,7 @@ contract("MLE", accounts => {
 
     it('Allows a recruiter to post an announce', async() => {
       await MLEInstance.postAnnounce(
-        "Dev react, 45K$", 
+        "Dev react, 45K$", "Description",
         ["dev", "js", "react", "web"], 
         {from: recruiter1});
       

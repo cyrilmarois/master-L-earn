@@ -83,7 +83,7 @@ function getUsertotalStakedValue(address _addr, uint8 _planId) external view ret
         StakingPlan memory stakingPlanTwo = StakingPlan({
             planId : 1,
             totalStakedValue: 0,
-            lockPeriod: 10, // demo purpose, otherise 24 * 4 weeks (2 years)
+            lockPeriod: 24 * 4 weeks, // demo purpose, otherise 24 * 4 weeks (2 years)
             minTokenAmount: 500e18,
             maxTokenAmount: 5000000e18,
             title: "Plan 2",
@@ -170,16 +170,17 @@ function getUsertotalStakedValue(address _addr, uint8 _planId) external view ret
     }
 
     function distributeProfits(uint256 _profitToDistribute) external onlyOwner {
-        // compute the number of periods elapsed since the last distribution
         //require (block.timestamp - lastProfitDistribution > distributionPeriod, "");
 
         uint profitShare;
+        uint totalStakedValue = stakingPlans[0].totalStakedValue + stakingPlans[1].totalStakedValue; 
         address staker;
         for (uint8 _planId; _planId<2; _planId++) {
             for (uint i; i < stakingPlans[_planId].stakers.length; i++) {
                 staker = stakingPlans[_planId].stakers[i];
                 profitShare = _profitToDistribute 
-                        * userStakes[staker].totalStakedValue[_planId] / stakingPlans[_planId].totalStakedValue;
+                        * userStakes[staker].totalStakedValue[_planId] / stakingPlans[_planId].totalStakedValue
+                        * stakingPlans[_planId].totalStakedValue / totalStakedValue ;
                 require(mle.transferFrom(address(mle), staker, profitShare), "Failed staking withdrawal");
             }
         }
@@ -196,11 +197,14 @@ function getUsertotalStakedValue(address _addr, uint8 _planId) external view ret
     }
 
     function _deleteStakers(address _addr, uint _planId) internal {
-        for (uint i; i < stakingPlans[_planId].stakers.length; i++) {
+        uint l = stakingPlans[_planId].stakers.length;
+        for (uint i; i < l; i++) {
             if (stakingPlans[_planId].stakers[i] == _addr) {
-                delete(stakingPlans[_planId].stakers[i]);
+                stakingPlans[_planId].stakers[i] = stakingPlans[_planId].stakers[l-1];
+                break;
             }
         }
+        stakingPlans[_planId].stakers.pop();
     }
 
 }

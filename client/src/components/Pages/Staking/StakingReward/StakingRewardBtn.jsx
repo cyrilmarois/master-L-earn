@@ -6,8 +6,11 @@ function StakingRewardBtn() {
 
   const start = async () => {
     const ownr = await contractMLE.methods.owner().call({from: accounts[0] });
+    const ptd = await contractMLE.methods.profitToDistribute().call({ from: accounts[0] });
+    console.log({profitToDistribute: ptd.toString()});
     if (ownr == accounts[0]) {
-      await contractMLE.methods.distributeProfits().call({ from: accounts[0] });
+      await contractMLE.methods.distributeProfits().send({ from: accounts[0] });
+      console.log("ProfitsDistributed");
     }
     else {
       alert("You are not the owner.");

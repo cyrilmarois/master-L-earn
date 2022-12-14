@@ -10,17 +10,15 @@ const CardRegister = (props) => {
   } = useEth();
 
   const handleRegistration = async () => {
-    let _asStudent = false;
-    let _asTeacher = false;
-    let _asRecruiter = false;
     const myPromise = new Promise(async (resolve, reject) => {
       try {
+        const roles = getRoles();
         await contractMLE.methods
-          .registerUser(accounts[0], true, false, false)
+          .register(roles.student, roles.teacher, roles.recruiter)
           .call({ from: accounts[0] });
 
         await contractMLE.methods
-          .registerUser(accounts[0], true, false, false)
+          .register(roles.student, roles.teacher, roles.recruiter)
           .send({ from: accounts[0] });
         resolve("Registration complete");
       } catch (e) {
@@ -37,15 +35,32 @@ const CardRegister = (props) => {
     });
   };
 
+  const getRoles = () => {
+    let roles = {
+      student: false,
+      teacher: false,
+      recruiter: false,
+    };
+    if (props.role === "student") {
+      roles.student = true;
+    } else if (props.role === "teacher") {
+      roles.teacher = true;
+    } else if (props.role === "recruiter") {
+      roles.recruiter = true;
+    }
+
+    return roles;
+  };
+
   return (
-    <div className="card-profile justify-content-center align-items-center pt-3">
+    <div className="card-profile justify-content-center align-items-center pt-5">
       <div className="title mb-3">
         <i className={`fa-solid ${props.logo}`}></i>
       </div>
       <p>{props.description}</p>
-      <a href="#" className="btn btn-primary" onClick={handleRegistration}>
+      <button className="btn btn-primary mt-4" onClick={handleRegistration}>
         {props.title}
-      </a>
+      </button>
     </div>
   );
 };

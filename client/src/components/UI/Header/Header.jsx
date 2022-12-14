@@ -75,14 +75,15 @@ const Header = () => {
                     </div>
 
                     <div className="col-1 offset-4">
-                      <button
+                      <a
                         id="connect"
-                        onClick={handleConnexion}
-                        type="button"
+                        // onClick={handleConnexion}
+                        role="button"
+                        href="/register"
                         className="btn btn-metamask"
                       >
                         {loggedAddress}
-                      </button>
+                      </a>
                     </div>
                   </form>
                 </div>

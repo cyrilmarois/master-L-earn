@@ -8,6 +8,9 @@ import { Toaster } from "react-hot-toast";
 
 const Header = () => {
   const [loggedAddress, setLoggedAddress] = useState("Connexion");
+  const [isStudent, setIsStudent] = useState(false);
+  const [isTeacher, setIsTeacher] = useState(false);
+  const [isRecruiter, setIsRecruiter] = useState(false);
 
   const {
     state: { contractMLE, accounts },
@@ -42,9 +45,58 @@ const Header = () => {
   };
 
   useEffect(() => {
-    if (accounts && accounts[0]) {
+    if (contractMLE && accounts && accounts[0]) {
       const addressConnexion = transformAddress(accounts[0]);
       setLoggedAddress(addressConnexion);
+      const getProfileInfo = async () => {
+        try {
+          let teacherAddress, studentAddress, recruiterAddress;
+          const teachersAddresses = await contractMLE.methods
+            .getTeachersAddresses()
+            .call({ from: accounts[0] });
+          if (teachersAddresses.length > 0) {
+            teacherAddress = teachersAddresses.find(
+              (addr) => addr === accounts[0]
+            );
+            if (teacherAddress !== undefined) {
+              setIsTeacher(true);
+            }
+          }
+          const studentsAddresses = await contractMLE.methods
+            .getStudentsAddress()
+            .call({ from: accounts[0] });
+          if (studentsAddresses.length > 0) {
+            studentAddress = studentsAddresses.find(
+              (addr) => addr === accounts[0]
+            );
+            if (studentAddress !== undefined) {
+              setIsStudent(true);
+            }
+          }
+          const recruitersAddresses = await contractMLE.methods
+            .getRecruitersAddress()
+            .call({ from: accounts[0] });
+          if (recruitersAddresses.length > 0) {
+            recruiterAddress = recruitersAddresses.find(
+              (addr) => addr === accounts[0]
+            );
+            if (recruiterAddress !== undefined) {
+              setIsRecruiter(true);
+            }
+          }
+          console.log({
+            teachersAddresses,
+            teacherAddress,
+            studentsAddresses,
+            studentAddress,
+            recruitersAddresses,
+            recruiterAddress,
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      };
+      getProfileInfo();
     }
   }, [contractMLE, accounts]);
 
@@ -74,7 +126,7 @@ const Header = () => {
                       />
                     </div>
 
-                    <div className="col-1 offset-4">
+                    <div className="col-2 offset-3">
                       <a
                         id="connect"
                         // onClick={handleConnexion}
@@ -82,6 +134,24 @@ const Header = () => {
                         href="/register"
                         className="btn btn-metamask"
                       >
+                        {isTeacher ? (
+                          <span className="fa-solid fa-person-chalkboard pe-3"></span>
+                        ) : (
+                          ""
+                        )}
+
+                        {isStudent ? (
+                          <span className="fa-solid fa-graduation-cap pe-3"></span>
+                        ) : (
+                          ""
+                        )}
+
+                        {isRecruiter ? (
+                          <span className="fa-solid fa-handshake pe-3"></span>
+                        ) : (
+                          ""
+                        )}
+
                         {loggedAddress}
                       </a>
                     </div>

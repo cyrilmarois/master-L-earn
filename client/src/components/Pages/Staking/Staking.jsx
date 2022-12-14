@@ -66,7 +66,7 @@ const Staking = () => {
         getBalance();
       } catch (e) {
         console.error(e);
-        const error = ErrorHelper.parseError(e);
+        const error = ErrorHelper.formatError(e);
         reject(error);
       }
     });
@@ -100,7 +100,7 @@ const Staking = () => {
         getBalance();
       } catch (e) {
         console.error(e);
-        const error = ErrorHelper.parseError(e);
+        const error = ErrorHelper.formatError(e);
         reject(error);
       }
     });
@@ -135,7 +135,7 @@ const Staking = () => {
         getBalance();
       } catch (e) {
         console.error(e);
-        const error = ErrorHelper.parseError(e);
+        const error = ErrorHelper.formatError(e);
         reject(error);
       }
     });
@@ -170,7 +170,7 @@ const Staking = () => {
         getBalance();
       } catch (e) {
         console.error(e);
-        const error = ErrorHelper.parseError(e);
+        const error = ErrorHelper.formatError(e);
         reject(error);
       }
     });

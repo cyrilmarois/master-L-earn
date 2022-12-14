@@ -1,0 +1,21 @@
+.card-profile {
+  height: 400px;
+  width: 300px;
+  padding: 16px 16px;
+}
+.card-profile:first {
+  margin-right: 30xp;
+}
+.card-profile .title {
+  background-color: #0b5ed7;
+  color: white;
+  font-size: 45px;
+  font-weight: bold;
+  width: 100px;
+  height: 100px;
+  display: inline-block;
+  border-radius: 50%;
+}
+.card-profile .title i {
+  vertical-align: bottom;
+}

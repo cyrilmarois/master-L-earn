@@ -15,11 +15,11 @@ const CardFormation = (props) => {
   const [duration, setDuration] = useState("");
 
   const handleBuyFormation = async () => {
-    let tmpBalance = await contractMLE.methods
-      .balanceOf(accounts[0])
-      .call({ from: accounts[0] });
+    // let tmpBalance = await contractMLE.methods
+    //   .balanceOf(accounts[0])
+    //   .call({ from: accounts[0] });
 
-    tmpBalance = web3.utils.fromWei(tmpBalance, "ether");
+    // tmpBalance = web3.utils.fromWei(tmpBalance, "ether");
 
     const myPromise = new Promise(async (resolve, reject) => {
       try {

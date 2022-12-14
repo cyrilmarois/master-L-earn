@@ -18,8 +18,10 @@ contract("MLE", accounts => {
     });
 
     it('Transfer tokens correctly', async() => {
+      var balanceOfTeacherBefore = await MLEInstance.balanceOf(teacher1);
       await MLEInstance.transfer(teacher1, BN("2000000000000000000000"), {from: owner});
-      expect (await MLEInstance.balanceOf(teacher1)).to.be.bignumber.equal(BN("2000000000000000000000"));
+      var balanceOfTeacherAfter = await MLEInstance.balanceOf(teacher1);
+      expect (balanceOfTeacherAfter.sub(balanceOfTeacherBefore)).to.be.bignumber.equal(BN("2000000000000000000000"));
       await MLEInstance.transfer(student1, BN("2000000000000000000000"), {from: owner});
       await MLEInstance.transfer(student2, BN("2000000000000000000000"), {from: owner});
       await MLEInstance.transfer(recruiter1, BN("2000000000000000000000"), {from: owner});
@@ -118,7 +120,7 @@ contract("MLE", accounts => {
 
     it('Allows a recruiter to post an announce', async() => {
       await MLEInstance.postAnnounce(
-        "Dev react, 45K$", 
+        "Dev react, 45K$", "Description",
         ["dev", "js", "react", "web"], 
         {from: recruiter1});
       

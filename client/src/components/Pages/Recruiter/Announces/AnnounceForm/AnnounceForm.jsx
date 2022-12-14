@@ -51,7 +51,7 @@ const AnnounceForm = () => {
         resolve("Announce created");
       } catch (e) {
         console.error(e);
-        const error = ErrorHelper.parseError(e);
+        const error = ErrorHelper.formatError(e);
         reject(error);
       }
     });

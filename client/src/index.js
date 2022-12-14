@@ -13,6 +13,7 @@ import Announces from "./components/Pages/Announces/Announces";
 import RecruiterAnnounces from "./components/Pages/Recruiter/Announces/Announces";
 import AnnounceForm from "./components/Pages/Recruiter/Announces/AnnounceForm/AnnounceForm";
 import Student from "./components/Pages/Student/Student";
+import Register from "./components/Pages/Register/Register";
 
 const router = createBrowserRouter([
   {
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: "/staking",
         element: <Staking />,
+      },
+      {
+        path: "/register",
+        element: <Register />,
       },
     ],
   },
